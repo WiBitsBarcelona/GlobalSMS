@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:keepScreenOn="true">
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="25dp"
+        android:text="@string/titulo_producto"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+        android:textColor="#68a9ea"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+
+        <Button
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:backgroundTint="#000000"
+            android:drawableLeft="@drawable/pump"
+            android:onClick="DieselFunction"
+            android:paddingLeft="20dp"
+            android:paddingTop="30dp"
+            android:text="@string/producto_diesel"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:backgroundTint="#68a9ea"
+            android:drawableLeft="@drawable/pump"
+            android:onClick="AdblueFunction"
+            android:paddingLeft="20dp"
+            android:paddingTop="30dp"
+            android:text="@string/producto_adblue"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+
+        <Button
+            android:id="@+id/button4"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:backgroundTint="#e51400"
+            android:drawableLeft="@drawable/pump"
+            android:onClick="RedFunction"
+            android:paddingLeft="20dp"
+            android:paddingTop="30dp"
+            android:text="@string/producto_rojo"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:backgroundTint="#e55f00"
+            android:drawableLeft="@drawable/cancelar"
+            android:onClick="CancelFunction"
+            android:paddingLeft="20dp"
+            android:paddingTop="30dp"
+            android:text="@string/producto_cancela"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+</LinearLayout>

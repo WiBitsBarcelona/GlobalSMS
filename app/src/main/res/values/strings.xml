@@ -1,0 +1,82 @@
+<resources>
+    <!-- Strings related to Main -->
+    <string name="btn_reserva">New Supply</string>
+    <string name="btn_finaliza">Finish Supply</string>
+    <string name="btn_cancela">Cancel Supply</string>
+    <string name="btn_precios">Change Prices</string>
+    <string name="btn_imprimir">Print Copy</string>
+    <string name="btn_config">System Config</string>
+
+    <!-- Strings related to Producto-->
+    <string name="titulo_producto">Select Product</string>
+    <string name="producto_diesel">DIESEL</string>
+    <string name="producto_adblue">AD BLUE</string>
+    <string name="producto_rojo">RED DIESEL</string>
+    <string name="producto_cancela">CANCEL</string>
+    <string name="toast_diesel">Diesel Selected</string>
+    <string name="toast_adblue">Ad Blue Selected</string>
+    <string name="toast_rojo">Red Diesel Selected</string>
+
+    <!-- String related to PinPad -->
+    <string name="titulo_pinpad">Input the Code received by Driver</string>
+    <string name="btn_pinpad_cancel">Cancel</string>
+    <string name="btn_pinpad_ok">Ok</string>
+    <string name="alert_no_code">You need to input the Code received by the Driver!!</string>
+    <string name="spinner_conectando">Contacting Server and Printing, please wait...</string>
+    <string name="titulo_litros">LITERS</string>
+    <string name="entrada_litros">Input the Liters for this Supply</string>
+    <string name="texto_qr">Scan QR Code from POS receipt</string>
+
+    <!-- Strings related to Cambiar Precios -->
+    <string name="titulo_precios">Select Product to change the price</string>
+    <string name="precio_diesel">DIESEL</string>
+    <string name="precio_adblue">AD BLUE</string>
+    <string name="precio_rojo">RED DIESEL</string>
+    <string name="precio_cancela">CANCEL</string>
+    <string name="texto_precio_diesel">Input the new price for Diesel</string>
+    <string name="texto_precio_adblue">Input the new price for AdBlue</string>
+    <string name="texto_precio_rojo">Input the new price for Red Diesel</string>
+    <string name="btn_precio_cancelar">CANCEL</string>
+    <string name="btn_precio_aceptar">OK</string>
+    
+	<string name="error_no_reservado">Wrong Code or not reserved!!</string>
+    <string name="titulo_error_producto">WARNING!!</string>
+    <string name="error_tipo_producto">QR incorrect type</string>
+    <string name="titulo_error_nored">WARNING!!</string>
+    <string name="titulo_error_timeout">WARNING!!</string>
+    <string name="error_nored">No Internet Connection, try again</string>
+    <string name="error_timeout">No server response, try again or contact to customer service</string>
+    <string name="btn_contacto">Contact customer service</string>
+    <string name="titulo_contacto">GlobalTank</string>
+    <string name="text_contacto">\tContacts:\n\n\t- sat@globaldevelopers.eu\n\t- 0034672688659\n\t- 0034972525421</string>
+
+    <string name="dialogo_qr_diesel">How many QR's of DIESEL have the Ticket?</string>
+    <string name="dialogo_qr_adblue">How many QR's of AD BLUE have the Ticket?</string>
+    <string name="dialogo_qr_diesel_rojo">How many QR's of RED DIESEL have the Ticket?</string>
+    <string name="mensaje_qr_repetido">This QR allready Scanned!!</string>
+    
+	<string name="titulo_imprimir_copia">GlobalSMS - Print Copy</string>
+
+    <string name="app_name">GlobalSMS</string>
+    <string name="title_activity_login">GlobalSMS - Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="Proveedores">
+        <item>Alvic</item>
+        <item>EfiData</item>
+    </string-array>
+
+</resources>
