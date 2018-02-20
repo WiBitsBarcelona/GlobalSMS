@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:keepScreenOn="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:drawableTop="@drawable/nuevo"
+            android:onClick="NuevoFunction"
+            android:paddingTop="50dp"
+            android:text="@string/btn_reserva"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:textSize="24sp" />
+
+        <Button
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#8cbf26"
+            android:drawableTop="@drawable/finalizar"
+            android:onClick="FinalizarFunction"
+            android:paddingTop="50dp"
+            android:text="@string/btn_finaliza"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:textSize="24sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#e51400"
+            android:drawableTop="@drawable/cancelar"
+            android:onClick="CancelarFunction"
+            android:paddingTop="50dp"
+            android:text="@string/btn_cancela"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:textSize="24sp" />
+
+        <Button
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#f09609"
+            android:drawableTop="@drawable/cambiar"
+            android:onClick="PreciosFunction"
+            android:paddingTop="50dp"
+            android:text="@string/btn_precios"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:textSize="24sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#ff0097"
+            android:drawableTop="@drawable/printer"
+            android:onClick="CopiaFunction"
+            android:paddingTop="50dp"
+            android:text="@string/btn_imprimir"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:textSize="24sp" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#1ba1e2"
+            android:drawableTop="@drawable/config"
+            android:onClick="ConfigFunction"
+            android:paddingTop="50dp"
+            android:text="@string/btn_config"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+</LinearLayout>
