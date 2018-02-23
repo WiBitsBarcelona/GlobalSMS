@@ -225,4 +225,24 @@
         android:entries="@array/Proveedores"
         android:minWidth="100dp" />
 
+    <Spinner
+        android:id="@+id/locList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/instanticterminal"
+        android:layout_alignTop="@+id/textView8"
+        android:entries="@array/locale"
+        android:minWidth="100dp" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView7"
+        android:layout_below="@+id/PosList"
+        android:layout_marginTop="18dp"
+        android:gravity="center_vertical"
+        android:text="Languaje:"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
+
 </RelativeLayout>

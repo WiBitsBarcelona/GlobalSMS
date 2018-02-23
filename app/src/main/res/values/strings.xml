@@ -48,7 +48,7 @@
     <string name="error_timeout">No server response, try again or contact to customer service</string>
     <string name="btn_contacto">Contact customer service</string>
     <string name="titulo_contacto">GlobalTank</string>
-    <string name="text_contacto">\tContacts:\n\n\t- sat@globaldevelopers.eu\n\t- 0034672688659\n\t- 0034972525421</string>
+    <string name="text_contacto">\tContacts:  \t- sat@globaldevelopers.eu \t- 0034672688659 \t- 0034972525421</string>
 
     <string name="dialogo_qr_diesel">How many QR's of DIESEL have the Ticket?</string>
     <string name="dialogo_qr_adblue">How many QR's of AD BLUE have the Ticket?</string>
@@ -79,4 +79,16 @@
         <item>EfiData</item>
     </string-array>
 
+    <string-array name="locale">
+        <item>EN</item>
+        <item>DE</item>
+        <item>ES</item>
+    </string-array>
+    <string name="btn_turno">Close Day</string>
+    <string name="btn_operacion">Check Operation</string>
+    <string name="btn_dia">Daily Report</string>
+    <string name="alert_cierre_turno">This process will close the current day. This action can NOT be undone</string>
+    <string name="titulo_cierre_turno">WARNING!!</string>
+    <string name="btn_cierre_cancel">CANCEL</string>
+    <string name="btn_cierre_aceptar">OK</string>
 </resources>

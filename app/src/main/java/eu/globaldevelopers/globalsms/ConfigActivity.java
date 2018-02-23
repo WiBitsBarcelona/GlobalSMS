@@ -30,7 +30,7 @@ import java.nio.channels.FileChannel;
 
 public class ConfigActivity extends AppCompatActivity {
     EditText ed1,ed2,ed3, ed4;
-    Spinner PosList;
+    Spinner PosList, locList;
     ToggleButton QrSiNo;
 
     public static final String MyPREFERENCES = "MyPrefs" ;
@@ -40,6 +40,7 @@ public class ConfigActivity extends AppCompatActivity {
     public static final String ser = "serverKey";
     public static final String qr = "qrKey";
     public static final String pos = "posKey";
+    public static final String loc = "locKey";
 
     SharedPreferences sharedpreferences;
 
@@ -57,7 +58,7 @@ public class ConfigActivity extends AppCompatActivity {
         ed4=(EditText)findViewById(R.id.serveraddress);
         QrSiNo=(ToggleButton)findViewById(R.id.QrSiNo);
         PosList=(Spinner)findViewById(R.id.PosList);
-
+        locList=(Spinner)findViewById(R.id.locList);
 
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
@@ -67,6 +68,7 @@ public class ConfigActivity extends AppCompatActivity {
         String serveractual = sharedpreferences.getString("serverKey", null);
         boolean qractual = sharedpreferences.getBoolean("qrKey", false);
         int posactual = sharedpreferences.getInt("posKey", 0);
+        int locactual = sharedpreferences.getInt("locKey", 0);
 
         ed1.setText(cabactual);
         ed2.setText(teractual);
@@ -82,6 +84,7 @@ public class ConfigActivity extends AppCompatActivity {
             QrSiNo.setChecked(false);
         }
         PosList.setSelection(posactual);
+        locList.setSelection(locactual);
     }
 
     public void BorrardatosFunction(View view){
@@ -128,7 +131,7 @@ public class ConfigActivity extends AppCompatActivity {
         String secN  = ed3.getText().toString();
         String serN  = ed4.getText().toString();
         int posN = PosList.getSelectedItemPosition();
-
+        int locN = locList.getSelectedItemPosition();
 
         SharedPreferences.Editor editor = sharedpreferences.edit();
 
@@ -142,6 +145,7 @@ public class ConfigActivity extends AppCompatActivity {
             editor.putBoolean(qr,false);
         }
         editor.putInt(pos, posN);
+        editor.putInt(loc, locN);
         editor.apply();
         Toast.makeText(getBaseContext(),"Config Saved",Toast.LENGTH_SHORT).show();
         Intent myIntent = new Intent(ConfigActivity.this,MainActivity.class);

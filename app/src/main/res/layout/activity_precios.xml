@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:keepScreenOn="true">
+    android:keepScreenOn="true"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView4"
@@ -21,14 +21,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:orientation="horizontal"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <Button
             android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:backgroundTint="#000000"
+            android:backgroundTint="@android:color/black"
             android:drawableLeft="@drawable/pump"
             android:onClick="DieselFunction"
             android:paddingLeft="20dp"
@@ -61,8 +61,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:orientation="horizontal"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <Button
             android:layout_width="0dip"
@@ -75,14 +75,15 @@
             android:paddingTop="30dp"
             android:text="@string/precio_rojo"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:visibility="invisible" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:orientation="horizontal"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <Button
             android:layout_width="0dip"

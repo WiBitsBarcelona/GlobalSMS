@@ -1,0 +1,94 @@
+<resources>
+    <!-- Strings related to Main -->
+    <string name="btn_reserva">Autorisierungsanfrage</string>
+    <string name="btn_finaliza">Tankung  beenden</string>
+    <string name="btn_cancela">Tankung stornieren</string>
+    <string name="btn_precios">Preise ändern</string>
+    <string name="btn_imprimir">Kopie drucken</string>
+    <string name="btn_config">Systemkonfiguration</string>
+
+    <!-- Strings related to Producto-->
+    <string name="titulo_producto">Produkt auswählen</string>
+    <string name="producto_diesel">DIESEL</string>
+    <string name="producto_adblue">AD BLUE</string>
+    <string name="producto_rojo">AGRARDIESEL</string>
+    <string name="producto_cancela">STORNIEREN</string>
+    <string name="toast_diesel">Diesel Ausgewählt</string>
+    <string name="toast_adblue">Ad Blue Ausgewählt</string>
+    <string name="toast_rojo">Agrardiesel Ausgewählt</string>
+
+    <!-- String related to PinPad -->
+    <string name="titulo_pinpad">Autorisierungscode eingeben</string>
+    <string name="btn_pinpad_cancel">Stornieren</string>
+    <string name="btn_pinpad_ok">Akzeptiert</string>
+    <string name="alert_no_code">Autorisierungscode angeben!!</string>
+    <string name="spinner_conectando">Verbindung zum Server wird hergestellt, bitte warten...</string>
+    <string name="titulo_litros">LITER</string>
+    <string name="entrada_litros">Liter der Betankung eingeben.</string>
+    <string name="texto_qr">QR Code Scannen</string>
+
+    <!-- Strings related to Cambiar Precios -->
+    <string name="titulo_precios">Produkt auswählen für Preisänderung</string>
+    <string name="precio_diesel">DIESEL</string>
+    <string name="precio_adblue">AD BLUE</string>
+    <string name="precio_rojo">AGRARDIESEL</string>
+    <string name="precio_cancela">STORNIEREN</string>
+    <string name="texto_precio_diesel">Neuen Preis für Diesel eingeben</string>
+    <string name="texto_precio_adblue">Neuen Preis für AdBlue eingeben</string>
+    <string name="texto_precio_rojo">Neuen Preis für Agrardiesel eingeben</string>
+    <string name="btn_precio_cancelar">STORNIEREN</string>
+    <string name="btn_precio_aceptar">AKZEPTIERT</string>
+    <string name="error_no_reservado">Code nicht reserviert oder falsch!!</string>
+    <string name="titulo_error_producto">ACHTUNG!!</string>
+    <string name="error_tipo_producto">Este QR no es del tipo Correcto</string>
+    <string name="titulo_error_nored">ACHTUNG!!</string>
+    <string name="titulo_error_timeout">ACHTUNG!!</string>
+    <string name="error_nored">Keine Internetverbindung, erneut versuchen</string>
+    <string name="error_timeout">Server antwortet nicht, erneut versuchen</string>
+    <string name="btn_contacto">Serviceleitung anrufen</string>
+    <string name="titulo_contacto">GlobalTank</string>
+    <string name="text_contacto">\tKontaktieren:\n\n\t- sat@globaldevelopers.eu\n\t- 0034672688659\n\t- 0034972525421</string>
+
+    <string name="dialogo_qr_diesel">Cuantos QR del Producto DIESEL tiene el Ticket?</string>
+    <string name="dialogo_qr_adblue">Cuantos QR del Producto AD BLUE tiene el Ticket?</string>
+    <string name="dialogo_qr_diesel_rojo">Cuantos QR del Producto DIESEL ROJO tiene el Ticket?</string>
+    <string name="mensaje_qr_repetido">Este QR ya ha sido Escaneado!!</string>
+
+    <string name="titulo_imprimir_copia">GlobalSMS - Kopie drucken</string>
+
+
+    <string name="app_name">GlobalSMS</string>
+    <string name="title_activity_login">GlobalSMS - Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="Proveedores">
+        <item>Alvic</item>
+        <item>EfiData</item>
+    </string-array>
+
+    <string-array name="locale">
+        <item>EN</item>
+        <item>DE</item>
+        <item>ES</item>
+    </string-array>
+    <string name="btn_turno">Enger Tag</string>
+    <string name="btn_operacion">Check Operation</string>
+    <string name="btn_dia">Tagesbericht</string>
+    <string name="titulo_cierre_turno">ACHTUNG!!</string>
+    <string name="alert_cierre_turno">Dieser Prozess schließt den aktuellen Zug. Diese Aktion kann nicht rückgängig gemacht werden</string>
+    <string name="btn_cierre_cancel">STORNIEREN</string>
+    <string name="btn_cierre_aceptar">AKZEPTIERT</string>
+</resources>

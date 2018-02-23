@@ -268,7 +268,7 @@ public class PinPadActivity extends AppCompatActivity {
         return node.getNodeValue();
     }
 
-    void findBT() {
+    void findBT() throws IOException{
 
         try {
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -901,7 +901,7 @@ public class PinPadActivity extends AppCompatActivity {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            salvaroperacion("Cancelation", cabecera, terminal, fecha, hora, msg, codigo, "0", "0", "0", "0", "0", codigoerror, textoerror);
+                            salvaroperacion("Cancellation", cabecera, terminal, fecha, hora, msg, codigo, textoproducto, "0", "0", litros, "0", codigoerror, textoerror);
                             final Thread t = new Thread() {
                                 @Override
                                 public void run() {
