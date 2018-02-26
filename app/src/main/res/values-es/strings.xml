@@ -81,9 +81,9 @@
     <string name="btn_contacto">Contactar con el servicio de atención al cliente</string>
     <string name="titulo_contacto">GlobalTank</string>
     <string name="text_contacto">\tContactos:  \t- sat@globaldevelopers.eu \t- 0034672688659 \t- 0034972525421</string>
-    <string name="dialogo_qr_diesel">Cuantos QR\'s del producto DIESEL tiene el Ticket?</string>
-    <string name="dialogo_qr_adblue">Cuantos QR\'s del producto AD BLUE tiene el Ticket?</string>
-    <string name="dialogo_qr_diesel_rojo">Cuantos QR\'s del producto DIESEL ROJO tiene el Ticket?</string>
+    <string name="dialogo_qr_diesel">Cuantos QRs del producto DIESEL tiene el Ticket?</string>
+    <string name="dialogo_qr_adblue">Cuantos QRs del producto AD BLUE tiene el Ticket?</string>
+    <string name="dialogo_qr_diesel_rojo">Cuantos QRs del producto DIESEL ROJO tiene el Ticket?</string>
     <string name="mensaje_qr_repetido">Este QR ya ha sido escaneado!!</string>
     <string name="btn_turno">Cerrar Turno</string>
     <string name="btn_operacion">Comprobar Operación</string>
@@ -92,5 +92,8 @@
     <string name="alert_cierre_turno">Este proceso cerrará el turno actual. Esta acción no se puede deshacer</string>
     <string name="btn_cierre_cancel">CANCELAR</string>
     <string name="btn_cierre_aceptar">ACEPTAR</string>
+    <string name="titulo_check">Informa el Código que quieres comprobar</string>
+    <string name="error_no_encontrado">Operación NO ENCONTRADA!!</string>
+    <string name="error_no_data">No hay datos de operaciones para este día</string>
 
 </resources>

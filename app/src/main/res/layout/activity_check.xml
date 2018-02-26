@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:keepScreenOn="true">
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.49"
+        android:paddingTop="20dp"
+        android:text="@string/titulo_check"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button" />
+
+    <TextView
+        android:id="@+id/codigoactual"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.72"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="#f09609"
+        android:textAlignment="center"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+
+        <Button
+            android:id="@+id/btn_1"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:onClick="PulsadoFunction"
+            android:text="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btn_2"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:onClick="PulsadoFunction"
+            android:text="2"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btn_3"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:onClick="PulsadoFunction"
+            android:text="3"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+
+        <Button
+            android:id="@+id/btn_4"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:onClick="PulsadoFunction"
+            android:text="4"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btn_5"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:onClick="PulsadoFunction"
+            android:text="5"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btn_6"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:onClick="PulsadoFunction"
+            android:text="6"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+
+        <Button
+            android:id="@+id/btn_7"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:onClick="PulsadoFunction"
+            android:text="7"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btn_8"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:onClick="PulsadoFunction"
+            android:text="8"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btn_9"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:onClick="PulsadoFunction"
+            android:text="9"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+
+        <Button
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text=""
+            android:paddingTop="30dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#68a9ea" />
+
+        <Button
+            android:id="@+id/btn_0"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:onClick="PulsadoFunction"
+            android:text="0"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+        <Button
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text=""
+            android:drawableTop="@drawable/borrar"
+            android:paddingTop="30dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#68a9ea"
+            android:onClick="borrarcaracter"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#e51400"
+            android:onClick="btncancelar"
+            android:text="@string/btn_pinpad_cancel"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#8cbf26"
+            android:onClick="btnaceptar"
+            android:text="@string/btn_pinpad_ok"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+</LinearLayout>

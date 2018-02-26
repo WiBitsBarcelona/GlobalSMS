@@ -36,6 +36,7 @@
         <activity android:name=".Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -57,7 +58,8 @@
             android:name=".CopiaActivity"
             android:label="@string/titulo_imprimir_copia" />
         <activity android:name=".ScanActivity" />
-        <activity android:name=".activity_copia_new"></activity>
+        <activity android:name=".activity_copia_new" />
+        <activity android:name=".CheckActivity"></activity>
     </application>
 
 </manifest>

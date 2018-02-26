@@ -76,7 +76,7 @@
             android:text="@string/precio_rojo"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="@android:color/white"
-            android:visibility="invisible" />
+            android:visibility="visible" />
     </LinearLayout>
 
     <LinearLayout

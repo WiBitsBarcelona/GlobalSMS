@@ -80,7 +80,7 @@
             android:text="@string/producto_rojo"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="@android:color/white"
-            android:visibility="invisible" />
+            android:visibility="visible" />
     </LinearLayout>
 
     <LinearLayout

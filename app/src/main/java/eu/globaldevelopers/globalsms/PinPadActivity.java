@@ -1650,13 +1650,14 @@ public class PinPadActivity extends AppCompatActivity {
         }
     }
 
-    public void onStop () {
+    @Override
+    protected void onDestroy () {
         try {
             closeBT();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        super.onStop();
+        super.onDestroy();
     }
 
 

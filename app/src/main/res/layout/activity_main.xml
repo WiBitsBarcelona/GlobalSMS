@@ -144,7 +144,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#9f00a7"
                     android:drawableTop="@drawable/check"
-                    android:onClick="ConfigFunction"
+                    android:onClick="CheckFunction"
                     android:paddingTop="25dp"
                     android:text="@string/btn_operacion"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display1"

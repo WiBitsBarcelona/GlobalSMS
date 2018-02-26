@@ -2,6 +2,7 @@ package eu.globaldevelopers.globalsms;
 
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     int counter = 1;
     volatile boolean stopWorker;
 
+    ProgressDialog progress;
 
     String gsms = "GlobalSMS\n";
     String globaltank = "GlobalTank SLU\n";
@@ -257,6 +259,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void PrintDailyReport(final String dateF){
+        progress = new ProgressDialog(this);
+        progress.setMessage(this.getString(R.string.spinner_conectando));
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setIndeterminate(true);
+        progress.setCancelable(false);
+        progress.setProgress(0);
+        progress.show();
+
         sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
         final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
         final String server = sharedpreferences.getString("serverKey", null);
@@ -272,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Response", datareceived);
                         if (datareceived.equals("nohaydatos")) {
                             //No esta reservado, vuelvo
-                            Toast.makeText(getBaseContext(), R.string.error_no_reservado, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), R.string.error_no_data, Toast.LENGTH_SHORT).show();
 
 
                         } else {
@@ -350,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
                                                     product_txt = "\n\nDIESEL\n\nCode   Liters  Transaction\n\n";
                                                     break;
                                                 case "13":
-                                                    product_txt = "\n TOTAL DIESEL: "+ total_liters + "\n\nAD BLUE\n\nCode   Liters  Transaction\n\n";
+                                                    product_txt = "\n TOTAL DIESEL: "+ String.format("%.2f", total_liters) + "\n\nAD BLUE\n\nCode   Liters  Transaction\n\n";
                                                     total_liters = 0;
                                                     break;
                                             }
@@ -383,11 +393,10 @@ public class MainActivity extends AppCompatActivity {
                                     String detalle = code + "   " + liters + "  " + trans_code + "\n";
                                     mmOutputStream.write(detalle.getBytes());
 
-                                    //Log.d("SUCCESS", "JSON Object: " + "\nProduct: " + product_id + "\nCode: " + code+ "\nLiters: " + liters + "\nTransaction: " + trans_code);
                                     p_id_act = product_id;
                                 }
                                 //TOTAL ADBLUE
-                                String total_adb = "\n TOTAL ADBLUE: " + total_liters + "\n\n";
+                                String total_adb = "\n TOTAL ADBLUE: " + String.format("%.2f", total_liters) + "\n\n";
                                 mmOutputStream.write(total_adb.getBytes());
                                 //FEED 3 LINEAS
                                 mmOutputStream.write(0x1B);
@@ -418,6 +427,19 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         queue.add(postRequest);
+
+        final Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    sleep(1000);
+                    progress.dismiss();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        t.start();
     }
 
 
@@ -582,6 +604,12 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void CheckFunction(View view){
+        Intent Intent = new Intent(this, CheckActivity.class);
+        startActivity(Intent);
+
     }
 
 }

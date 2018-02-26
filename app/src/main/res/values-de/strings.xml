@@ -91,4 +91,7 @@
     <string name="alert_cierre_turno">Dieser Prozess schließt den aktuellen Zug. Diese Aktion kann nicht rückgängig gemacht werden</string>
     <string name="btn_cierre_cancel">STORNIEREN</string>
     <string name="btn_cierre_aceptar">AKZEPTIERT</string>
+    <string name="titulo_check">Input the Code you want to Check</string>
+    <string name="error_no_encontrado">Transaction NOT FOUND!!</string>
+    <string name="error_no_data">No data Transactions for this Day</string>
 </resources>
