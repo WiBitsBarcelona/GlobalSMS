@@ -88,10 +88,12 @@
     <string name="btn_operacion">Check Operation</string>
     <string name="btn_dia">Tagesbericht</string>
     <string name="titulo_cierre_turno">ACHTUNG!!</string>
-    <string name="alert_cierre_turno">Dieser Prozess schließt den aktuellen Zug. Diese Aktion kann nicht rückgängig gemacht werden</string>
+    <string name="alert_cierre_turno">Dieser Prozess schließt die aktuelle Arbeitsschicht und öffnet eine neue. Diese Aktion kann nicht rückgängig gemacht werden</string>
     <string name="btn_cierre_cancel">STORNIEREN</string>
     <string name="btn_cierre_aceptar">AKZEPTIERT</string>
     <string name="titulo_check">Input the Code you want to Check</string>
     <string name="error_no_encontrado">Transaction NOT FOUND!!</string>
     <string name="error_no_data">No data Transactions for this Day</string>
+    <string name="error_hay_reservas">We cannot close work shift, reserved transactions pending to close.</string>
+    <string name="error_no_hay_operaciones">No transactions in this Work shift we cannot close it.</string>
 </resources>

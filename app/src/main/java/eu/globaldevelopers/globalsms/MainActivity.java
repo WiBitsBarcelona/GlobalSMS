@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             findBT();
             openBT();
+            CheckWorkShift();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -228,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
 
         alert.setPositiveButton(R.string.btn_cierre_aceptar, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-
+                close_work_shift();
             }
         });
 
@@ -249,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 Calendar newDate = Calendar.getInstance();
                 newDate.set(year, monthOfYear, dayOfMonth);
-                //Toast.makeText(getBaseContext(),dateFormatter.format(newDate.getTime()),Toast.LENGTH_SHORT).show();
                 PrintDailyReport(dateFormatter.format(newDate.getTime()));
             }
 
@@ -350,7 +350,10 @@ public class MainActivity extends AppCompatActivity {
                                             new_report = 1;
                                         }
                                     }
-
+                                    //ALINEAR IZQUIERDA
+                                    mmOutputStream.write(0x1B);
+                                    mmOutputStream.write(0x61);
+                                    mmOutputStream.write(0x00);
                                     // product_id
                                     if (jsonObject.has("producto") && !jsonObject.isNull("producto")) {
                                         product_id = jsonObject.getString("producto");
@@ -360,14 +363,15 @@ public class MainActivity extends AppCompatActivity {
                                                     product_txt = "\n\nDIESEL\n\nCode   Liters  Transaction\n\n";
                                                     break;
                                                 case "13":
-                                                    product_txt = "\n TOTAL DIESEL: "+ String.format("%.2f", total_liters) + "\n\nAD BLUE\n\nCode   Liters  Transaction\n\n";
+                                                    if(total_liters != 0){
+                                                        String total_diesel = "\n TOTAL DIESEL: "+ String.format("%.2f", total_liters) + "\n\n";
+                                                        mmOutputStream.write(total_diesel.getBytes());
+                                                    }
                                                     total_liters = 0;
+                                                    product_txt = "\n\nAD BLUE\n\nCode   Liters  Transaction\n\n";
                                                     break;
                                             }
-                                            //ALINEAR IZQUIERDA
-                                            mmOutputStream.write(0x1B);
-                                            mmOutputStream.write(0x61);
-                                            mmOutputStream.write(0x00);
+
                                             mmOutputStream.write(product_txt.getBytes());
                                         }
 
@@ -396,8 +400,10 @@ public class MainActivity extends AppCompatActivity {
                                     p_id_act = product_id;
                                 }
                                 //TOTAL ADBLUE
-                                String total_adb = "\n TOTAL ADBLUE: " + String.format("%.2f", total_liters) + "\n\n";
-                                mmOutputStream.write(total_adb.getBytes());
+                                if(total_liters != 0) {
+                                    String total_adb = "\n TOTAL ADBLUE: " + String.format("%.2f", total_liters) + "\n\n";
+                                    mmOutputStream.write(total_adb.getBytes());
+                                }
                                 //FEED 3 LINEAS
                                 mmOutputStream.write(0x1B);
                                 mmOutputStream.write(0x64);
@@ -440,33 +446,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         t.start();
-    }
-
-
-
-    private static InputStream convertStringToDocument(String xmlStr) {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-        try
-        {
-            builder = factory.newDocumentBuilder();
-            Document doc = builder.parse( new InputSource( new StringReader( xmlStr ) ) );
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            Source xmlSource = new DOMSource(doc);
-            Result outputTarget = new StreamResult(outputStream);
-            TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
-            InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
-            return is;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static String getValue(String tag, Element element) {
-        NodeList nodeList = element.getElementsByTagName(tag).item(0).getChildNodes();
-        Node node = nodeList.item(0);
-        return node.getNodeValue();
     }
 
     void findBT() throws IOException {
@@ -612,5 +591,233 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void CheckWorkShift(){
+        //FUNCION PARA MIRAR SI EXITE UN TURNO ABIERTO SI NO EXISTE LO ABRIMOS.
+        sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
+        final String server = sharedpreferences.getString("serverKey", null);
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+        RequestQueue queue = Volley.newRequestQueue(this);  // this = context
+        String url = server + "/check_ws.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String DataReceived) {
+                        Log.d("Response", DataReceived);
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.putString("turnoKey", DataReceived);
+                        editor.apply();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Toast.makeText(getBaseContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("terminal", terminal);
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+
+    public void close_work_shift(){
+        sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
+        final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String server = sharedpreferences.getString("serverKey", null);
+        final String turno = sharedpreferences.getString("turnoKey", null);
+
+        RequestQueue queue = Volley.newRequestQueue(this);  // this = context
+        String url = server + "/close_work_shift.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String DataReceived) {
+                        // response
+                        Log.d("Response", DataReceived);
+                        if (DataReceived.equals("hayreservas")) {
+                            //Hay operaciones reservadas no se puede cerrar el turno.
+                            Toast.makeText(getBaseContext(), R.string.error_hay_reservas, Toast.LENGTH_SHORT).show();
+                        } else if (DataReceived.equals("nohayoperaciones")){
+                            //No hay operaciones pendientes de cerrar
+                            Toast.makeText(getBaseContext(), R.string.error_no_hay_operaciones, Toast.LENGTH_SHORT).show();
+
+                        } else {
+                            final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+                            final String hora = new SimpleDateFormat("HH:mm").format(new Date()) + "\n\n";
+                            try{
+                                //RESET
+                                mmOutputStream.write(0x1B);
+                                mmOutputStream.write(0x40);
+                                //CENTER
+                                mmOutputStream.write(0x1B);
+                                mmOutputStream.write(0x61);
+                                mmOutputStream.write(0x01);
+                                //GRANDE
+                                mmOutputStream.write(0x1D);
+                                mmOutputStream.write(0x21);
+                                mmOutputStream.write(0x22);
+                                //ENFASIS ON
+                                mmOutputStream.write(0x1B);
+                                mmOutputStream.write(0x45);
+                                mmOutputStream.write(0x01);
+                                mmOutputStream.write(gsms.getBytes());
+                                //NORMAL
+                                mmOutputStream.write(0x1D);
+                                mmOutputStream.write(0x21);
+                                mmOutputStream.write(0x00);
+                                mmOutputStream.write(globaltank.getBytes());
+                                //ENFASIS OFF
+                                mmOutputStream.write(0x1B);
+                                mmOutputStream.write(0x45);
+                                mmOutputStream.write(0x02);
+                                mmOutputStream.write(cabecera.getBytes());
+                                String pterminal = "\n Terminal: " + terminal + "\n\n";
+                                mmOutputStream.write(pterminal.getBytes());
+                                mmOutputStream.write(fecha.getBytes());
+                                String tabu = "     ";
+                                mmOutputStream.write(tabu.getBytes());
+                                mmOutputStream.write(hora.getBytes());
+
+
+                                JSONArray jsonArray = new JSONArray(DataReceived);
+
+                                String report_txt = null, producto_txt = null, estado_txt = null;
+                                // Get all jsonObject from jsonArray
+                                Integer newReport = 0 , newProduct = 0;
+                                String workShiftId = null, date_str,  n_transactions = null, estado = null, producto = null, tot_liters = null;
+                                for (int i = 0; i < jsonArray.length(); i++)
+                                {
+                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                                    if (newReport == 0) {
+                                        newReport = 1;
+                                        //Work Shift
+                                        if (jsonObject.has("work_shift_id") && !jsonObject.isNull("work_shift_id")) {
+                                            workShiftId = jsonObject.getString("work_shift_id");
+                                            String ws_id = "WORK SHIFT ID: " + workShiftId + "\n\n";
+                                            mmOutputStream.write(ws_id.getBytes());
+                                        }
+                                        //Date Opened
+                                        if (jsonObject.has("date_open") && !jsonObject.isNull("date_open")) {
+                                            date_str = jsonObject.getString("date_open");
+                                            String[] f_separated = date_str.split(" ");
+                                            String[] datearray = f_separated[0].split("-");
+                                            String dia = datearray[2];
+                                            String mes = datearray[1];
+                                            String anho = datearray[0];
+                                            String date = "Opened at: " + dia + "/" + mes + "/" + anho + " " + f_separated[1] + "\n\n\n";
+                                            mmOutputStream.write(date.getBytes());
+                                        }
+                                    }
+                                    //n_transactions
+                                    if (jsonObject.has("n_transactions") && !jsonObject.isNull("n_transactions")) {
+                                        n_transactions = jsonObject.getString("n_transactions");
+
+                                    }
+
+                                    // estado
+                                    if (jsonObject.has("estado") && !jsonObject.isNull("estado")) {
+                                        estado = jsonObject.getString("estado");
+                                        switch (estado){
+                                            case "CANCELADA":
+                                                estado_txt = "CANCELLED";
+                                                break;
+                                            case "FINALIZADA":
+                                                estado_txt = "FINISHED";
+                                                break;
+                                        }
+                                    }
+
+                                    // producto
+                                    if (jsonObject.has("producto") && !jsonObject.isNull("producto")) {
+                                        producto = jsonObject.getString("producto");
+                                        switch (producto){
+                                            case "1":
+                                                producto_txt = "DIESEL";
+                                                break;
+                                            case "13":
+                                                producto_txt = "AD BLUE";
+                                                break;
+                                            case "15":
+                                                producto_txt = "RED DIESEL";
+                                                break;
+                                        }
+                                    }
+
+                                    // liters
+                                    if (jsonObject.has("liters") && !jsonObject.isNull("liters")) {
+                                        tot_liters = jsonObject.getString("liters");
+                                    }
+
+                                    report_txt = producto_txt + " Transactions " + estado_txt + ": " + n_transactions + "\nLiters: " + tot_liters + "\n\n";
+                                    //ALINEAR IZQUIERDA
+                                    mmOutputStream.write(0x1B);
+                                    mmOutputStream.write(0x61);
+                                    mmOutputStream.write(0x00);
+                                    mmOutputStream.write(report_txt.getBytes());
+                                }
+                                //RESET
+                                mmOutputStream.write(0x1B);
+                                mmOutputStream.write(0x40);
+                                //CENTER
+                                mmOutputStream.write(0x1B);
+                                mmOutputStream.write(0x61);
+                                mmOutputStream.write(0x01);
+                                String dateF = "\nClosed at: " + fecha + " " + hora + "\n\n";
+                                mmOutputStream.write(dateF.getBytes());
+                                //FEED 3 LINEAS
+                                mmOutputStream.write(0x1B);
+                                mmOutputStream.write(0x64);
+                                mmOutputStream.write(0x03);
+
+                            } catch (NullPointerException e) {
+                                e.printStackTrace();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            CheckWorkShift();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Toast.makeText(getBaseContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("terminal", terminal);
+                params.put("turno", turno);
+                return params;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+
+
+    @Override
+    protected void onDestroy () {
+        try {
+            closeBT();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
+    }
 }
 

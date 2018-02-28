@@ -89,11 +89,13 @@
     <string name="btn_operacion">Comprobar Operación</string>
     <string name="btn_dia">Informe Diario</string>
     <string name="titulo_cierre_turno">ATENCIÓN!!</string>
-    <string name="alert_cierre_turno">Este proceso cerrará el turno actual. Esta acción no se puede deshacer</string>
+    <string name="alert_cierre_turno">Este proceso cerrará el turno actual y abrirá un nuevo turno. Esta acción no se puede deshacer</string>
     <string name="btn_cierre_cancel">CANCELAR</string>
     <string name="btn_cierre_aceptar">ACEPTAR</string>
     <string name="titulo_check">Informa el Código que quieres comprobar</string>
     <string name="error_no_encontrado">Operación NO ENCONTRADA!!</string>
     <string name="error_no_data">No hay datos de operaciones para este día</string>
+    <string name="error_hay_reservas">No podemos cerrar el turno mientras existan operaciones reservadas.</string>
+    <string name="error_no_hay_operaciones">No hay operaciones en este turno, no podemos cerrarlo.</string>
 
 </resources>

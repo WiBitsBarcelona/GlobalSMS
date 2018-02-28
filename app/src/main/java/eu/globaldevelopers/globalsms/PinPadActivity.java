@@ -427,8 +427,9 @@ public class PinPadActivity extends AppCompatActivity {
             final String terminal = sharedpreferences.getString("terminalKey", null);
             final String secret = sharedpreferences.getString("secretKey", null);
             final String server = sharedpreferences.getString("serverKey", null);
+            final String turno = sharedpreferences.getString("turnoKey", null);
             RequestQueue queue = Volley.newRequestQueue(this);  // this = context
-            String url = server + "/reserva.php";
+            String url = server + "/reserva_v2.php";
             Log.d("Servidor:", url);
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
@@ -648,6 +649,7 @@ public class PinPadActivity extends AppCompatActivity {
                     params.put("terminal", terminal);
                     params.put("producto", prod);
                     params.put("codigo", codigo);
+                    params.put("turno", turno);
                     return params;
                 }
             };
