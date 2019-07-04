@@ -3,30 +3,30 @@ package eu.globaldevelopers.globalsms;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
+import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
-import android.graphics.drawable.ColorDrawable;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -53,7 +53,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "artur@globaltank.eu:Pr0!?2019"
+            "artur@globaltank.eu:Pr0!?2019", "team@globaldevelopers.eu:Sms2020"
     };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -80,6 +80,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             decorView.setSystemUiVisibility(uiOptions);
         }
 
+        Button bClock = (Button) findViewById(R.id.btnHost);
+        bClock.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent i;
+                PackageManager manager = getPackageManager();
+                try {
+                    i = manager.getLaunchIntentForPackage("com.teamviewer.host.market");
+                    if (i == null)
+                        throw new PackageManager.NameNotFoundException();
+                    i.addCategory(Intent.CATEGORY_LAUNCHER);
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    startActivity(i);
+                } catch (PackageManager.NameNotFoundException e) {
+
+                }
+            }
+        });
 
 
         // Set up the login form.

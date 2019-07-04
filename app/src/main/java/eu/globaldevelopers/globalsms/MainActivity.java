@@ -1,21 +1,36 @@
 package eu.globaldevelopers.globalsms;
 
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.*;
-import android.content.*;
-import android.content.res.Configuration;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.webkit.PermissionRequest;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -24,21 +39,27 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+
+import woyou.aidlservice.jiuiv5.ICallback;
+import woyou.aidlservice.jiuiv5.IWoyouService;
 
 public class MainActivity extends AppCompatActivity {
+
+    private int currentApiVersion;
+
+    TextView bagde;
 
     public static final String MyPREFERENCES = "MySupply" ;
     public static final String MyCONFIG = "MyPrefs" ;
@@ -46,24 +67,29 @@ public class MainActivity extends AppCompatActivity {
     public static String lang="";
     public static final String MyPREFERENCES2 = "MyPrefs" ;
 
-    BluetoothAdapter mBluetoothAdapter;
-    BluetoothSocket mmSocket;
-    BluetoothDevice mmDevice;
+    private static final String TAG = "PrinterTestDemo";
 
-    OutputStream mmOutputStream;
-    InputStream mmInputStream;
-    Thread workerThread;
+    private IWoyouService woyouService;
 
-    byte[] readBuffer;
-    int readBufferPosition;
-    int counter = 1;
-    volatile boolean stopWorker;
+    private ICallback callback = null;
+
+    private ServiceConnection connService = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+            woyouService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            woyouService = IWoyouService.Stub.asInterface(service);
+        }
+    };
+
+    Bitmap mBitmap;
 
     ProgressDialog progress;
-
-    String gsms = "GlobalSMS\n";
-    String globaltank = "GlobalTank SLU\n";
-    String saltolinea = "\n";
 
     SharedPreferences sharedpreferences;
 
@@ -72,13 +98,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            findBT();
-            openBT();
-            CheckWorkShift();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        currentApiVersion = android.os.Build.VERSION.SDK_INT;
+
         sharedpreferences = getSharedPreferences(MyCONFIG, Context.MODE_PRIVATE);
         int locactual = sharedpreferences.getInt("locKey", 0);
 
@@ -91,6 +113,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 2:
                 lang = "es";
+                break;
+            case 3:
+                lang= "it";
                 break;
             default:
                 lang = "es";
@@ -114,6 +139,26 @@ public class MainActivity extends AppCompatActivity {
             int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             decorView.setSystemUiVisibility(uiOptions);
         }
+
+        CheckWorkShift();
+        innitView();
+
+        reservesCounter();
+
+        int MY_PERMISSIONS_REQUEST_CAMERA=0;
+        // Here, this is the current activity
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+        {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA))
+            {
+
+            }
+            else
+            {
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA );
+            }
+        }
+
     }
     private SimpleDateFormat dateFormatter;
 
@@ -133,6 +178,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 2:
                 lang = "es";
+                break;
+            case 3:
+                lang= "it";
                 break;
             default:
                 lang = "es";
@@ -154,16 +202,32 @@ public class MainActivity extends AppCompatActivity {
             int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             decorView.setSystemUiVisibility(uiOptions);
         }
+
+        reservesCounter();
     }
 
     public void ConfigFunction(View view) {
         Intent Intent = new Intent(this, LoginActivity.class);
         startActivity(Intent);
+        finish();
     }
 
     public void NuevoFunction(View view) {
         Intent Intent = new Intent(this, ProductoActivity.class);
         startActivity(Intent);
+    }
+
+    public void NuevoV2Function(View view) {
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+
+        editor.putString(tipotrans, "Nueva");
+        editor.apply();
+
+        Intent Intent = new Intent(this, PinPadActivity.class);
+        startActivity(Intent);
+        //finish();
     }
 
     public void FinalizarFunction(View view){
@@ -188,17 +252,20 @@ public class MainActivity extends AppCompatActivity {
 
         Intent Intent = new Intent(this, PinPadActivity.class);
         startActivity(Intent);
+        finish();
     }
 
     public void PreciosFunction(View view){
         Intent Intent = new Intent(this, PreciosActivity.class);
         startActivity(Intent);
+        finish();
 
     }
 
     public void CopiaFunction(View view){
-        Intent Intent = new Intent(this, CopiaActivity.class);
+        Intent Intent = new Intent(this, activity_copia_new.class);
         startActivity(Intent);
+        finish();
 
     }
 
@@ -220,7 +287,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
         alert.show();
     }
 
@@ -259,10 +325,10 @@ public class MainActivity extends AppCompatActivity {
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
-                    public void onResponse(String datareceived) {
+                    public void onResponse(final String DataReceived) {
                         // response
-                        Log.d("Response", datareceived);
-                        if (datareceived.equals("nohaydatos")) {
+                        Log.d("Response", DataReceived);
+                        if (DataReceived.equals("nohaydatos")) {
                             //No esta reservado, vuelvo
                             Toast.makeText(getBaseContext(), R.string.error_no_data, Toast.LENGTH_SHORT).show();
 
@@ -271,125 +337,126 @@ public class MainActivity extends AppCompatActivity {
                             final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                             final String hora = new SimpleDateFormat("HH:mm").format(new Date()) + "\n\n";
                             try{
-                                //RESET
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x40);
-                                //CENTER
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x61);
-                                mmOutputStream.write(0x01);
-                                //GRANDE
-                                mmOutputStream.write(0x1D);
-                                mmOutputStream.write(0x21);
-                                mmOutputStream.write(0x22);
-                                //ENFASIS ON
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x45);
-                                mmOutputStream.write(0x01);
-                                mmOutputStream.write(gsms.getBytes());
-                                //NORMAL
-                                mmOutputStream.write(0x1D);
-                                mmOutputStream.write(0x21);
-                                mmOutputStream.write(0x00);
-                                mmOutputStream.write(globaltank.getBytes());
-                                //ENFASIS OFF
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x45);
-                                mmOutputStream.write(0x02);
-                                mmOutputStream.write(cabecera.getBytes());
-                                String pterminal = "\n Terminal: " + terminal + "\n\n";
-                                mmOutputStream.write(pterminal.getBytes());
-                                mmOutputStream.write(fecha.getBytes());
-                                String tabu = "     ";
-                                mmOutputStream.write(tabu.getBytes());
-                                mmOutputStream.write(hora.getBytes());
+                                ThreadPoolManager.getInstance().executeTask(new Runnable(){
 
-
-                                JSONArray jsonArray = new JSONArray(datareceived);
-
-                                int new_report = 0;
-                                float total_liters = 0;
-                                String p_id_act = null;
-                                String product_txt = null;
-                                // Get all jsonObject from jsonArray
-                                for (int i = 0; i < jsonArray.length(); i++)
-                                {
-                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                                    String date_str = null, product_id = null, code = null, liters = null, trans_code = null;
-
-                                    //Date
-                                    if (jsonObject.has("fecha_hora") && !jsonObject.isNull("fecha_hora")) {
-                                        date_str = jsonObject.getString("fecha_hora");
-                                        if(new_report == 0){
-                                            String[] f_separated = date_str.split(" ");
-                                            String[] datearray = f_separated[0].split("-");
-                                            String dia = datearray[2];
-                                            String mes = datearray[1];
-                                            String anho = datearray[0];
-                                            String date = "TRANSACTIONS ON " + dia + "/" + mes + "/" + anho;
-                                            mmOutputStream.write(date.getBytes());
-                                            new_report = 1;
+                                    @Override
+                                    public void run() {
+                                        if( mBitmap == null ){
+                                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                         }
-                                    }
-                                    //ALINEAR IZQUIERDA
-                                    mmOutputStream.write(0x1B);
-                                    mmOutputStream.write(0x61);
-                                    mmOutputStream.write(0x00);
-                                    // product_id
-                                    if (jsonObject.has("producto") && !jsonObject.isNull("producto")) {
-                                        product_id = jsonObject.getString("producto");
-                                        if(!product_id.equals(p_id_act)){
-                                            switch (product_id){
-                                                case "1":
-                                                    product_txt = "\n\nDIESEL\n\nCode   Liters  Transaction\n\n";
-                                                    break;
-                                                case "13":
-                                                    if(total_liters != 0){
-                                                        String total_diesel = "\n TOTAL DIESEL: "+ String.format("%.2f", total_liters) + "\n\n";
-                                                        mmOutputStream.write(total_diesel.getBytes());
+                                        try {
+                                            woyouService.lineWrap(2, callback);
+                                            woyouService.setAlignment(1, callback);
+                                            woyouService.printBitmap(mBitmap, callback);
+                                            woyouService.setFontSize(24, callback);
+                                            woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                            String pterminal = "Terminal: " + terminal + "\n\n";
+                                            woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                            woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                            woyouService.lineWrap(1, callback);
+                                            woyouService.setAlignment(0, callback);
+
+                                            JSONArray jsonArray = new JSONArray(DataReceived);
+
+                                            int new_report = 0;
+                                            float total_liters = 0;
+                                            String p_id_act = null;
+                                            String product_txt = null;
+                                            // Get all jsonObject from jsonArray
+                                            for (int i = 0; i < jsonArray.length(); i++)
+                                            {
+                                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                                                String date_str = null, product_id = null, code = null, liters = null, trans_code = null;
+
+                                                //Date
+                                                if (jsonObject.has("fecha_hora") && !jsonObject.isNull("fecha_hora")) {
+                                                    date_str = jsonObject.getString("fecha_hora");
+                                                    if(new_report == 0){
+                                                        String[] f_separated = date_str.split(" ");
+                                                        String[] datearray = f_separated[0].split("-");
+                                                        String dia = datearray[2];
+                                                        String mes = datearray[1];
+                                                        String anho = datearray[0];
+                                                        String date = "TRANSACTIONS ON " + dia + "/" + mes + "/" + anho;
+                                                        woyouService.printTextWithFont(date, "", 28, callback);
+                                                        new_report = 1;
                                                     }
-                                                    total_liters = 0;
-                                                    product_txt = "\n\nAD BLUE\n\nCode   Liters  Transaction\n\n";
-                                                    break;
-                                            }
+                                                }
+                                                //ALINEAR IZQUIERDA
+                                                woyouService.setAlignment(0, callback);
+                                                // product_id
+                                                if (jsonObject.has("producto") && !jsonObject.isNull("producto")) {
+                                                    product_id = jsonObject.getString("producto");
+                                                    if(!product_id.equals(p_id_act)){
+                                                        switch (product_id){
+                                                            case "1":
+                                                                product_txt = "\n\nDIESEL\n\n";
+                                                                break;
+                                                            case "13":
+                                                                if(total_liters != 0){
+                                                                    String total_diesel = "\n TOTAL DIESEL: "+ String.format("%.2f", total_liters) + "\n\n";
+                                                                    woyouService.printTextWithFont(total_diesel, "", 24, callback);
+                                                                }
+                                                                total_liters = 0;
+                                                                product_txt = "\n\nAD BLUE\n\n";
+                                                                break;
+                                                        }
 
-                                            mmOutputStream.write(product_txt.getBytes());
+                                                        woyouService.printTextWithFont(product_txt, "", 24, callback);
+
+                                                        String[] text = new String[3];
+                                                        int[] width = new int[] { 9, 8, 11 };
+
+                                                        text[0] = "Code";
+                                                        text[1] = "Liters";
+                                                        text[2] = "Transaction";
+                                                        woyouService.printColumnsText(text, width, new int[] {0,2,2}, callback);
+                                                    }
+
+
+                                                }
+
+                                                // code
+                                                if (jsonObject.has("codigo") && !jsonObject.isNull("codigo")) {
+                                                    code = jsonObject.getString("codigo");
+                                                }
+
+                                                // liters
+                                                if (jsonObject.has("litros_reales") && !jsonObject.isNull("litros_reales")) {
+                                                    liters = jsonObject.getString("litros_reales");
+                                                    total_liters = total_liters + Float.parseFloat(liters);
+                                                }
+
+                                                // trans_code
+                                                if (jsonObject.has("num_operacion") && !jsonObject.isNull("num_operacion")) {
+                                                    trans_code = jsonObject.getString("num_operacion");
+                                                }
+
+                                                String[] text2 = new String[3];
+                                                int[] width2 = new int[] { 9, 8, 11 };
+                                                int[] align = new int[] { 0, 2, 2 };
+                                                text2[0] = code;
+                                                text2[1] = liters;
+                                                text2[2] = trans_code;
+                                                woyouService.printColumnsText(text2, width2, align, callback);
+
+                                                p_id_act = product_id;
+                                            }
+                                            //TOTAL ADBLUE
+                                            if(total_liters != 0) {
+                                                String total_adb = "\n TOTAL ADBLUE: " + String.format("%.2f", total_liters) + "\n\n";
+                                                woyouService.printTextWithFont(total_adb, "", 24, callback);
+                                            }
+                                            woyouService.lineWrap(2, callback);
+                                        } catch (RemoteException e) {
+                                            // TODO Auto-generated catch block
+                                            e.printStackTrace();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
                                         }
 
-
-                                    }
-
-                                    // code
-                                    if (jsonObject.has("codigo") && !jsonObject.isNull("codigo")) {
-                                        code = jsonObject.getString("codigo");
-                                    }
-
-                                    // liters
-                                    if (jsonObject.has("litros_reales") && !jsonObject.isNull("litros_reales")) {
-                                        liters = jsonObject.getString("litros_reales");
-                                        total_liters = total_liters + Float.parseFloat(liters);
-                                    }
-
-                                    // trans_code
-                                    if (jsonObject.has("num_operacion") && !jsonObject.isNull("num_operacion")) {
-                                        trans_code = jsonObject.getString("num_operacion");
-                                    }
-
-                                    String detalle = code + "   " + liters + "  " + trans_code + "\n";
-                                    mmOutputStream.write(detalle.getBytes());
-
-                                    p_id_act = product_id;
-                                }
-                                //TOTAL ADBLUE
-                                if(total_liters != 0) {
-                                    String total_adb = "\n TOTAL ADBLUE: " + String.format("%.2f", total_liters) + "\n\n";
-                                    mmOutputStream.write(total_adb.getBytes());
-                                }
-                                //FEED 3 LINEAS
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x64);
-                                mmOutputStream.write(0x03);
+                                    }});
 
                             } catch (NullPointerException e) {
                                 e.printStackTrace();
@@ -430,143 +497,6 @@ public class MainActivity extends AppCompatActivity {
         t.start();
     }
 
-    void findBT() throws IOException {
-
-        try {
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-            if (mBluetoothAdapter == null) {
-                Toast.makeText(getBaseContext(),"No bluetooth adapter available",Toast.LENGTH_SHORT).show();
-            }
-
-            if (!mBluetoothAdapter.isEnabled()) {
-                Intent enableBluetooth = new Intent(
-                        BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBluetooth, 0);
-            }
-
-            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
-                    .getBondedDevices();
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice device : pairedDevices) {
-
-                    if (device.getName().equals("Inner printer")) {
-                        mmDevice = device;
-                        //Toast.makeText(getBaseContext(),"Bluetooth Device Found",Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    if (device.getName().equals("SPP-R200II")) {
-                        mmDevice = device;
-                        //Toast.makeText(getBaseContext(),"Bluetooth Device Found",Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    if (device.getName().equals("HM-E200")) {
-                        mmDevice = device;
-                        //Toast.makeText(getBaseContext(),"Bluetooth Device Found",Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                }
-            }
-
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    void openBT() throws IOException {
-        try {
-            // Standard SerialPortService ID
-            UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-            mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
-            mmSocket.connect();
-            mmOutputStream = mmSocket.getOutputStream();
-            mmInputStream = mmSocket.getInputStream();
-
-            beginListenForData();
-
-            //Toast.makeText(getBaseContext(),"Bluetooth Opened",Toast.LENGTH_SHORT).show();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    void beginListenForData() {
-        try {
-            final Handler handler = new Handler();
-
-            // This is the ASCII code for a newline character
-            final byte delimiter = 10;
-
-            stopWorker = false;
-            readBufferPosition = 0;
-            readBuffer = new byte[1024];
-
-            workerThread = new Thread(new Runnable() {
-                public void run() {
-                    while (!Thread.currentThread().isInterrupted()
-                            && !stopWorker) {
-
-                        try {
-
-                            int bytesAvailable = mmInputStream.available();
-                            if (bytesAvailable > 0) {
-                                byte[] packetBytes = new byte[bytesAvailable];
-                                mmInputStream.read(packetBytes);
-                                for (int i = 0; i < bytesAvailable; i++) {
-                                    byte b = packetBytes[i];
-                                    if (b == delimiter) {
-                                        byte[] encodedBytes = new byte[readBufferPosition];
-                                        System.arraycopy(readBuffer, 0,
-                                                encodedBytes, 0,
-                                                encodedBytes.length);
-                                        final String data = new String(
-                                                encodedBytes, "US-ASCII");
-                                        readBufferPosition = 0;
-
-                                        handler.post(new Runnable() {
-                                            public void run() {
-                                                //myLabel.setText(data);
-                                            }
-                                        });
-                                    } else {
-                                        readBuffer[readBufferPosition++] = b;
-                                    }
-                                }
-                            }
-
-                        } catch (IOException ex) {
-                            stopWorker = true;
-                        }
-
-                    }
-                }
-            });
-
-            workerThread.start();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    void closeBT() throws IOException {
-        try {
-            stopWorker = true;
-            mmOutputStream.close();
-            mmInputStream.close();
-            mmSocket.close();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public void CheckFunction(View view){
         Intent Intent = new Intent(this, CheckActivity.class);
         startActivity(Intent);
@@ -585,6 +515,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String DataReceived) {
                         Log.d("Response", DataReceived);
+                        //Toast.makeText(getBaseContext(), DataReceived, Toast.LENGTH_SHORT).show();
                         SharedPreferences.Editor editor = sharedpreferences.edit();
                         editor.putString("turnoKey", DataReceived);
                         editor.apply();
@@ -621,9 +552,7 @@ public class MainActivity extends AppCompatActivity {
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
-                    public void onResponse(String DataReceived) {
-                        // response
-                        Log.d("Response", DataReceived);
+                    public void onResponse(final String DataReceived) {
                         if (DataReceived.equals("hayreservas")) {
                             //Hay operaciones reservadas no se puede cerrar el turno.
                             Toast.makeText(getBaseContext(), R.string.error_hay_reservas, Toast.LENGTH_SHORT).show();
@@ -632,133 +561,113 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getBaseContext(), R.string.error_no_hay_operaciones, Toast.LENGTH_SHORT).show();
 
                         } else {
+                            //Toast.makeText(getBaseContext(), DataReceived, Toast.LENGTH_SHORT).show();
                             final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                             final String hora = new SimpleDateFormat("HH:mm").format(new Date()) + "\n\n";
                             try{
-                                //RESET
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x40);
-                                //CENTER
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x61);
-                                mmOutputStream.write(0x01);
-                                //GRANDE
-                                mmOutputStream.write(0x1D);
-                                mmOutputStream.write(0x21);
-                                mmOutputStream.write(0x22);
-                                //ENFASIS ON
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x45);
-                                mmOutputStream.write(0x01);
-                                mmOutputStream.write(gsms.getBytes());
-                                //NORMAL
-                                mmOutputStream.write(0x1D);
-                                mmOutputStream.write(0x21);
-                                mmOutputStream.write(0x00);
-                                mmOutputStream.write(globaltank.getBytes());
-                                //ENFASIS OFF
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x45);
-                                mmOutputStream.write(0x02);
-                                mmOutputStream.write(cabecera.getBytes());
-                                String pterminal = "\n Terminal: " + terminal + "\n\n";
-                                mmOutputStream.write(pterminal.getBytes());
-                                mmOutputStream.write(fecha.getBytes());
-                                String tabu = "     ";
-                                mmOutputStream.write(tabu.getBytes());
-                                mmOutputStream.write(hora.getBytes());
+                                ThreadPoolManager.getInstance().executeTask(new Runnable(){
 
-
-                                JSONArray jsonArray = new JSONArray(DataReceived);
-
-                                String report_txt = null, producto_txt = null, estado_txt = null;
-                                // Get all jsonObject from jsonArray
-                                Integer newReport = 0 , newProduct = 0;
-                                String workShiftId = null, date_str,  n_transactions = null, estado = null, producto = null, tot_liters = null;
-                                for (int i = 0; i < jsonArray.length(); i++)
-                                {
-                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                                    if (newReport == 0) {
-                                        newReport = 1;
-                                        //Work Shift
-                                        if (jsonObject.has("work_shift_id") && !jsonObject.isNull("work_shift_id")) {
-                                            workShiftId = jsonObject.getString("work_shift_id");
-                                            String ws_id = "WORK SHIFT ID: " + workShiftId + "\n\n";
-                                            mmOutputStream.write(ws_id.getBytes());
+                                    @Override
+                                    public void run() {
+                                        if( mBitmap == null ){
+                                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                         }
-                                        //Date Opened
-                                        if (jsonObject.has("date_open") && !jsonObject.isNull("date_open")) {
-                                            date_str = jsonObject.getString("date_open");
-                                            String[] f_separated = date_str.split(" ");
-                                            String[] datearray = f_separated[0].split("-");
-                                            String dia = datearray[2];
-                                            String mes = datearray[1];
-                                            String anho = datearray[0];
-                                            String date = "Opened at: " + dia + "/" + mes + "/" + anho + " " + f_separated[1] + "\n\n\n";
-                                            mmOutputStream.write(date.getBytes());
+                                        try {
+                                            woyouService.lineWrap(2, callback);
+                                            woyouService.setAlignment(1, callback);
+                                            woyouService.printBitmap(mBitmap, callback);
+                                            woyouService.setFontSize(24, callback);
+                                            woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                            String pterminal = "Terminal: " + terminal + "\n\n";
+                                            woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                            woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                            woyouService.lineWrap(1, callback);
+                                            woyouService.setAlignment(0, callback);
+
+                                            JSONArray jsonArray = new JSONArray(DataReceived);
+
+                                            String report_txt = null, producto_txt = null, estado_txt = null;
+                                            // Get all jsonObject from jsonArray
+                                            Integer newReport = 0 , newProduct = 0;
+                                            String workShiftId = null, date_str,  n_transactions = null, estado = null, producto = null, tot_liters = null;
+                                            for (int i = 0; i < jsonArray.length(); i++)
+                                            {
+                                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                                                if (newReport == 0) {
+                                                    newReport = 1;
+                                                    //Work Shift
+                                                    if (jsonObject.has("work_shift_id") && !jsonObject.isNull("work_shift_id")) {
+                                                        workShiftId = jsonObject.getString("work_shift_id");
+                                                        String ws_id = "WORK SHIFT ID: " + workShiftId + "\n\n";
+                                                        woyouService.printTextWithFont(ws_id, "", 30, callback);
+                                                    }
+                                                    //Date Opened
+                                                    if (jsonObject.has("date_open") && !jsonObject.isNull("date_open")) {
+                                                        date_str = jsonObject.getString("date_open");
+                                                        String[] f_separated = date_str.split(" ");
+                                                        String[] datearray = f_separated[0].split("-");
+                                                        String dia = datearray[2];
+                                                        String mes = datearray[1];
+                                                        String anho = datearray[0];
+                                                        String date = "Opened at: " + dia + "/" + mes + "/" + anho + " " + f_separated[1] + "\n\n\n";
+                                                        woyouService.printTextWithFont(date, "", 28, callback);
+                                                    }
+                                                }
+                                                //n_transactions
+                                                if (jsonObject.has("n_transactions") && !jsonObject.isNull("n_transactions")) {
+                                                    n_transactions = jsonObject.getString("n_transactions");
+
+                                                }
+
+                                                // estado
+                                                if (jsonObject.has("estado") && !jsonObject.isNull("estado")) {
+                                                    estado = jsonObject.getString("estado");
+                                                    switch (estado){
+                                                        case "CANCELADA":
+                                                            estado_txt = "CANCELLED";
+                                                            break;
+                                                        case "FINALIZADA":
+                                                            estado_txt = "FINISHED";
+                                                            break;
+                                                    }
+                                                }
+
+                                                // producto
+                                                if (jsonObject.has("producto") && !jsonObject.isNull("producto")) {
+                                                    producto = jsonObject.getString("producto");
+                                                    switch (producto){
+                                                        case "1":
+                                                            producto_txt = "DIESEL";
+                                                            break;
+                                                        case "13":
+                                                            producto_txt = "AD BLUE";
+                                                            break;
+                                                        case "15":
+                                                            producto_txt = "RED DIESEL";
+                                                            break;
+                                                    }
+                                                }
+
+                                                // liters
+                                                if (jsonObject.has("liters") && !jsonObject.isNull("liters")) {
+                                                    tot_liters = jsonObject.getString("liters");
+                                                }
+
+                                                report_txt = producto_txt + " Transactions " + estado_txt + ": " + n_transactions + "\nLiters: " + tot_liters + "\n\n";
+                                                woyouService.printTextWithFont(report_txt, "", 24, callback);
+                                            }
+                                            String dateF = "\nClosed at: " + fecha + " " + hora + "\n\n";
+                                            woyouService.printTextWithFont( dateF, "", 28, callback);
+                                            woyouService.lineWrap(2, callback);
+                                        } catch (RemoteException e) {
+                                            // TODO Auto-generated catch block
+                                            e.printStackTrace();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
                                         }
-                                    }
-                                    //n_transactions
-                                    if (jsonObject.has("n_transactions") && !jsonObject.isNull("n_transactions")) {
-                                        n_transactions = jsonObject.getString("n_transactions");
 
-                                    }
-
-                                    // estado
-                                    if (jsonObject.has("estado") && !jsonObject.isNull("estado")) {
-                                        estado = jsonObject.getString("estado");
-                                        switch (estado){
-                                            case "CANCELADA":
-                                                estado_txt = "CANCELLED";
-                                                break;
-                                            case "FINALIZADA":
-                                                estado_txt = "FINISHED";
-                                                break;
-                                        }
-                                    }
-
-                                    // producto
-                                    if (jsonObject.has("producto") && !jsonObject.isNull("producto")) {
-                                        producto = jsonObject.getString("producto");
-                                        switch (producto){
-                                            case "1":
-                                                producto_txt = "DIESEL";
-                                                break;
-                                            case "13":
-                                                producto_txt = "AD BLUE";
-                                                break;
-                                            case "15":
-                                                producto_txt = "RED DIESEL";
-                                                break;
-                                        }
-                                    }
-
-                                    // liters
-                                    if (jsonObject.has("liters") && !jsonObject.isNull("liters")) {
-                                        tot_liters = jsonObject.getString("liters");
-                                    }
-
-                                    report_txt = producto_txt + " Transactions " + estado_txt + ": " + n_transactions + "\nLiters: " + tot_liters + "\n\n";
-                                    //ALINEAR IZQUIERDA
-                                    mmOutputStream.write(0x1B);
-                                    mmOutputStream.write(0x61);
-                                    mmOutputStream.write(0x00);
-                                    mmOutputStream.write(report_txt.getBytes());
-                                }
-                                //RESET
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x40);
-                                //CENTER
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x61);
-                                mmOutputStream.write(0x01);
-                                String dateF = "\nClosed at: " + fecha + " " + hora + "\n\n";
-                                mmOutputStream.write(dateF.getBytes());
-                                //FEED 3 LINEAS
-                                mmOutputStream.write(0x1B);
-                                mmOutputStream.write(0x64);
-                                mmOutputStream.write(0x03);
+                                    }});
 
                             } catch (NullPointerException e) {
                                 e.printStackTrace();
@@ -793,13 +702,131 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onDestroy () {
-        try {
-            closeBT();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void onDestroy() {
         super.onDestroy();
+
+        if (connService != null) {
+            unbindService(connService);
+        }
     }
+
+    private void innitView() {
+
+
+        new BitmapUtils(this);
+
+        callback = new ICallback.Stub() {
+
+            @Override
+            public void onRunResult(final boolean success) throws RemoteException {
+            }
+
+            @Override
+            public void onReturnString(final String value) throws RemoteException {
+                Log.i(TAG,"printlength:" + value + "\n");
+            }
+
+            @Override
+            public void onRaiseException(int code, final String msg) throws RemoteException {
+                Log.i(TAG,"onRaiseException: " + msg);
+                runOnUiThread(new Runnable(){
+                    @Override
+                    public void run() {
+
+                    }});
+
+            }
+        };
+
+        Intent intent=new Intent();
+        intent.setPackage("woyou.aidlservice.jiuiv5");
+        intent.setAction("woyou.aidlservice.jiuiv5.IWoyouService");
+        startService(intent);
+        bindService(intent, connService, Context.BIND_AUTO_CREATE);
+    }
+
+    public void reservesCounter(){
+        //FUNCION PARA MIRAR SI EXITEN RESERVAVAS ACTIVAS.
+        sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
+        final String server = sharedpreferences.getString("serverKey", null);
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+        RequestQueue queue = Volley.newRequestQueue(this);  // this = context
+        String url = server + "/check_reserves.php";
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String DataReceived) {
+                        Log.d("Response", DataReceived);
+                        int ReservesCounter = Integer.parseInt(DataReceived);
+                        bagde =(TextView) findViewById(R.id.textcount);
+                        if (ReservesCounter == 0){
+                            //NO HAY CODIGOS RESERVADOS. NO MUESTRO EL BADGE
+                            bagde.setVisibility(View.INVISIBLE);
+                        }else{
+                            //HAY CODIGOS RESERVADOS. MUESTRO EL BADGE
+                            bagde.setText(String.valueOf(ReservesCounter));
+                            bagde.setVisibility(View.VISIBLE);
+
+                            final Handler handler = new Handler();
+                            Runnable runnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    didTapButton();
+                                    handler.postDelayed(this, 3000);
+                                }
+                            };
+
+                            handler.postDelayed(runnable, 1000);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Toast.makeText(getBaseContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("terminal", terminal);
+                return params;
+            }
+        };
+        queue.add(postRequest);
+
+    }
+
+    public void didTapButton() {
+        TextView badge2;
+        badge2 = (TextView) findViewById(R.id.textcount);
+        final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.bounce);
+
+        // Use bounce interpolator with amplitude 0.2 and frequency 20
+        MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
+        myAnim.setInterpolator(interpolator);
+
+        badge2.startAnimation(myAnim);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+        if(currentApiVersion >= Build.VERSION_CODES.KITKAT && hasFocus)
+        {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+
+    }
+
 }
 

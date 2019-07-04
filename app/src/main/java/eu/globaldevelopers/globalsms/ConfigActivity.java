@@ -7,14 +7,13 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
-import android.support.annotation.DrawableRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.CursorAdapter;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -22,7 +21,6 @@ import android.widget.ToggleButton;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -50,7 +48,7 @@ public class ConfigActivity extends AppCompatActivity {
         setContentView(R.layout.activity_config);
         getSupportActionBar().setBackgroundDrawable(
                 new ColorDrawable(Color.parseColor("#68a9ea")));
-        getSupportActionBar().setTitle("GlobalSMS - System Configuration");
+        getSupportActionBar().setTitle("GlobalSMS - Configuration");
 
         ed1=(EditText)findViewById(R.id.cabecera);
         ed2=(EditText)findViewById(R.id.instanticterminal);
@@ -87,7 +85,47 @@ public class ConfigActivity extends AppCompatActivity {
         locList.setSelection(locactual);
     }
 
-    public void BorrardatosFunction(View view){
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.config_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                ConfigSystemFunction();
+                return true;
+            case R.id.action_backup:
+                try {
+                    CopiardatosFunction();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            case R.id.action_erase:
+                BorrardatosFunction();
+                return true;
+            case R.id.action_reset:
+                ResetDatosFunction();
+                return true;
+            case R.id.action_save:
+                GrabarFunction();
+                return true;
+            case R.id.action_return:
+                CancelarFunction();
+                return true;
+            case R.id.action_exit:
+                SalirFunction();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void BorrardatosFunction(){
         AlertDialog.Builder alert =new AlertDialog.Builder(this);
         alert.setTitle("CAUTION!!");
         alert.setCancelable(false);
@@ -120,11 +158,11 @@ public class ConfigActivity extends AppCompatActivity {
         bd.close();
     }
 
-    public void ConfigSystemFunction(View view){
+    public void ConfigSystemFunction(){
         startActivityForResult(new Intent(Settings.ACTION_SETTINGS), 0);
     }
 
-    public void GrabarFunction(View view) {
+    public void GrabarFunction() {
 
         String cabN  = ed1.getText().toString();
         String terN  = ed2.getText().toString();
@@ -152,18 +190,18 @@ public class ConfigActivity extends AppCompatActivity {
         ConfigActivity.this.startActivity(myIntent);
     }
 
-    public void CancelarFunction(View view){
+    public void CancelarFunction(){
         Intent myIntent = new Intent(ConfigActivity.this,MainActivity.class);
         ConfigActivity.this.startActivity(myIntent);
     }
 
-    public void SalirFunction(View view){
+    public void SalirFunction(){
         moveTaskToBack(true);
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(1);
     }
 
-    public void CopiardatosFunction(View view) throws IOException {
+    public void CopiardatosFunction() throws IOException {
         File backupDB = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "datos");
         File currentDB = getApplicationContext().getDatabasePath("datos");
         if (currentDB.exists()) {
@@ -176,5 +214,13 @@ public class ConfigActivity extends AppCompatActivity {
         }else{
             Toast.makeText(getBaseContext(),"No Database to Copy",Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void ResetDatosFunction(){
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putInt("reservesCount", 0);
+        editor.apply();
     }
 }

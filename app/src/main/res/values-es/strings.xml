@@ -18,7 +18,7 @@
     <string name="toast_rojo">Diesel Rojo Seleccionado</string>
 
     <!-- String related to PinPad -->
-    <string name="titulo_pinpad">Informa el Código recibido por el Conductor</string>
+    <string name="titulo_pinpad">Informa el Código recibido por el Conductor\nCampillo: Documento de identidad remplazando las letras por ceros.</string>
     <string name="btn_pinpad_cancel">Cancelar</string>
     <string name="btn_pinpad_ok">Ok</string>
     <string name="alert_no_code">Tienes que informar el Código recibido por el Conductor!!</string>
@@ -59,7 +59,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="action_settings">Settings</string>
+    <string name="device_settings">Configuración Dispositivo</string>
 
     <string-array name="Proveedores">
         <item>Alvic</item>
@@ -70,6 +70,7 @@
         <item>EN</item>
         <item>DE</item>
         <item>ES</item>
+        <item>IT</item>
     </string-array>
 
     <string name="titulo_error_producto">ATENCIÓN!!</string>
@@ -97,5 +98,24 @@
     <string name="error_no_data">No hay datos de operaciones para este día</string>
     <string name="error_hay_reservas">No podemos cerrar el turno mientras existan operaciones reservadas.</string>
     <string name="error_no_hay_operaciones">No hay operaciones en este turno, no podemos cerrarlo.</string>
+    <string name="toast_bio">Bio Diesel Seleccionado</string>
+    <string name="producto_bio">BIO DIESEL</string>
+    <string name="precio_bio">BIO DIESEL</string>
+    <string name="action_exit">Salir App</string>
+    <string name="action_return">Volver a la App</string>
+    <string name="action_save">Salvar y volver a la App</string>
+    <string name="action_backup">Backup de Datos Locales</string>
+    <string name="action_erase">Borrar Datos Locales</string>
+    <string name="action_reset">Resetear Contador Pendientes</string>
+    <string name="producto_gas">GAS</string>
+    <string name="entrada_kilos">Introduce los kilos para este repostaje</string>
+    <string name="sig_dialog_title">FIRMA CHÓFER</string>
+    <string name="sig_hint_cancel">Cancelar</string>
+    <string name="sig_hint_clear">Limpiar</string>
+    <string name="sig_hint_save">Guardar</string>
+    <string name="kilometers">Kilometros</string>
+    <string name="entrada_kms">Introduce los Kilometros</string>
+    <string name="hours">Horas</string>
+    <string name="entrada_horas">Introduce las horas del frigo</string>
 
 </resources>

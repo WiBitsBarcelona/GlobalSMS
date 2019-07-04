@@ -35,184 +35,116 @@
     <TextView
         android:id="@+id/textView2"
         style="@android:style/Widget.TextView.SpinnerItem"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="34dp"
-        android:gravity="center_horizontal"
-        android:text="Instantic Terminal"
+        android:layout_alignStart="@+id/cabecera"
+        android:layout_below="@+id/cabecera"
+        android:layout_marginTop="33dp"
+        android:gravity="center_horizontal|end"
+        android:text="Terminal:"
+        android:textAlignment="textEnd"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
         android:textColorLink="#68a9ea"
-        android:layout_below="@+id/cabecera"
-        android:layout_alignStart="@+id/cabecera" />
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/instanticterminal"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:ems="10"
-        android:inputType="text"
         android:layout_alignBaseline="@+id/textView2"
         android:layout_alignBottom="@+id/textView2"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/textView2" />
+        android:layout_alignStart="@+id/PosList"
+        android:ems="10"
+        android:inputType="text" />
 
     <TextView
         android:id="@+id/textView3"
         style="@android:style/Widget.TextView.SpinnerItem"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/textView2"
         android:layout_below="@+id/instanticterminal"
-        android:layout_marginTop="31dp"
-        android:gravity="center_horizontal"
-        android:text="Instantic Secret"
+        android:layout_marginTop="34dp"
+        android:gravity="center_horizontal|end"
+        android:text="Secret:"
+        android:textAlignment="textEnd"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-        android:textColorLink="#68a9ea" />
+        android:textColorLink="#68a9ea"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/instanticsecret"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:ems="10"
-        android:inputType="text"
         android:layout_alignBaseline="@+id/textView3"
         android:layout_alignBottom="@+id/textView3"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/textView6" />
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="14dp"
+        android:layout_toEndOf="@+id/textView6"
+        android:ems="10"
+        android:inputType="text" />
 
     <TextView
         android:id="@+id/textView5"
         style="@android:style/Widget.TextView.SpinnerItem"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView6"
+        android:layout_below="@+id/instanticsecret"
         android:layout_marginTop="34dp"
-        android:gravity="center_horizontal"
-        android:text="Server Address"
+        android:gravity="center_horizontal|end"
+        android:text="Server Address:"
+        android:textAlignment="textEnd"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
         android:textColorLink="#68a9ea"
-        android:layout_below="@+id/instanticsecret"
-        android:layout_alignStart="@+id/textView6" />
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/serveraddress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:ems="10"
-        android:inputType="text"
+        android:layout_alignBaseline="@+id/textView5"
         android:layout_alignBottom="@+id/textView5"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/textView6" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="4"
-        android:layout_above="@+id/linearLayout"
-        android:layout_alignParentStart="true">"
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:backgroundTint="@android:color/holo_blue_dark"
-            android:onClick="ConfigSystemFunction"
-            android:text="Device Settings"
-            android:textColor="@android:color/white" />
-
-        <Button
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:backgroundTint="?android:attr/textColorLink"
-            android:onClick="BorrardatosFunction"
-            android:text="Erase Data"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-
-        <Button
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:backgroundTint="@android:color/holo_blue_bright"
-            android:onClick="CopiardatosFunction"
-            android:text="Copy Data"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:weightSum="4"
-        android:id="@+id/linearLayout">"
-
-        <Button android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:text="Save and Back"
-            android:layout_weight="2"
-            android:textColor="@android:color/white"
-            android:backgroundTint="#8cbf26"
-            android:onClick="GrabarFunction"/>
-
-        <Button
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:backgroundTint="#f09609"
-            android:onClick="CancelarFunction"
-            android:text="Back"
-            android:textColor="@android:color/white" />
-        <Button android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:text="Exit"
-            android:layout_weight="1"
-            android:textColor="@android:color/white"
-            android:backgroundTint="#e51400"
-            android:onClick="SalirFunction"/>
-    </LinearLayout>
+        android:layout_alignStart="@+id/instanticsecret"
+        android:ems="10"
+        android:inputType="text" />
 
     <TextView
         android:id="@+id/textView6"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/QrSiNo"
         android:layout_alignBottom="@+id/QrSiNo"
         android:layout_alignStart="@+id/textView3"
-        android:layout_alignTop="@+id/QrSiNo"
-        android:gravity="center_vertical"
+        android:gravity="center_vertical|end"
         android:text="Use QR Scanner?"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+        android:textStyle="bold" />
 
     <ToggleButton
         android:id="@+id/QrSiNo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="7dp"
-        android:layout_marginTop="15dp"
+        android:layout_alignStart="@+id/serveraddress"
+        android:layout_below="@+id/serveraddress"
+        android:layout_marginTop="14dp"
         android:text="ToggleButton"
         android:textOff="No"
         android:textOn="Yes"
-        tools:text="Use QR Scanner?"
-        android:layout_below="@+id/serveraddress"
-        android:layout_alignStart="@+id/instanticterminal" />
+        tools:text="Use QR Scanner?" />
 
     <TextView
         android:id="@+id/textView7"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/textView6"
         android:layout_alignTop="@+id/PosList"
-        android:gravity="center_vertical"
+        android:gravity="center_vertical|end"
         android:text="POS System:"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+        android:textStyle="bold" />
 
     <Spinner
         android:id="@+id/PosList"
@@ -220,10 +152,22 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/QrSiNo"
         android:layout_marginStart="18dp"
-        android:layout_marginTop="34dp"
+        android:layout_marginTop="14dp"
         android:layout_toEndOf="@+id/textView6"
         android:entries="@array/Proveedores"
         android:minWidth="100dp" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView7"
+        android:layout_below="@+id/PosList"
+        android:layout_marginTop="18dp"
+        android:gravity="center_vertical|end"
+        android:text="Languaje:"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+        android:textStyle="bold" />
 
     <Spinner
         android:id="@+id/locList"
@@ -233,16 +177,5 @@
         android:layout_alignTop="@+id/textView8"
         android:entries="@array/locale"
         android:minWidth="100dp" />
-
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/textView7"
-        android:layout_below="@+id/PosList"
-        android:layout_marginTop="18dp"
-        android:gravity="center_vertical"
-        android:text="Languaje:"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
 
 </RelativeLayout>

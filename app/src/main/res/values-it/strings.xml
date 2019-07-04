@@ -1,0 +1,120 @@
+<resources>
+    <!-- Strings related to Main -->
+    <string  istxt="1" name="btn_reserva">Richiedi l autorizzazione</string>
+    <string  istxt="1" name="btn_finaliza">Completare il rifornimento</string>
+    <string  istxt="1" name="btn_cancela">Annullare il rifornimento</string>
+    <string  istxt="1" name="btn_precios">Cambiare i prezzi</string>
+    <string  istxt="1" name="btn_imprimir">Stampare una copia</string>
+    <string  istxt="1" name="btn_config">Impostazioni</string>
+
+    <!-- Strings related to Producto-->
+    <string  istxt="1" name="titulo_producto">Seleziona un prodotto</string>
+    <string  istxt="1" name="producto_diesel">DIESEL</string>
+    <string  istxt="1" name="producto_adblue">AD BLUE</string>
+    <string  istxt="1" name="producto_rojo">GASOLIO AGRICOLO</string>
+    <string  istxt="1" name="producto_cancela">ANNULLA</string>
+    <string  istxt="1" name="toast_diesel">Diesel selezionato</string>
+    <string  istxt="1" name="toast_adblue">Ad Blue selezionato</string>
+    <string  istxt="1" name="toast_rojo">Gasolio agricolo selezionato</string>
+
+    <!-- String related to PinPad -->
+    <string  istxt="1" name="titulo_pinpad">Comunica il codice ricevuto dal conducente</string>
+    <string  istxt="1" name="btn_pinpad_cancel">Annullare</string>
+    <string  istxt="1" name="btn_pinpad_ok">Ok</string>
+    <string  istxt="1" name="alert_no_code">Occorre comunicare il codice ricevuto dal conducente!!</string>
+    <string  istxt="1" name="spinner_conectando">Connessione con il server e stampa, attendere...</string>
+    <string  istxt="1" name="titulo_litros">LITRI</string>
+    <string  istxt="1" name="entrada_litros">Inserisci i litri per questo rifornimento</string>
+    <string  istxt="1" name="texto_qr">Scansiona il Codice QR del biglietto</string>
+
+    <!-- Strings related to Cambiar Precios -->
+    <string  istxt="1" name="titulo_precios">Seleziona il Prodotto per cambiarne il prezzo</string>
+    <string  istxt="1" name="precio_diesel">DIESEL</string>
+    <string  istxt="1" name="precio_adblue">AD BLUE</string>
+    <string  istxt="1" name="precio_rojo">GASOLIO AGRICOLO</string>
+    <string  istxt="1" name="precio_cancela">ANNULLA</string>
+    <string  istxt="1" name="texto_precio_diesel">Comunica il nuovo prezzo per Diesel</string>
+    <string  istxt="1" name="texto_precio_adblue">Comunica il nuovo prezzo per AdBlue</string>
+    <string  istxt="1" name="texto_precio_rojo">Comunica il nuovo prezzo per Diesel Rosso</string>
+    <string  istxt="1" name="btn_precio_cancelar">ANNULLA</string>
+    <string  istxt="1" name="btn_precio_aceptar">OK</string>
+
+    <string  istxt="1" name="error_no_reservado">Codice errato o non prenotato!!</string>
+
+    <string  istxt="1" name="titulo_imprimir_copia">GlobalSMS - Stampa una copia</string>
+
+
+    <string  istxt="1" name="app_name">GlobalSMS</string>
+    <string  istxt="1" name="title_activity_login">GlobalSMS - Accedi</string>
+
+    <!-- Strings related to login -->
+    <string  istxt="1" name="prompt_email">Email</string>
+    <string  istxt="1" name="prompt_password">Password</string>
+    <string  istxt="1" name="action_sign_in">Sign in</string>
+    <string  istxt="1" name="action_sign_in_short">Sign in</string>
+    <string  istxt="1" name="error_invalid_email">This email address is invalid</string>
+    <string  istxt="1" name="error_invalid_password">This password is too short</string>
+    <string  istxt="1" name="error_incorrect_password">This password is incorrect</string>
+    <string  istxt="1" name="error_field_required">This field is required</string>
+    <string  istxt="1" name="permission_rationale">"Contacts permissions are needed for providing email completions."
+    </string>
+    <string  istxt="1" name="device_settings">Impostazioni Dispositivo</string>
+
+    <string-array name="Proveedores">
+        <item  istxt="1">Alvic</item>
+        <item  istxt="1">EfiData</item>
+    </string-array>
+
+    <string-array name="locale">
+        <item>EN</item>
+        <item>DE</item>
+        <item>ES</item>
+        <item>IT</item>
+    </string-array>
+
+    <string  istxt="1" name="titulo_error_producto">ATTENZIONE!!</string>
+    <string  istxt="1" name="error_tipo_producto">Tipo di QR errato</string>
+    <string  istxt="1" name="titulo_error_nored">ATTENZIONE!!</string>
+    <string  istxt="1" name="titulo_error_timeout">ATTENZIONE!!</string>
+    <string  istxt="1" name="error_nored">Non c è connessione a Internet, riprova.</string>
+    <string  istxt="1" name="error_timeout">Nessuna risposta dal server, riprovare o contattare il servizio clienti</string>
+    <string  istxt="1" name="btn_contacto">Contattare il servizio clienti</string>
+    <string  istxt="1" name="titulo_contacto">GlobalTank</string>
+    <string  istxt="1" name="text_contacto">\tContatti:  \t- sat@globaldevelopers.eu \t- 0034672688659 \t- 0034972525421</string>
+    <string  istxt="1" name="dialogo_qr_diesel">Il biglietto ha quanti QR del prodotto DIESEL?</string>
+    <string  istxt="1" name="dialogo_qr_adblue">Il biglietto ha quanti QR del prodotto AD BLUE?</string>
+    <string  istxt="1" name="dialogo_qr_diesel_rojo">Il biglietto ha quanti QR del prodotto GASOLIO AGRICOLO?</string>
+    <string  istxt="1" name="mensaje_qr_repetido">Questo QR è già stato scansionato!!</string>
+    <string  istxt="1" name="btn_turno">Chiudi turno</string>
+    <string  istxt="1" name="btn_operacion">Controllare l Operazione</string>
+    <string  istxt="1" name="btn_dia">Rapporto Giornaliero</string>
+    <string  istxt="1" name="titulo_cierre_turno">ATTENZIONE!!</string>
+    <string  istxt="1" name="alert_cierre_turno">Questo processo chiuderà il turno corrente e aprirà un nuovo turno. Questa azione non può essere annullata</string>
+    <string  istxt="1" name="btn_cierre_cancel">ANNULLA</string>
+    <string  istxt="1" name="btn_cierre_aceptar">ACCETTARE</string>
+    <string  istxt="1" name="titulo_check">Comunicare il Codice che si desidera controllare</string>
+    <string  istxt="1" name="error_no_encontrado">Operazione NON TROVATA!!</string>
+    <string  istxt="1" name="error_no_data">Non ci sono dati sulle operazioni di questo giorno</string>
+    <string  istxt="1" name="error_hay_reservas">Non possiamo chiudere il turno mentre ci sono operazioni in prenotazione.</string>
+    <string  istxt="1" name="error_no_hay_operaciones">Non ci sono operazioni in questo turno, non possiamo chiuderlo.</string>
+    <string  istxt="1" name="toast_bio">Bio Diesel selezionato</string>
+    <string  istxt="1" name="producto_bio">BIO DIESEL</string>
+    <string  istxt="1" name="precio_bio">BIO DIESEL</string>
+    <string  istxt="1" name="action_exit">Esci dall App</string>
+    <string  istxt="1" name="action_return">Ritorna all App</string>
+    <string  istxt="1" name="action_save">Salva e torna all App</string>
+    <string  istxt="1" name="action_backup">Backup dei dati locali</string>
+    <string  istxt="1" name="action_erase">Cancella i dati locali</string>
+    <string name="action_reset">Reset contatore operazioni in sospeso</string>
+    <string name="producto_gas">GAS</string>
+    <string name="entrada_kilos">Inserisci i chili per questo rifornimento</string>
+    <string name="sig_dialog_title">SIGN HERE</string>
+    <string name="sig_hint_cancel">Cancel</string>
+    <string name="sig_hint_clear">Clear</string>
+    <string name="sig_hint_save">Save</string>
+    <string name="kilometers">Kilometers</string>
+    <string name="entrada_kms">Input Odometer KMs</string>
+    <string name="hours">Hours</string>
+    <string name="entrada_horas">Input Frigo Hours</string>
+
+</resources>

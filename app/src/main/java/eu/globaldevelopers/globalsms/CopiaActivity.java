@@ -3,17 +3,23 @@ package eu.globaldevelopers.globalsms;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
-import android.os.Handler;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.view.menu.ListMenuItemView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,29 +30,47 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Set;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import woyou.aidlservice.jiuiv5.ICallback;
+import woyou.aidlservice.jiuiv5.IWoyouService;
 
 public class CopiaActivity extends AppCompatActivity {
+    public static final String MyPREFERENCES = "MyPrefs" ;
+    SharedPreferences sharedpreferences2;
 
     BluetoothAdapter mBluetoothAdapter;
     BluetoothSocket mmSocket;
     BluetoothDevice mmDevice;
 
     OutputStream mmOutputStream;
-    InputStream mmInputStream;
-    Thread workerThread;
 
-    byte[] readBuffer;
-    int readBufferPosition;
-    int counter;
-    volatile boolean stopWorker;
 
     String gsms = "GlobalSMS\n";
     String globaltank = "GlobalTank SLU\n";
     String saltolinea = "\n\n";
+
+    private static final String TAG = "PrinterTestDemo";
+
+    private IWoyouService woyouService;
+
+    private ICallback callback = null;
+
+    private ServiceConnection connService = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+            woyouService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            woyouService = IWoyouService.Stub.asInterface(service);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,9 +90,7 @@ public class CopiaActivity extends AppCompatActivity {
                 new ColorDrawable(Color.parseColor("#68a9ea")));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-
-
+        innitView();
         cargardatos();
 
     }
@@ -100,12 +122,7 @@ public class CopiaActivity extends AppCompatActivity {
     }
 
     void imprime(String codigoT) throws IOException, InterruptedException {
-        findBT();
-        try {
-            openBT();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
 
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
@@ -265,150 +282,149 @@ public class CopiaActivity extends AppCompatActivity {
 
     }
 
-    void findBT() {
+    Bitmap mBitmap;
 
-        try {
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    public void printCopy(String codigoT){
+        AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-            if (mBluetoothAdapter == null) {
-                Toast.makeText(getBaseContext(),"No bluetooth adapter available",Toast.LENGTH_SHORT).show();
-            }
+                "datos", null, 2);
 
-            if (!mBluetoothAdapter.isEnabled()) {
-                Intent enableBluetooth = new Intent(
-                        BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBluetooth, 0);
-            }
+        SQLiteDatabase bd = admin.getWritableDatabase();
 
-            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
-                    .getBondedDevices();
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice device : pairedDevices) {
+        Cursor fila = bd.rawQuery(
 
-                    if (device.getName().equals("Inner printer")) {
-                        mmDevice = device;
-                        //Toast.makeText(getBaseContext(),"Bluetooth Device Found",Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    if (device.getName().equals("SPP-R200II")) {
-                        mmDevice = device;
-                        //Toast.makeText(getBaseContext(),"Bluetooth Device Found",Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    if (device.getName().equals("HM-E200")) {
-                        mmDevice = device;
-                        //Toast.makeText(getBaseContext(),"Bluetooth Device Found",Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                }
-            }
+                "select * from operaciones where id=" + codigoT, null);
 
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+        if (fila.moveToFirst()) {
+            String tipo = fila.getString(1);
+            String cabecera = fila.getString(2);
+            String terminal = fila.getString(3);
+            String fecha = fila.getString(4);
+            String hora = fila.getString(5);
+            final String resultado = fila.getString(6);
+            final String codigo = fila.getString(7);
+            final String operacion=fila.getString(8);;
 
-    void openBT() throws IOException {
-        try {
-            // Standard SerialPortService ID
-            UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-            mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
-            mmSocket.connect();
-            mmOutputStream = mmSocket.getOutputStream();
-            mmInputStream = mmSocket.getInputStream();
+            final String producto = fila.getString(9);
+            final String litros_aceptados = fila.getString(10);
+            final String litros = fila.getString(11);
+            final String total = fila.getString(12);
+            final String codigo_error = fila.getString(13);
+            final String error = fila.getString(14);
 
-            beginListenForData();
+            ThreadPoolManager.getInstance().executeTask(new Runnable(){
 
-            //Toast.makeText(getBaseContext(),"Bluetooth Opened",Toast.LENGTH_SHORT).show();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    void beginListenForData() {
-        try {
-            final Handler handler = new Handler();
-
-            // This is the ASCII code for a newline character
-            final byte delimiter = 10;
-
-            stopWorker = false;
-            readBufferPosition = 0;
-            readBuffer = new byte[1024];
-
-            workerThread = new Thread(new Runnable() {
+                @Override
                 public void run() {
-                    while (!Thread.currentThread().isInterrupted()
-                            && !stopWorker) {
+                    if( mBitmap == null ){
+                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                    }
+                    try {
+                        final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+                        final String hora = new SimpleDateFormat("HH:mm").format(new Date());
+                        sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                        final String cabecera = sharedpreferences2.getString("cabeceraKey", null) + "\n";
+                        final String terminal = sharedpreferences2.getString("terminalKey", null);
 
-                        try {
 
-                            int bytesAvailable = mmInputStream.available();
-                            if (bytesAvailable > 0) {
-                                byte[] packetBytes = new byte[bytesAvailable];
-                                mmInputStream.read(packetBytes);
-                                for (int i = 0; i < bytesAvailable; i++) {
-                                    byte b = packetBytes[i];
-                                    if (b == delimiter) {
-                                        byte[] encodedBytes = new byte[readBufferPosition];
-                                        System.arraycopy(readBuffer, 0,
-                                                encodedBytes, 0,
-                                                encodedBytes.length);
-                                        final String data = new String(
-                                                encodedBytes, "US-ASCII");
-                                        readBufferPosition = 0;
+                        woyouService.lineWrap(2, callback);
+                        woyouService.setAlignment(1, callback);
+                        woyouService.printBitmap(mBitmap, callback);
+                        woyouService.setFontSize(24, callback);
+                        woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                        String pterminal = "Terminal: " + terminal + "\n\n";
+                        woyouService.printTextWithFont(pterminal, "", 24, callback);
+                        woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                        woyouService.lineWrap(2, callback);
+                        woyouService.printTextWithFont(resultado, "", 28, callback);
+                        woyouService.setAlignment(0, callback);
+                        woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 24, callback);
+                        if (resultado.equals("TRANSACTION ACCEPTED\n")) {
+                            woyouService.printTextWithFont( producto , "", 24, callback);
+                            woyouService.printTextWithFont("Authorized Liters: " + litros_aceptados + "\n", "", 24, callback);
+                        }
+                        if (resultado.equals("TRANSACTION REFUSED\n")) {
+                            woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
+                            woyouService.printTextWithFont(error + "\n", "", 28, callback);
+                        }
+                        if (resultado.equals("TRANSACTION SUCCESSFULLY\nCOMPLETED\n")) {
+                            woyouService.printTextWithFont("Operation Code: " + operacion + "\n\n", "", 24, callback);
+                            woyouService.setAlignment(0, callback);
+                            woyouService.sendRAWData(new byte[]{0x1B, 0x21, 0x08}, callback);
+                            woyouService.setFontSize(24, callback);
+                            String[] text = new String[3];
+                            int[] width = new int[] { 10, 6, 6 };
+                            int[] align = new int[] { 1, 0, 0 };
+                            text[0] = "Products";
+                            text[1] = "Liters";
+                            text[2] = "Total";
+                            woyouService.printColumnsText(text, width, new int[] { 1, 2, 2 }, callback);
 
-                                        handler.post(new Runnable() {
-                                            public void run() {
-                                                //myLabel.setText(data);
-                                            }
-                                        });
-                                    } else {
-                                        readBuffer[readBufferPosition++] = b;
-                                    }
-                                }
-                            }
+                            text[0] = producto;
+                            text[1] = litros;
+                            text[2] = total;
+                            woyouService.printColumnsText(text, width, align, callback);
 
-                        } catch (IOException ex) {
-                            stopWorker = true;
+                            woyouService.sendRAWData(new byte[]{0x1B, 0x21, 0x00}, callback);
                         }
 
+                        woyouService.printTextWithFont("\n\n", "", 24, callback);
+                        woyouService.setAlignment(1, callback);
+                        //woyouService.printTextWithFont(msg, "", 36, callback);
+
+                        woyouService.lineWrap(4, callback);
+                    } catch (RemoteException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
-                }
-            });
 
-            workerThread.start();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+                }});
         }
+        bd.close();
     }
 
-    void closeBT() throws IOException {
-        try {
-            stopWorker = true;
-            mmOutputStream.close();
-            mmInputStream.close();
-            mmSocket.close();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void innitView() {
+
+
+        new BitmapUtils(this);
+
+        callback = new ICallback.Stub() {
+
+            @Override
+            public void onRunResult(final boolean success) throws RemoteException {
+            }
+
+            @Override
+            public void onReturnString(final String value) throws RemoteException {
+                Log.i(TAG,"printlength:" + value + "\n");
+            }
+
+            @Override
+            public void onRaiseException(int code, final String msg) throws RemoteException {
+                Log.i(TAG,"onRaiseException: " + msg);
+                runOnUiThread(new Runnable(){
+                    @Override
+                    public void run() {
+
+                    }});
+
+            }
+        };
+
+        Intent intent=new Intent();
+        intent.setPackage("woyou.aidlservice.jiuiv5");
+        intent.setAction("woyou.aidlservice.jiuiv5.IWoyouService");
+        startService(intent);
+        bindService(intent, connService, Context.BIND_AUTO_CREATE);
     }
 
-    public void onStop () {
-        try {
-            closeBT();
-        } catch (IOException e) {
-            e.printStackTrace();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (connService != null) {
+            unbindService(connService);
         }
-        super.onStop();
     }
 
     public void cargardatos(){
@@ -479,14 +495,7 @@ public class CopiaActivity extends AppCompatActivity {
                 String cadena = DynamicListElements[position];
                 String codigot = cadena.substring(0,5);
                 codigot = codigot.trim();
-                try {
-                    imprime(codigot);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
+                printCopy(codigot);
             }
 
 

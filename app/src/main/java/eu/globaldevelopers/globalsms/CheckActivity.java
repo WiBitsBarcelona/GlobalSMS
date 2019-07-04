@@ -1,18 +1,20 @@
 package eu.globaldevelopers.globalsms;
 
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.os.Handler;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -26,16 +28,17 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.IOException;
-import java.io.InputStream;
+
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+
+import woyou.aidlservice.jiuiv5.ICallback;
+import woyou.aidlservice.jiuiv5.IWoyouService;
 
 public class CheckActivity extends AppCompatActivity {
 
@@ -45,36 +48,38 @@ public class CheckActivity extends AppCompatActivity {
 
     SharedPreferences sharedpreferences;
 
-    BluetoothAdapter mBluetoothAdapter;
-    BluetoothSocket mmSocket;
-    BluetoothDevice mmDevice;
-
     OutputStream mmOutputStream;
-    InputStream mmInputStream;
-    Thread workerThread;
-
-    byte[] readBuffer;
-    int readBufferPosition;
-    volatile boolean stopWorker;
-
-    String gsms = "GlobalSMS\n";
-    String globaltank = "GlobalTank SLU\n";
 
     ProgressDialog progress;
 
-    PinPadActivity.ContadorTimeOut contadortimeout;
+    private static final String TAG = "PrinterTestDemo";
+
+    private IWoyouService woyouService;
+
+    private ICallback callback = null;
+
+    private ServiceConnection connService = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+            woyouService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            woyouService = IWoyouService.Stub.asInterface(service);
+        }
+    };
+
+    Bitmap mBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_check);
-        try {
-            findBT();
-            openBT();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();
             v.setSystemUiVisibility(View.GONE);
@@ -84,6 +89,8 @@ public class CheckActivity extends AppCompatActivity {
             int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             decorView.setSystemUiVisibility(uiOptions);
         }
+
+        innitView();
     }
 
     public void PulsadoFunction(View v){
@@ -174,9 +181,7 @@ public class CheckActivity extends AppCompatActivity {
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
-                        public void onResponse(String datareceived) {
-                            // response
-                            Log.d("Response", datareceived);
+                        public void onResponse(final String datareceived) {
                             if (datareceived.equals("nohaydatos")) {
                                 //No esta reservado, vuelvo
                                 Toast.makeText(getBaseContext(), R.string.error_no_encontrado, Toast.LENGTH_SHORT).show();
@@ -184,128 +189,124 @@ public class CheckActivity extends AppCompatActivity {
                                 final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                                 final String hora = new SimpleDateFormat("HH:mm").format(new Date()) + "\n\n";
                                 try{
-                                    //RESET
-                                    mmOutputStream.write(0x1B);
-                                    mmOutputStream.write(0x40);
-                                    //CENTER
-                                    mmOutputStream.write(0x1B);
-                                    mmOutputStream.write(0x61);
-                                    mmOutputStream.write(0x01);
-                                    //GRANDE
-                                    mmOutputStream.write(0x1D);
-                                    mmOutputStream.write(0x21);
-                                    mmOutputStream.write(0x22);
-                                    //ENFASIS ON
-                                    mmOutputStream.write(0x1B);
-                                    mmOutputStream.write(0x45);
-                                    mmOutputStream.write(0x01);
-                                    mmOutputStream.write(gsms.getBytes());
-                                    //NORMAL
-                                    mmOutputStream.write(0x1D);
-                                    mmOutputStream.write(0x21);
-                                    mmOutputStream.write(0x00);
-                                    mmOutputStream.write(globaltank.getBytes());
-                                    //ENFASIS OFF
-                                    mmOutputStream.write(0x1B);
-                                    mmOutputStream.write(0x45);
-                                    mmOutputStream.write(0x02);
-                                    mmOutputStream.write(cabecera.getBytes());
-                                    String pterminal = "\n Terminal: " + terminal + "\n\n";
-                                    mmOutputStream.write(pterminal.getBytes());
-                                    mmOutputStream.write(fecha.getBytes());
-                                    String tabu = "     ";
-                                    mmOutputStream.write(tabu.getBytes());
-                                    mmOutputStream.write(hora.getBytes());
+                                    ThreadPoolManager.getInstance().executeTask(new Runnable(){
+
+                                        @Override
+                                        public void run() {
+                                            if( mBitmap == null ){
+                                                mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                                            }
+                                            try {
+                                                woyouService.lineWrap(2, callback);
+                                                woyouService.setAlignment(1, callback);
+                                                woyouService.printBitmap(mBitmap, callback);
+                                                woyouService.setFontSize(24, callback);
+                                                woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                String pterminal = "Terminal: " + terminal + "\n\n";
+                                                woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                                JSONArray jsonArray = new JSONArray(datareceived);
+                                                String product_txt = null;
+                                                // Get all jsonObject from jsonArray
+                                                for (int i = 0; i < jsonArray.length(); i++)
+                                                {
+                                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                                                    String date_str = null, product_id = null, code = null, response = null, liters = null, liters_a = null, trans_code = null, status = null;
 
 
-                                    JSONArray jsonArray = new JSONArray(datareceived);
+                                                    //Date
+                                                    if (jsonObject.has("fecha_hora") && !jsonObject.isNull("fecha_hora")) {
+                                                        date_str = jsonObject.getString("fecha_hora");
+                                                        String[] f_separated = date_str.split(" ");
+                                                        String[] datearray = f_separated[0].split("-");
+                                                        String dia = datearray[2];
+                                                        String mes = datearray[1];
+                                                        String anho = datearray[0];
+                                                        String date = "TRANSACTION DATE\n " + dia + "/" + mes + "/" + anho + "\n\n";
+                                                        woyouService.printTextWithFont(date, "", 24, callback);
+                                                    }
+                                                    woyouService.setAlignment(0, callback);
+                                                    if (jsonObject.has("producto") && !jsonObject.isNull("producto")) {
+                                                        product_id = jsonObject.getString("producto");
+                                                        switch (product_id){
+                                                            case "1":
+                                                                product_txt = "PRODUCT: DIESEL\n\n";
+                                                                break;
+                                                            case "13":
+                                                                product_txt = "PRODUCT: AD BLUE\n\n";
+                                                                break;
+                                                            case "15":
+                                                                product_txt = "PRODUCT: RED DIESEL\n\n";
+                                                        }
+                                                        woyouService.printTextWithFont(product_txt, "", 26, callback);
+                                                    }
 
-                                    String product_txt = null;
-                                    // Get all jsonObject from jsonArray
-                                    for (int i = 0; i < jsonArray.length(); i++)
-                                    {
-                                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                                    // code
+                                                    if (jsonObject.has("codigo") && !jsonObject.isNull("codigo")) {
+                                                        code = jsonObject.getString("codigo");
+                                                        String code_txt = "CODE: " + code + "\n";
+                                                        woyouService.printTextWithFont(code_txt, "", 26, callback);
+                                                    }
 
-                                        String date_str = null, product_id = null, code = null, response = null, liters = null, liters_a = null, trans_code = null, status = null;
+                                                    // liters
+                                                    if (jsonObject.has("litros_reales") && !jsonObject.isNull("litros_reales")) {
+                                                        liters = jsonObject.getString("litros_reales");
+                                                        if(!liters.equals("0.00")) {
+                                                            String liters_txt = "LITERS: " + liters + "\n";
+                                                            woyouService.printTextWithFont(liters_txt, "", 26, callback);
+                                                        }
+                                                    }
 
+                                                    // liters authorized
+                                                    if (jsonObject.has("litros_autorizados") && !jsonObject.isNull("litros_autorizados")) {
+                                                        liters_a = jsonObject.getString("litros_autorizados");
+                                                        if(liters.equals("0.00")) {
+                                                            String liters_a_txt = "AUTHORIZED LITERS: " + liters_a + "\n";
+                                                            woyouService.printTextWithFont(liters_a_txt, "", 26, callback);
+                                                        }
+                                                    }
 
-                                        //Date
-                                        if (jsonObject.has("fecha_hora") && !jsonObject.isNull("fecha_hora")) {
-                                            date_str = jsonObject.getString("fecha_hora");
-                                            String[] f_separated = date_str.split(" ");
-                                            String[] datearray = f_separated[0].split("-");
-                                            String dia = datearray[2];
-                                            String mes = datearray[1];
-                                            String anho = datearray[0];
-                                            String date = "TRANSACTION DATE\n " + dia + "/" + mes + "/" + anho + "\n\n";
-                                            mmOutputStream.write(date.getBytes());
-                                        }
+                                                    // trans_code
+                                                    if (jsonObject.has("num_operacion") && !jsonObject.isNull("num_operacion")) {
+                                                        trans_code = jsonObject.getString("num_operacion");
+                                                        String tr_txt = "TRANSACTION: " + trans_code + "\n";
+                                                        woyouService.printTextWithFont(tr_txt, "", 24, callback);
+                                                    }
+                                                    woyouService.lineWrap(2, callback);
+                                                    // estatus
+                                                    if (jsonObject.has("estado") && !jsonObject.isNull("estado")) {
+                                                        status = jsonObject.getString("estado");
+                                                        String tr_txt = null;
+                                                        switch (status){
+                                                            case "ACTIVA":
+                                                                tr_txt = "STATUS: RESERVED\n\n";
+                                                                break;
+                                                            case "FINALIZADA":
+                                                                tr_txt = "STATUS: FINISHED\n\n";
+                                                                break;
+                                                            case "CANCELADA":
+                                                                tr_txt = "STATUS: CANCELLED\n\n";
+                                                                break;
+                                                        }
 
-                                        if (jsonObject.has("producto") && !jsonObject.isNull("producto")) {
-                                            product_id = jsonObject.getString("producto");
-                                                switch (product_id){
-                                                    case "1":
-                                                        product_txt = "PRODUCT: DIESEL\n\n";
-                                                        break;
-                                                    case "13":
-                                                        product_txt = "PRODUCT: AD BLUE\n\n";
-                                                        break;
+                                                        woyouService.printTextWithFont(tr_txt, "", 28, callback);
+                                                    }
                                                 }
-                                                //ALINEAR IZQUIERDA
-                                            mmOutputStream.write(0x1B);
-                                            mmOutputStream.write(0x61);
-                                            mmOutputStream.write(0x00);
-                                            mmOutputStream.write(product_txt.getBytes());
-                                        }
 
-                                        // code
-                                        if (jsonObject.has("codigo") && !jsonObject.isNull("codigo")) {
-                                            code = jsonObject.getString("codigo");
-                                            String code_txt = "CODE: " + code + "\n";
-                                            mmOutputStream.write(code_txt.getBytes());
-                                        }
-
-                                        // liters
-                                        if (jsonObject.has("litros_reales") && !jsonObject.isNull("litros_reales")) {
-                                            liters = jsonObject.getString("litros_reales");
-                                            if(!liters.equals("0.00")) {
-                                                String liters_txt = "LITERS: " + liters + "\n";
-                                                mmOutputStream.write(liters_txt.getBytes());
-                                            }
-                                        }
-
-                                        // liters authorized
-                                        if (jsonObject.has("litros_autorizados") && !jsonObject.isNull("litros_autorizados")) {
-                                            liters_a = jsonObject.getString("litros_autorizados");
-                                            if(liters.equals("0.00")) {
-                                                String liters_a_txt = "AUTHORIZED LITERS: " + liters_a + "\n";
-                                                mmOutputStream.write(liters_a_txt.getBytes());
-                                            }
-                                        }
-
-                                        // trans_code
-                                        if (jsonObject.has("num_operacion") && !jsonObject.isNull("num_operacion")) {
-                                            trans_code = jsonObject.getString("num_operacion");
-                                            String tr_txt = "TRANSACTION: " + trans_code + "\n";
-                                            mmOutputStream.write(tr_txt.getBytes());
-                                        }
-
-                                        // estatus
-                                        if (jsonObject.has("estado") && !jsonObject.isNull("estado")) {
-                                            status = jsonObject.getString("estado");
-                                            String tr_txt = null;
-                                            switch (status){
-                                                case "ACTIVA":
-                                                    tr_txt = "STATUS: RESERVED\n\n";
-                                                    break;
-                                                case "FINALIZADA":
-                                                    tr_txt = "STATUS: FINISHED\n\n";
-                                                    break;
+                                                woyouService.lineWrap(4, callback);
+                                            } catch (RemoteException e) {
+                                                // TODO Auto-generated catch block
+                                                e.printStackTrace();
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
                                             }
 
-                                            mmOutputStream.write(tr_txt.getBytes());
-                                        }
-                                    }
+                                        }});
+
+
+
+
+
                                     //FEED 3 LINEAS
                                     mmOutputStream.write(0x1B);
                                     mmOutputStream.write(0x64);
@@ -354,151 +355,49 @@ public class CheckActivity extends AppCompatActivity {
         }
     }
 
-    void findBT() throws IOException{
-
-        try {
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-            if (mBluetoothAdapter == null) {
-                Toast.makeText(getBaseContext(),"No bluetooth adapter available",Toast.LENGTH_SHORT).show();
-            }
-
-            if (!mBluetoothAdapter.isEnabled()) {
-                Intent enableBluetooth = new Intent(
-                        BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBluetooth, 0);
-            }
-
-            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter
-                    .getBondedDevices();
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice device : pairedDevices) {
-
-                    if (device.getName().equals("Inner printer")) {
-                        mmDevice = device;
-                        //Toast.makeText(getBaseContext(),"Bluetooth Device Found",Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    if (device.getName().equals("SPP-R200II")) {
-                        mmDevice = device;
-                        //Toast.makeText(getBaseContext(),"Bluetooth Device Found",Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    if (device.getName().equals("HM-E200")) {
-                        mmDevice = device;
-                        //Toast.makeText(getBaseContext(),"Bluetooth Device Found",Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                }
-            }
-
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    void openBT() throws IOException {
-        try {
-            // Standard SerialPortService ID
-            UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-            mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
-            mmSocket.connect();
-            mmOutputStream = mmSocket.getOutputStream();
-            mmInputStream = mmSocket.getInputStream();
-
-            beginListenForData();
-
-            //Toast.makeText(getBaseContext(),"Bluetooth Opened",Toast.LENGTH_SHORT).show();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    void beginListenForData() {
-        try {
-            final Handler handler = new Handler();
-
-            // This is the ASCII code for a newline character
-            final byte delimiter = 10;
-
-            stopWorker = false;
-            readBufferPosition = 0;
-            readBuffer = new byte[1024];
-
-            workerThread = new Thread(new Runnable() {
-                public void run() {
-                    while (!Thread.currentThread().isInterrupted()
-                            && !stopWorker) {
-
-                        try {
-
-                            int bytesAvailable = mmInputStream.available();
-                            if (bytesAvailable > 0) {
-                                byte[] packetBytes = new byte[bytesAvailable];
-                                mmInputStream.read(packetBytes);
-                                for (int i = 0; i < bytesAvailable; i++) {
-                                    byte b = packetBytes[i];
-                                    if (b == delimiter) {
-                                        byte[] encodedBytes = new byte[readBufferPosition];
-                                        System.arraycopy(readBuffer, 0,
-                                                encodedBytes, 0,
-                                                encodedBytes.length);
-                                        final String data = new String(
-                                                encodedBytes, "US-ASCII");
-                                        readBufferPosition = 0;
-
-                                        handler.post(new Runnable() {
-                                            public void run() {
-                                                //myLabel.setText(data);
-                                            }
-                                        });
-                                    } else {
-                                        readBuffer[readBufferPosition++] = b;
-                                    }
-                                }
-                            }
-
-                        } catch (IOException ex) {
-                            stopWorker = true;
-                        }
-
-                    }
-                }
-            });
-
-            workerThread.start();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    void closeBT() throws IOException {
-        try {
-            stopWorker = true;
-            mmOutputStream.close();
-            mmInputStream.close();
-            mmSocket.close();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
-    protected void onDestroy () {
-        try {
-            closeBT();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void onDestroy() {
         super.onDestroy();
+
+        if (connService != null) {
+            unbindService(connService);
+        }
+    }
+
+    private void innitView() {
+
+
+        new BitmapUtils(this);
+
+        callback = new ICallback.Stub() {
+
+            @Override
+            public void onRunResult(final boolean success) throws RemoteException {
+            }
+
+            @Override
+            public void onReturnString(final String value) throws RemoteException {
+                Log.i(TAG,"printlength:" + value + "\n");
+            }
+
+            @Override
+            public void onRaiseException(int code, final String msg) throws RemoteException {
+                Log.i(TAG,"onRaiseException: " + msg);
+                runOnUiThread(new Runnable(){
+                    @Override
+                    public void run() {
+
+                    }});
+
+            }
+        };
+
+        Intent intent=new Intent();
+        intent.setPackage("woyou.aidlservice.jiuiv5");
+        intent.setAction("woyou.aidlservice.jiuiv5.IWoyouService");
+        startService(intent);
+        bindService(intent, connService, Context.BIND_AUTO_CREATE);
     }
 
 }

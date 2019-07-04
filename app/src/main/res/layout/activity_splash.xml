@@ -9,13 +9,13 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="200dp"
+        android:layout_width="250dp"
         android:layout_height="200dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="161dp"
         android:scaleType="fitXY"
-        app:srcCompat="@drawable/logo_v2_tr"
+        app:srcCompat="@drawable/logo_v4_tr"
         tools:ignore="ContentDescription" />
 
     <ProgressBar
@@ -34,15 +34,15 @@
         android:progressTint="#ffffff" />
 
     <TextView
-        android:id="@+id/textView9"
+        android:id="@+id/footerText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/progressBar"
         android:layout_alignParentBottom="true"
         android:layout_alignStart="@+id/progressBar"
-        android:text="© 2018 - GlobalTank - GlobalSMS v. 2.00.00.01 - All rights reserved."
+        android:fontFamily="@font/assistant_light"
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textStyle="bold|italic" />
+        android:textStyle="bold" />
 
 </RelativeLayout>
