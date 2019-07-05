@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     private DatePickerDialog dailyDatePickerDialog;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         currentApiVersion = android.os.Build.VERSION.SDK_INT;
@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 lang = "es";
                 break;
         }
+
         Locale locale = new Locale(lang);
         Locale.setDefault(locale);
         Configuration config = new Configuration();

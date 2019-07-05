@@ -92,6 +92,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -344,8 +345,8 @@ public class PinPadActivity extends AppCompatActivity {
                 //CAMPILLO TRANSACTION
                 switch (transaction){
                     case "Nueva":
-                        //CampilloPreReserve();
-                        CampilloReserve();
+                        CampilloPreReserve();
+                        //CampilloReserve();
                         break;
                     case "Cierre":
                         CheckCampilloTrx();
@@ -1903,7 +1904,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(View v) {
                                     show.dismiss();
-                                    //CampilloReserve("0");
+                                    CampilloReserve("0");
                                 }
                             });
 
@@ -1911,7 +1912,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(View v) {
                                     show.dismiss();
-                                    CReserve("1");
+                                    CampilloReserve("1");
                                 }
                             });
 
@@ -1919,7 +1920,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(View v) {
                                     show.dismiss();
-                                    CReserve(null);
+                                    CampilloReserve(null);
                                 }
                             });
 
@@ -1944,6 +1945,8 @@ public class PinPadActivity extends AppCompatActivity {
                 @Override
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<String, String>();
+                    Log.e(TAG, "Setting body PreReserveCampillo");
+                    Log.e(TAG, "Setting body PreReserveCampillo " + terminal + " " + codigo);
                     params.put("terminal", terminal);
                     params.put("code", codigo);
                     return params;
@@ -1971,8 +1974,9 @@ public class PinPadActivity extends AppCompatActivity {
     void CReserve(String trx_type ){
 
     }
-    //void CampilloReserve(final String trx_type )
-    void CampilloReserve(){
+
+    void CampilloReserve(final String trx_type ){
+    //void CampilloReserve(){
         if (!isNetworkAvailable()){
             mensajered();
         }else {
@@ -2201,9 +2205,9 @@ public class PinPadActivity extends AppCompatActivity {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("terminal", terminal);
                     params.put("code", codigo);
-/*                    if(trx_type != null){
+                    if(trx_type != null){
                         params.put("transaction_type", trx_type );
-                    }*/
+                    }
                     return params;
                 }
 
