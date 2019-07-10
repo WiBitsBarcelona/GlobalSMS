@@ -52,6 +52,8 @@
     <string name="dialogo_qr_diesel">Cuantos QR del Producto DIESEL tiene el Ticket?</string>
     <string name="dialogo_qr_adblue">Cuantos QR del Producto AD BLUE tiene el Ticket?</string>
     <string name="dialogo_qr_diesel_rojo">Cuantos QR del Producto DIESEL ROJO tiene el Ticket?</string>
+    <string name="dialogo_qr_gas">How many QRs of RED DIESEL have the Ticket?</string>
+
     <string name="mensaje_qr_repetido">Este QR ya ha sido Escaneado!!</string>
 
     <string name="titulo_imprimir_copia">GlobalSMS - Kopie drucken</string>

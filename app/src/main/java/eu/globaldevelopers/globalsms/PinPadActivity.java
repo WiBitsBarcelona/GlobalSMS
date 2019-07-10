@@ -1,7 +1,6 @@
 package eu.globaldevelopers.globalsms;
 
 
-
 import android.Manifest;
 import android.app.Application;
 import android.app.Dialog;
@@ -106,6 +105,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import eu.globaldevelopers.globalsms.Enums.ProcessTypeEnum;
+import eu.globaldevelopers.globalsms.Enums.ProductEnum;
+import eu.globaldevelopers.globalsms.Enums.TransactionTypeEnum;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -122,6 +124,8 @@ import static android.view.View.GONE;
 
 public class PinPadActivity extends AppCompatActivity {
 
+    ProcessTypeEnum processType;
+    ProductEnum productType;
     String codigo = "";
     String asteriscos = "";
     String textoproducto;
@@ -135,21 +139,27 @@ public class PinPadActivity extends AppCompatActivity {
     ArrayList QRArray = new ArrayList();
     int cuantosQR = 1;
     float litrostmp = 0;
+    float totalLiters = 0;
     String tipo;
     String litrosT;
     String totalTxt = "0.00";
     Boolean EsEfiData = false;
 
+    /**
+     * AUTHORIZATIONS
+     */
     Double AuthDiesel = 0.00;
     Double AuthAdBlue = 0.00;
     Double AuthRedDiesel = 0.00;
     Double AuthGas = 0.00;
     Double AuthMoney = 0.00;
+    View CampilloLitersLayout;
 
     Integer KmsRequired;
     Integer HoursRequired;
 
     String Expendient;
+    ArrayList<String> TransactionIds = new ArrayList<>();
 
     String RealDiesel = "";
     String RealAdBlue = "";
@@ -159,9 +169,9 @@ public class PinPadActivity extends AppCompatActivity {
     String hours = "";
 
 
-    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String MyPREFERENCES = "MyPrefs";
     public static final String MySUPPLY = "MySupply";
-    public static final String MyPRECIOS = "MyPrecios" ;
+    public static final String MyPRECIOS = "MyPrecios";
     public static final String LastCampilloAuth = "Campillo";
 
     SharedPreferences sharedpreferences;
@@ -229,7 +239,7 @@ public class PinPadActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_pin_pad);
 
-        if(Build.VERSION.SDK_INT < 19){
+        if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();
             v.setSystemUiVisibility(GONE);
         } else {
@@ -247,11 +257,11 @@ public class PinPadActivity extends AppCompatActivity {
         }
     }
 
-    public void PulsadoFunction(View v){
-        switch(v.getId()) {
+    public void PulsadoFunction(View v) {
+        switch (v.getId()) {
             case R.id.btn_0:
                 codigo = codigo + "0";
-            break;
+                break;
             case R.id.btn_1:
                 codigo = codigo + "1";
                 break;
@@ -285,14 +295,14 @@ public class PinPadActivity extends AppCompatActivity {
         textView.setText(asteriscos);
     }
 
-    public void borrarcaracter(View v){
+    public void borrarcaracter(View v) {
         int l = codigo.length();
-        if(l == 0){
+        if (l == 0) {
             asteriscos = codigo;
             TextView textView = (TextView) findViewById(R.id.codigoactual);
             textView.setText(asteriscos);
-        }else{
-            codigo = codigo.substring(0, codigo.length() -1);
+        } else {
+            codigo = codigo.substring(0, codigo.length() - 1);
             asteriscos = codigo;
             TextView textView = (TextView) findViewById(R.id.codigoactual);
             textView.setText(asteriscos);
@@ -300,13 +310,13 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
-    public void btncancelar(View v){
+    public void btncancelar(View v) {
         Intent Intent = new Intent(this, MainActivity.class);
         startActivity(Intent);
         finish();
     }
 
-    public void btnaceptar(final View v){
+    public void btnaceptar(final View v) {
 
         int l = codigo.length();
 
@@ -314,10 +324,10 @@ public class PinPadActivity extends AppCompatActivity {
         final String productselected = sharedpreferences2.getString("productoKey", null);
         final String transaction = sharedpreferences2.getString("tipoKey", null);
 
-        switch (l){
+        switch (l) {
             case 0:
                 //NO DRIVERS CODE OR IDENTY.ERROR
-                AlertDialog.Builder alert =new AlertDialog.Builder(this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
                 alert.setTitle(this.getString(R.string.alert_no_code));
                 alert.setCancelable(false);
                 alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -328,7 +338,8 @@ public class PinPadActivity extends AppCompatActivity {
                 break;
             case 7:
                 //INSTANTIC TRANSACTION
-                switch (transaction){
+                processType = ProcessTypeEnum.INSTANTIC;
+                switch (transaction) {
                     case "Nueva":
                         ProductDialog();
                         break;
@@ -343,7 +354,8 @@ public class PinPadActivity extends AppCompatActivity {
                 break;
             case 9:
                 //CAMPILLO TRANSACTION
-                switch (transaction){
+                processType = ProcessTypeEnum.CAMPILLO;
+                switch (transaction) {
                     case "Nueva":
                         CampilloPreReserve();
                         //CampilloReserve();
@@ -358,16 +370,15 @@ public class PinPadActivity extends AppCompatActivity {
                 }
                 break;
         }
-     }
+    }
 
 
     private static InputStream convertStringToDocument(String xmlStr) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
-        try
-        {
+        try {
             builder = factory.newDocumentBuilder();
-            Document doc = builder.parse( new InputSource( new StringReader( xmlStr ) ) );
+            Document doc = builder.parse(new InputSource(new StringReader(xmlStr)));
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             Source xmlSource = new DOMSource(doc);
             Result outputTarget = new StreamResult(outputStream);
@@ -386,10 +397,10 @@ public class PinPadActivity extends AppCompatActivity {
         return node.getNodeValue();
     }
 
-    void cierraT(){
-        if (isNetworkAvailable() == false){
+    void cierraT() {
+        if (isNetworkAvailable() == false) {
             mensajered();
-        }else {
+        } else {
             //Primero, miro si el código esta reservado.
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
             final String server = sharedpreferences.getString("serverKey", null);
@@ -439,10 +450,10 @@ public class PinPadActivity extends AppCompatActivity {
         }
     }
 
-    void cancelaT(){
-        if (isNetworkAvailable() == false){
+    void cancelaT() {
+        if (isNetworkAvailable() == false) {
             mensajered();
-        }else {
+        } else {
             contadortimeout = new ContadorTimeOut(10000, 1000);
             contadortimeout.start();
 
@@ -498,11 +509,11 @@ public class PinPadActivity extends AppCompatActivity {
                                                 msg += "CANCELLED";
                                                 msg += "\n";
                                                 for (int g2 = 0; g2 < 2; g2++) {
-                                                    ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                                    ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                                         @Override
                                                         public void run() {
-                                                            if( mBitmap == null ){
+                                                            if (mBitmap == null) {
                                                                 mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                             }
                                                             try {
@@ -514,10 +525,10 @@ public class PinPadActivity extends AppCompatActivity {
                                                                 woyouService.setAlignment(1, callback);
                                                                 woyouService.printBitmap(mBitmap, callback);
                                                                 woyouService.setFontSize(24, callback);
-                                                                woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                                woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                                 String pterminal = "Terminal: " + terminal + "\n\n";
                                                                 woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                                woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                                woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                                 woyouService.lineWrap(2, callback);
                                                                 woyouService.setAlignment(0, callback);
                                                                 woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
@@ -530,7 +541,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                                 e.printStackTrace();
                                                             }
 
-                                                        }});
+                                                        }
+                                                    });
                                                     if (g2 == 0) {
                                                         Thread.sleep(4000);
                                                     }
@@ -545,11 +557,11 @@ public class PinPadActivity extends AppCompatActivity {
                                             codigoerror = getValue("error_code", element2);
                                             textoerror = getValue("error_description", element2);
                                             for (int g = 0; g < 2; g++) {
-                                                ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                                ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                                     @Override
                                                     public void run() {
-                                                        if( mBitmap == null ){
+                                                        if (mBitmap == null) {
                                                             mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                         }
                                                         try {
@@ -560,15 +572,15 @@ public class PinPadActivity extends AppCompatActivity {
                                                             woyouService.setAlignment(1, callback);
                                                             woyouService.printBitmap(mBitmap, callback);
                                                             woyouService.setFontSize(24, callback);
-                                                            woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                            woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                             String pterminal = "Terminal: " + terminal + "\n\n";
                                                             woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                            woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                            woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                             woyouService.lineWrap(2, callback);
                                                             woyouService.setAlignment(0, callback);
                                                             woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                                                            woyouService.printTextWithFont( "Error Code: " + codigoerror + "\n", "", 28, callback);
-                                                            woyouService.printTextWithFont( "Error: " + textoerror + "\n", "", 28, callback);
+                                                            woyouService.printTextWithFont("Error Code: " + codigoerror + "\n", "", 28, callback);
+                                                            woyouService.printTextWithFont("Error: " + textoerror + "\n", "", 28, callback);
                                                             woyouService.printTextWithFont("\n", "", 24, callback);
                                                             woyouService.setAlignment(1, callback);
                                                             woyouService.printTextWithFont(msg, "", 36, callback);
@@ -578,7 +590,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                             e.printStackTrace();
                                                         }
 
-                                                    }});
+                                                    }
+                                                });
                                                 if (g == 0) {
                                                     Thread.sleep(4000);
                                                 }
@@ -633,7 +646,7 @@ public class PinPadActivity extends AppCompatActivity {
         }
     }
 
-    void pedirlitros(){
+    void pedirlitros() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(this.getString(R.string.titulo_litros));
         builder.setMessage(this.getString(R.string.entrada_litros));
@@ -659,10 +672,10 @@ public class PinPadActivity extends AppCompatActivity {
         builder.show();
     }
 
-    void finalizaT(final String litros){
-        if (!isNetworkAvailable()){
+    void finalizaT(final String litros) {
+        if (!isNetworkAvailable()) {
             mensajered();
-        }else {
+        } else {
             counter = 1;
             contadortimeout = new ContadorTimeOut(10000, 1000);
             contadortimeout.start();
@@ -747,11 +760,11 @@ public class PinPadActivity extends AppCompatActivity {
                                             totalTxt = total2.toString();
                                             try {
                                                 for (int g2 = 0; g2 < 2; g2++) {
-                                                    ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                                    ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                                         @Override
                                                         public void run() {
-                                                            if( mBitmap == null ){
+                                                            if (mBitmap == null) {
                                                                 mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                             }
                                                             try {
@@ -762,24 +775,24 @@ public class PinPadActivity extends AppCompatActivity {
                                                                 woyouService.setAlignment(1, callback);
                                                                 woyouService.printBitmap(mBitmap, callback);
                                                                 woyouService.setFontSize(24, callback);
-                                                                woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                                woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                                 String pterminal = "Terminal: " + terminal + "\n\n";
                                                                 woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                                woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                                woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                                 woyouService.lineWrap(2, callback);
                                                                 woyouService.setAlignment(0, callback);
                                                                 woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                                                                woyouService.printTextWithFont( "Operation Code: " + operation + "\n", "", 30, callback);
-                                                                woyouService.printTextWithFont( "\n", "", 28, callback);
+                                                                woyouService.printTextWithFont("Operation Code: " + operation + "\n", "", 30, callback);
+                                                                woyouService.printTextWithFont("\n", "", 28, callback);
                                                                 woyouService.setFontSize(28, callback);
                                                                 String[] text = new String[3];
-                                                                int[] width = new int[] { 10, 8, 8 };
-                                                                int[] align = new int[] { 0, 2, 2 }; //
+                                                                int[] width = new int[]{10, 8, 8};
+                                                                int[] align = new int[]{0, 2, 2}; //
 
                                                                 text[0] = "Product";
                                                                 text[1] = "Liters";
                                                                 text[2] = "Total";
-                                                                woyouService.printColumnsText(text, width, new int[] {0,2,2}, callback);
+                                                                woyouService.printColumnsText(text, width, new int[]{0, 2, 2}, callback);
 
                                                                 text[0] = textoproducto;
                                                                 text[1] = litros;
@@ -794,7 +807,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                                 e.printStackTrace();
                                                             }
 
-                                                        }});
+                                                        }
+                                                    });
 
                                                     if (g2 == 0) {
                                                         Thread.sleep(4000);
@@ -810,11 +824,11 @@ public class PinPadActivity extends AppCompatActivity {
                                             codigoerror = getValue("error_code", element2);
                                             textoerror = getValue("error_description", element2);
                                             for (int g = 0; g < 2; g++) {
-                                                ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                                ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                                     @Override
                                                     public void run() {
-                                                        if( mBitmap == null ){
+                                                        if (mBitmap == null) {
                                                             mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                         }
                                                         try {
@@ -825,15 +839,15 @@ public class PinPadActivity extends AppCompatActivity {
                                                             woyouService.setAlignment(1, callback);
                                                             woyouService.printBitmap(mBitmap, callback);
                                                             woyouService.setFontSize(24, callback);
-                                                            woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                            woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                             String pterminal = "Terminal: " + terminal + "\n\n";
                                                             woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                            woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                            woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                             woyouService.lineWrap(2, callback);
                                                             woyouService.setAlignment(0, callback);
                                                             woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                                                            woyouService.printTextWithFont( "Error Code: " + codigoerror + "\n", "", 28, callback);
-                                                            woyouService.printTextWithFont( "Error: " + textoerror + "\n", "", 28, callback);
+                                                            woyouService.printTextWithFont("Error Code: " + codigoerror + "\n", "", 28, callback);
+                                                            woyouService.printTextWithFont("Error: " + textoerror + "\n", "", 28, callback);
                                                             woyouService.printTextWithFont("\n", "", 24, callback);
                                                             woyouService.setAlignment(1, callback);
                                                             woyouService.printTextWithFont(msg, "", 36, callback);
@@ -843,7 +857,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                             e.printStackTrace();
                                                         }
 
-                                                    }});
+                                                    }
+                                                });
                                                 if (g == 0) {
                                                     Thread.sleep(4000);
                                                 }
@@ -904,17 +919,17 @@ public class PinPadActivity extends AppCompatActivity {
         }
     }
 
-    void salvaroperacion(String tipoS, String cabeceraS, String terminalS, String fechaS, String horaS, String resultadoS, String codigoS, String txtproductoS, String operacionS, String litros_aceptadosS, String litrosS, String totalS, String codigo_errorS, String errorS){
-        if(resultadoS == null){
+    void salvaroperacion(String tipoS, String cabeceraS, String terminalS, String fechaS, String horaS, String resultadoS, String codigoS, String txtproductoS, String operacionS, String litros_aceptadosS, String litrosS, String totalS, String codigo_errorS, String errorS) {
+        if (resultadoS == null) {
             resultadoS = " ";
         }
-        if(operacionS == null){
+        if (operacionS == null) {
             operacionS = "0";
         }
-        if(txtproductoS==null){
+        if (txtproductoS == null) {
             txtproductoS = " ";
         }
-        if(litrosS==null){
+        if (litrosS == null) {
             litrosS = "0";
         }
 
@@ -949,7 +964,7 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
-    void salvarrespuesta(String respuestaS){
+    void salvarrespuesta(String respuestaS) {
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
                 "datos", null, 2);
@@ -969,19 +984,19 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
-    void dialogoQR(String productorespuesta){
+    void dialogoQR(String productorespuesta) {
         LayoutInflater inflater = getLayoutInflater();
         View dialogoLayout = inflater.inflate(R.layout.dialogo_cuantos_qr, null);
         TextView lbl_producto = (TextView) dialogoLayout.findViewById(R.id.labelcuantos);
 
 
-        if(productorespuesta.equals("1")){
+        if (productorespuesta.equals("1")) {
             lbl_producto.setText(R.string.dialogo_qr_diesel);
         }
-        if(productorespuesta.equals("13")){
+        if (productorespuesta.equals("13")) {
             lbl_producto.setText(R.string.dialogo_qr_adblue);
         }
-        if(productorespuesta.equals("15")){
+        if (productorespuesta.equals("15")) {
             lbl_producto.setText(R.string.dialogo_qr_diesel_rojo);
         }
 
@@ -1035,8 +1050,82 @@ public class PinPadActivity extends AppCompatActivity {
         });
     }
 
-    public void numerodeQRs(View v){
-        switch(v.getId()) {
+    void dialogQR() {
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogoLayout = inflater.inflate(R.layout.dialogo_cuantos_qr, null);
+        TextView lbl_producto = (TextView) dialogoLayout.findViewById(R.id.labelcuantos);
+
+        switch (productType) {
+            case DIESEL:
+                lbl_producto.setText(R.string.dialogo_qr_diesel);
+                break;
+            case ADBLUE:
+                lbl_producto.setText(R.string.dialogo_qr_adblue);
+                break;
+            case RED:
+                lbl_producto.setText(R.string.dialogo_qr_diesel_rojo);
+                break;
+            case GAS:
+                lbl_producto.setText(R.string.dialogo_qr_gas);
+                break;
+        }
+
+        builder = new AlertDialog.Builder(this);
+
+        builder.setCancelable(false);
+
+        builder.setView(dialogoLayout);
+
+        final AlertDialog show = builder.show();
+
+        Button alertButton1 = (Button) dialogoLayout.findViewById(R.id.QR1);
+        Button alertButton2 = (Button) dialogoLayout.findViewById(R.id.QR2);
+        Button alertButton3 = (Button) dialogoLayout.findViewById(R.id.QR3);
+        Button alertButton4 = (Button) dialogoLayout.findViewById(R.id.QR4);
+
+        alertButton1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cuantosQR = 1;
+                counter = 1;
+                show.dismiss();
+                scanQR();
+            }
+        });
+
+        alertButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cuantosQR = 2;
+                counter = 1;
+                show.dismiss();
+                scanQR();
+            }
+        });
+
+        alertButton3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cuantosQR = 3;
+                counter = 1;
+                show.dismiss();
+                scanQR();
+            }
+        });
+
+        alertButton4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cuantosQR = 4;
+                counter = 1;
+                show.dismiss();
+                scanQR();
+            }
+        });
+    }
+
+    public void numerodeQRs(View v) {
+        switch (v.getId()) {
             case R.id.QR1:
                 cuantosQR = 1;
                 break;
@@ -1053,7 +1142,7 @@ public class PinPadActivity extends AppCompatActivity {
         //scanQR();
     }
 
-    void scanQR(){
+    void scanQR() {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
 
@@ -1072,104 +1161,141 @@ public class PinPadActivity extends AppCompatActivity {
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
 
         if (scanningResult != null) {
-            if(scanningResult.getContents() == null) {
+            if (scanningResult.getContents() == null) {
                 //El usuario ha pulaado el boton cancelar en el Scanner.
                 //Toast.makeText(this, "Cancelado", Toast.LENGTH_LONG).show();
             } else {
-                String scanContent = scanningResult.getContents();
-                String campos[] = scanContent.split("\\|");
-                tipo = campos[0];
-                litrosT = campos[1];
-                litrosT = litrosT.replace(",",".").trim();
-                litrostmp += Float.valueOf(litrosT);
-                switch (cuantosQR) {
-                    case 1:
-                        if (CheckTipoRepostaje()) {
-                            finalizaT(litrosT);
-                        } else {
-                            mensajeQRNovalido();
+                switch (processType) {
+                    case INSTANTIC:
+                        String scanContent = scanningResult.getContents();
+                        String campos[] = scanContent.split("\\|");
+                        tipo = campos[0];
+                        litrosT = campos[1];
+                        litrosT = litrosT.replace(",", ".").trim();
+                        litrostmp += Float.valueOf(litrosT);
+                        switch (cuantosQR) {
+                            case 1:
+                                if (CheckTipoRepostaje()) {
+                                    finalizaT(litrosT);
+                                } else {
+                                    mensajeQRNovalido();
+                                }
+                                break;
+                            case 2:
+                                if (QRArray.contains(scanContent)) {
+                                    mensajeQRRepetido();
+                                } else {
+                                    if (CheckTipoRepostaje()) {
+                                        if (counter < cuantosQR) {
+                                            counter++;
+                                            QRArray.add(scanContent);
+                                            scanQR();
+                                        } else {
+                                            litrosT = String.valueOf(litrostmp);
+                                            finalizaT(litrosT);
+                                        }
+                                    } else {
+                                        mensajeQRNovalido();
+                                    }
+                                }
+                                break;
+                            case 3:
+                                if (QRArray.contains(scanContent)) {
+                                    mensajeQRRepetido();
+                                } else {
+                                    if (CheckTipoRepostaje()) {
+                                        if (counter < cuantosQR) {
+                                            counter++;
+                                            QRArray.add(scanContent);
+                                            scanQR();
+                                        } else {
+                                            litrosT = String.valueOf(litrostmp);
+                                            finalizaT(litrosT);
+                                        }
+                                    } else {
+                                        mensajeQRNovalido();
+                                    }
+                                }
+                                break;
+                            case 4:
+                                if (QRArray.contains(scanContent)) {
+                                    mensajeQRRepetido();
+                                } else {
+                                    if (CheckTipoRepostaje()) {
+                                        if (counter < cuantosQR) {
+                                            counter++;
+                                            QRArray.add(scanContent);
+                                            scanQR();
+                                        } else {
+                                            litrosT = String.valueOf(litrostmp);
+                                            finalizaT(litrosT);
+                                        }
+                                    } else {
+                                        mensajeQRNovalido();
+                                    }
+                                }
+                                break;
                         }
                         break;
-                    case 2:
-                        if (QRArray.contains(scanContent)) {
-                            mensajeQRRepetido();
+                    case CAMPILLO:
+                        String scanQrContent = scanningResult.getContents();
+                        String data[] = scanQrContent.split("\\|");
+                        tipo = data[0];
+                        String liters = data[1];
+                        liters = liters.replace(",", ".").trim();
+                        totalLiters += Float.valueOf(liters);
+                        if (counter < cuantosQR) {
+                            counter++;
+                            scanQR();
                         } else {
-                            if (CheckTipoRepostaje()) {
-                                if (counter < cuantosQR) {
-                                    counter++;
-                                    QRArray.add(scanContent);
-                                    scanQR();
-                                } else {
-                                    litrosT = String.valueOf(litrostmp);
-                                    finalizaT(litrosT);
-                                }
-                            } else {
-                                mensajeQRNovalido();
-                            }
-                        }
-                        break;
-                    case 3:
-                        if (QRArray.contains(scanContent)) {
-                            mensajeQRRepetido();
-                        } else {
-                            if (CheckTipoRepostaje()) {
-                                if (counter < cuantosQR) {
-                                    counter++;
-                                    QRArray.add(scanContent);
-                                    scanQR();
-                                } else {
-                                    litrosT = String.valueOf(litrostmp);
-                                    finalizaT(litrosT);
-                                }
-                            } else {
-                                mensajeQRNovalido();
-                            }
-                        }
-                        break;
-                    case 4:
-                        if (QRArray.contains(scanContent)) {
-                            mensajeQRRepetido();
-                        } else {
-                            if (CheckTipoRepostaje()) {
-                                if (counter < cuantosQR) {
-                                    counter++;
-                                    QRArray.add(scanContent);
-                                    scanQR();
-                                } else {
-                                    litrosT = String.valueOf(litrostmp);
-                                    finalizaT(litrosT);
-                                }
-                            } else {
-                                mensajeQRNovalido();
+                            //View campilloLitersLayout = this.findViewById(R.id.litersDialog);
+                            //Obtenemos la vista de litros y le asginamos el valor al textView de la layout dependiendo del producto en el que estemos
+                            switch (productType) {
+                                case DIESEL:
+                                    final TextView dieselLiters = (TextView) CampilloLitersLayout.findViewById(R.id.dieselLiters);
+                                    dieselLiters.setText(String.valueOf(totalLiters));
+                                    break;
+                                case ADBLUE:
+                                    final TextView adblueLiters = (TextView) CampilloLitersLayout.findViewById(R.id.adblueLiters);
+                                    adblueLiters.setText(String.valueOf(totalLiters));
+                                    break;
+                                case RED:
+                                    final TextView reddieselLiters = (TextView) CampilloLitersLayout.findViewById(R.id.reddieselLiters);
+                                    reddieselLiters.setText(String.valueOf(totalLiters));
+                                    break;
+                                case GAS:
+                                    final TextView gasLiters = (TextView) CampilloLitersLayout.findViewById(R.id.gasLiters);
+                                    gasLiters.setText(String.valueOf(totalLiters));
+                                    break;
                             }
                         }
                         break;
                 }
             }
-        }else{
-            Toast toast = Toast.makeText(getApplicationContext(),"No scan data received!", Toast.LENGTH_SHORT);
+        } else {
+            Toast toast = Toast.makeText(getApplicationContext(), "No scan data received!", Toast.LENGTH_SHORT);
             toast.show();
         }
     }
 
-    void mensajeQRNovalido(){
+    void mensajeQRNovalido() {
         litrostmp -= Float.valueOf(litrosT);
-        AlertDialog.Builder alert =new AlertDialog.Builder(this);
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(R.string.titulo_error_producto);
         alert.setCancelable(false);
         alert.setMessage(R.string.error_tipo_producto);
         alert.setIcon(R.drawable.warning);
         alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                    scanQR();
+                scanQR();
             }
         });
         alert.show();
     }
 
-    void mensajeQRRepetido(){
+    void mensajeQRRepetido() {
         litrostmp -= Float.valueOf(litrosT);
-        AlertDialog.Builder alert =new AlertDialog.Builder(this);
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(R.string.titulo_error_producto);
         alert.setCancelable(false);
         alert.setMessage(R.string.mensaje_qr_repetido);
@@ -1182,8 +1308,8 @@ public class PinPadActivity extends AppCompatActivity {
         alert.show();
     }
 
-    void mensajered(){
-        AlertDialog.Builder alert =new AlertDialog.Builder(this);
+    void mensajered() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(R.string.titulo_error_nored);
         alert.setCancelable(false);
         alert.setMessage(R.string.error_nored);
@@ -1197,8 +1323,8 @@ public class PinPadActivity extends AppCompatActivity {
         alert.show();
     }
 
-    void mensajetimeout(){
-        AlertDialog.Builder alert =new AlertDialog.Builder(this);
+    void mensajetimeout() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(R.string.titulo_error_timeout);
         alert.setCancelable(false);
         alert.setMessage(R.string.error_timeout);
@@ -1217,7 +1343,7 @@ public class PinPadActivity extends AppCompatActivity {
             }
         });
 
-        alert.setNeutralButton(R.string.btn_contacto, new DialogInterface.OnClickListener(){
+        alert.setNeutralButton(R.string.btn_contacto, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 progress.dismiss();
                 mensajecontacto();
@@ -1226,8 +1352,8 @@ public class PinPadActivity extends AppCompatActivity {
         alert.show();
     }
 
-    void mensajecontacto(){
-        AlertDialog.Builder alert =new AlertDialog.Builder(this);
+    void mensajecontacto() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(R.string.titulo_contacto);
         alert.setCancelable(false);
         alert.setMessage(R.string.text_contacto);
@@ -1266,13 +1392,13 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
 
-    public boolean CheckTipoRepostaje(){
+    public boolean CheckTipoRepostaje() {
         //Vilamalla: Diesel - Ad Blue
         //Gexa: GAS/A - AdBlue
         //Arraia: GAS/A - ADBLUE
         //Tiebas: GASOLEO A  - ADBLUE
 
-        switch (tipo){
+        switch (tipo) {
             case "Diesel":
                 //Es Diesel ALVIC Vilamalla
             case "GAS/A":
@@ -1280,12 +1406,12 @@ public class PinPadActivity extends AppCompatActivity {
                 return respuesta.equals("1");
             case "GASOLEO A":
                 //Es Diesel de EFIDATA Tiebas
-                if(respuesta.equals("1")){
+                if (respuesta.equals("1")) {
                     EsEfiData = true;
                     return true;
                     //litrosT = litrosT.replace(",",".");
                     //finalizaT(litrosT);
-                }else {
+                } else {
                     return false;
                 }
             case "Ad Blue":
@@ -1299,12 +1425,12 @@ public class PinPadActivity extends AppCompatActivity {
                 return respuesta.equals("13");
             case "AD BLUE":
                 //Es Ad Blue de EFIDATA
-                if(respuesta.equals("13")){
+                if (respuesta.equals("13")) {
                     EsEfiData = true;
                     //litrosT = litrosT.replace(",",".");
                     //finalizaT(litrosT);
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             default:
@@ -1322,10 +1448,10 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
 
-    void newReserve(final String prod){
-        if (isNetworkAvailable() == false){
+    void newReserve(final String prod) {
+        if (isNetworkAvailable() == false) {
             mensajered();
-        }else {
+        } else {
             contadortimeout = new ContadorTimeOut(10000, 1000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
@@ -1388,11 +1514,11 @@ public class PinPadActivity extends AppCompatActivity {
 
                                                 for (int g = 0; g < 1; g++) {
 
-                                                    ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                                    ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                                         @Override
                                                         public void run() {
-                                                            if( mBitmap == null ){
+                                                            if (mBitmap == null) {
                                                                 mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                             }
                                                             try {
@@ -1403,15 +1529,15 @@ public class PinPadActivity extends AppCompatActivity {
                                                                 woyouService.setAlignment(1, callback);
                                                                 woyouService.printBitmap(mBitmap, callback);
                                                                 woyouService.setFontSize(24, callback);
-                                                                woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                                woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                                 String pterminal = "Terminal: " + terminal + "\n\n";
                                                                 woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                                woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                                woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                                 woyouService.lineWrap(2, callback);
                                                                 woyouService.setAlignment(0, callback);
                                                                 woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                                                                woyouService.printTextWithFont( textoproducto + "\n", "", 28, callback);
-                                                                woyouService.printTextWithFont( litros + "\n", "", 28, callback);
+                                                                woyouService.printTextWithFont(textoproducto + "\n", "", 28, callback);
+                                                                woyouService.printTextWithFont(litros + "\n", "", 28, callback);
                                                                 woyouService.printTextWithFont("\n", "", 24, callback);
                                                                 woyouService.setAlignment(1, callback);
                                                                 woyouService.printTextWithFont(msg, "", 36, callback);
@@ -1421,7 +1547,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                                 e.printStackTrace();
                                                             }
 
-                                                        }});
+                                                        }
+                                                    });
                                                     if (g == 0) {
                                                         Thread.sleep(2000);
                                                     }
@@ -1439,11 +1566,11 @@ public class PinPadActivity extends AppCompatActivity {
                                             msg += "\n";
                                             for (int g = 0; g < 1; g++) {
 
-                                                ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                                ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                                     @Override
                                                     public void run() {
-                                                        if( mBitmap == null ){
+                                                        if (mBitmap == null) {
                                                             mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                         }
                                                         try {
@@ -1454,15 +1581,15 @@ public class PinPadActivity extends AppCompatActivity {
                                                             woyouService.setAlignment(1, callback);
                                                             woyouService.printBitmap(mBitmap, callback);
                                                             woyouService.setFontSize(24, callback);
-                                                            woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                            woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                             String pterminal = "Terminal: " + terminal + "\n\n";
                                                             woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                            woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                            woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                             woyouService.lineWrap(2, callback);
                                                             woyouService.setAlignment(0, callback);
                                                             woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                                                            woyouService.printTextWithFont( "Error Code: " + codigoerror + "\n", "", 28, callback);
-                                                            woyouService.printTextWithFont( "Error: " + textoerror + "\n", "", 28, callback);
+                                                            woyouService.printTextWithFont("Error Code: " + codigoerror + "\n", "", 28, callback);
+                                                            woyouService.printTextWithFont("Error: " + textoerror + "\n", "", 28, callback);
                                                             woyouService.printTextWithFont("\n", "", 24, callback);
                                                             woyouService.setAlignment(1, callback);
                                                             woyouService.printTextWithFont(msg, "", 36, callback);
@@ -1472,7 +1599,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                             e.printStackTrace();
                                                         }
 
-                                                    }});
+                                                    }
+                                                });
 
                                                 if (g == 0) {
                                                     Thread.sleep(3000);
@@ -1542,22 +1670,23 @@ public class PinPadActivity extends AppCompatActivity {
 
             @Override
             public void onReturnString(final String value) throws RemoteException {
-                Log.i(TAG,"printlength:" + value + "\n");
+                Log.i(TAG, "printlength:" + value + "\n");
             }
 
             @Override
             public void onRaiseException(int code, final String msg) throws RemoteException {
-                Log.i(TAG,"onRaiseException: " + msg);
-                runOnUiThread(new Runnable(){
+                Log.i(TAG, "onRaiseException: " + msg);
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
 
-                    }});
+                    }
+                });
 
             }
         };
 
-        Intent intent=new Intent();
+        Intent intent = new Intent();
         intent.setPackage("woyou.aidlservice.jiuiv5");
         intent.setAction("woyou.aidlservice.jiuiv5.IWoyouService");
         startService(intent);
@@ -1565,7 +1694,7 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
 
-    void ProductDialog(){
+    void ProductDialog() {
         LayoutInflater inflater = getLayoutInflater();
         View dialogoLayout = inflater.inflate(R.layout.products_dialog, null);
         TextView lbl_producto = (TextView) dialogoLayout.findViewById(R.id.labelcuantos);
@@ -1592,22 +1721,22 @@ public class PinPadActivity extends AppCompatActivity {
         reddieselactual = sharedpreferences2.getString("reddieselKey", "0.00");
         biodieselactual = sharedpreferences2.getString("biodieselKey", "0.00");
 
-        if(dieselactual.equals("0.00")){
+        if (dieselactual.equals("0.00")) {
             //Diesel no tiene precio no lo muestro
 
             alertButton1.setVisibility(Button.INVISIBLE);
         }
-        if(adblueactual.equals("0.00")){
+        if (adblueactual.equals("0.00")) {
             //Adblue no tiene precio no lo muestro
 
             alertButton2.setVisibility(Button.INVISIBLE);
         }
-        if(reddieselactual.equals("0.00")){
+        if (reddieselactual.equals("0.00")) {
             //Diesel Rojo no tiene precio no lo muestro
 
             alertButton3.setVisibility(Button.INVISIBLE);
         }
-        if(biodieselactual.equals("0.00")){
+        if (biodieselactual.equals("0.00")) {
             //Bio Diesel no tiene precio no lo muestro
 
             alertButton4.setVisibility(Button.INVISIBLE);
@@ -1666,10 +1795,10 @@ public class PinPadActivity extends AppCompatActivity {
         });
     }
 
-    void CampilloPreReserve(){
-        if (!isNetworkAvailable()){
+    void CampilloPreReserve() {
+        if (!isNetworkAvailable()) {
             mensajered();
-        }else {
+        } else {
             contadortimeout = new ContadorTimeOut(10000, 1000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
@@ -1700,7 +1829,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 JSONObject jsonObj = new JSONObject(response);
                                 String Success = jsonObj.getString("success");
 
-                                if(Success.equals("false")){
+                                if (Success.equals("false")) {
                                     Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
                                     codigoerror = jsonObj.getString("error_code");
                                     textoerror = jsonObj.getString("error_description");
@@ -1708,11 +1837,11 @@ public class PinPadActivity extends AppCompatActivity {
                                     msg += "\n";
                                     for (int g = 0; g < 1; g++) {
 
-                                        ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                        ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                             @Override
                                             public void run() {
-                                                if( mBitmap == null ){
+                                                if (mBitmap == null) {
                                                     mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                 }
                                                 try {
@@ -1723,15 +1852,15 @@ public class PinPadActivity extends AppCompatActivity {
                                                     woyouService.setAlignment(1, callback);
                                                     woyouService.printBitmap(mBitmap, callback);
                                                     woyouService.setFontSize(24, callback);
-                                                    woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                     String pterminal = "Terminal: " + terminal + "\n\n";
                                                     woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                    woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                    woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                     woyouService.lineWrap(2, callback);
                                                     woyouService.setAlignment(0, callback);
                                                     woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
-                                                    woyouService.printTextWithFont( "Error Code: " + codigoerror + "\n", "", 28, callback);
-                                                    woyouService.printTextWithFont( "Error: " + textoerror + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("Error Code: " + codigoerror + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("Error: " + textoerror + "\n", "", 28, callback);
                                                     woyouService.printTextWithFont("\n", "", 24, callback);
                                                     woyouService.setAlignment(1, callback);
                                                     woyouService.printTextWithFont(msg, "", 36, callback);
@@ -1741,7 +1870,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                     e.printStackTrace();
                                                 }
 
-                                            }});
+                                            }
+                                        });
 
                                         if (g == 0) {
                                             Thread.sleep(3000);
@@ -1749,7 +1879,7 @@ public class PinPadActivity extends AppCompatActivity {
                                     }
 
 
-                                }else{
+                                } else {
                                     Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", Toast.LENGTH_SHORT).show();
 
                                     int ReservesCounter = sharedpreferences.getInt("reservesCount", 0);
@@ -1781,15 +1911,17 @@ public class PinPadActivity extends AppCompatActivity {
                                     editor2.putString("Money", AuthMoney.toString());
                                     editor2.apply();
 
+                                    //Comprobamos si solo hay transaccion de dinero
+                                    boolean multipleTrType = (AuthDiesel > 0 || AuthAdBlue > 0 || AuthRedDiesel > 0 || AuthGas > 0) && AuthMoney > 0;
+
                                     try {
+                                        for (int g = 0; g < 1 && multipleTrType; g++) {
 
-                                        for (int g = 0; g < 1; g++) {
-
-                                            ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                            ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                                 @Override
                                                 public void run() {
-                                                    if( mBitmap == null ){
+                                                    if (mBitmap == null) {
                                                         mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                     }
                                                     try {
@@ -1800,35 +1932,35 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.setAlignment(1, callback);
                                                         woyouService.printBitmap(mBitmap, callback);
                                                         woyouService.setFontSize(24, callback);
-                                                        woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                        woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                         String pterminal = "Terminal: " + terminal + "\n\n";
                                                         woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                        woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                        woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                         woyouService.lineWrap(2, callback);
                                                         woyouService.setAlignment(0, callback);
                                                         woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
                                                         woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
                                                         woyouService.printTextWithFont("AUTH PRODUCTS:" + "\n", "", 30, callback);
-                                                        if(AuthDiesel != 0){
-                                                            woyouService.printTextWithFont( "DIESEL: "+ AuthDiesel + " Liters\n", "", 28, callback);
-                                                            if(KmsRequired != 0){
+                                                        if (AuthDiesel != 0) {
+                                                            woyouService.printTextWithFont("DIESEL: " + AuthDiesel + " Liters\n", "", 28, callback);
+                                                            if (KmsRequired != 0) {
                                                                 msg += "\n**ATENCION**\n\nEL CHOFER TENDRA QUE INFORMAR LOS KILOMETROS AL FINALIZAR LA OPERACION";
                                                             }
                                                         }
-                                                        if(AuthAdBlue != 0){
-                                                            woyouService.printTextWithFont( "AD BLUE: "+ AuthAdBlue + " Liters\n", "", 28, callback);
+                                                        if (AuthAdBlue != 0) {
+                                                            woyouService.printTextWithFont("AD BLUE: " + AuthAdBlue + " Liters\n", "", 28, callback);
                                                         }
-                                                        if(AuthRedDiesel != 0){
-                                                            woyouService.printTextWithFont( "RED DIESEL: "+ AuthRedDiesel + " Liters\n", "", 28, callback);
-                                                            if(HoursRequired != 0){
+                                                        if (AuthRedDiesel != 0) {
+                                                            woyouService.printTextWithFont("RED DIESEL: " + AuthRedDiesel + " Liters\n", "", 28, callback);
+                                                            if (HoursRequired != 0) {
                                                                 msg += "\n**ATENCION**\n\nEL CHOFER TENDRA QUE INFORMAR LAS HORAS DEL FRIGO AL FINALIZAR LA OPERACION\n";
                                                             }
                                                         }
-                                                        if(AuthGas != 0){
-                                                            woyouService.printTextWithFont( "GAS: "+ AuthGas + " Kilos\n", "", 28, callback);
+                                                        if (AuthGas != 0) {
+                                                            woyouService.printTextWithFont("GAS: " + AuthGas + " Kilos\n", "", 28, callback);
                                                         }
-                                                        if(AuthMoney != 0){
-                                                            woyouService.printTextWithFont( "MONEY: "+ AuthMoney + " Euros\n", "", 28, callback);
+                                                        if (AuthMoney != 0) {
+                                                            woyouService.printTextWithFont("MONEY: " + AuthMoney + " Euros\n", "", 28, callback);
                                                         }
 
                                                         woyouService.printTextWithFont("\n", "", 24, callback);
@@ -1840,7 +1972,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                         e.printStackTrace();
                                                     }
 
-                                                }});
+                                                }
+                                            });
                                             if (g == 0) {
                                                 Thread.sleep(2000);
                                             }
@@ -1875,8 +2008,6 @@ public class PinPadActivity extends AppCompatActivity {
                                         contadortimeout.cancel();
                                         sleep(1000);
                                         progress.dismiss();
-
-
                                         //PinPadActivity.this.finish();
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
@@ -1885,54 +2016,60 @@ public class PinPadActivity extends AppCompatActivity {
                             };
                             t.start();
 
-                            LayoutInflater inflater = getLayoutInflater();
-                            View PreReserveLayout = inflater.inflate(R.layout.prereserve_dialog, null);
-                            builder2 = new AlertDialog.Builder(PinPadActivity.this);
+                            //Si existe mas de un tipo de transacción en la reserva lanzamos el dialog de seleccion
+                            if ((AuthDiesel > 0 || AuthAdBlue > 0 || AuthRedDiesel > 0 || AuthGas > 0) && AuthMoney > 0) {
+                                LayoutInflater inflater = getLayoutInflater();
+                                View PreReserveLayout = inflater.inflate(R.layout.prereserve_dialog, null);
+                                builder2 = new AlertDialog.Builder(PinPadActivity.this);
 
-                            builder2.setCancelable(false);
+                                builder2.setCancelable(false);
 
-                            builder2.setView(PreReserveLayout);
+                                builder2.setView(PreReserveLayout);
 
-                            final AlertDialog show = builder2.show();
+                                final AlertDialog show = builder2.show();
 
-                            Button btnRefuel = (Button) PreReserveLayout.findViewById(R.id.btnRefuel);
-                            Button btnMoney = (Button) PreReserveLayout.findViewById(R.id.btnMoney);
-                            Button btnAll = (Button) PreReserveLayout.findViewById(R.id.btnAll);
-                            Button btnCancel= (Button) PreReserveLayout.findViewById(R.id.btnCancel);
+                                Button btnRefuel = (Button) PreReserveLayout.findViewById(R.id.btnRefuel);
+                                Button btnMoney = (Button) PreReserveLayout.findViewById(R.id.btnMoney);
+                                Button btnAll = (Button) PreReserveLayout.findViewById(R.id.btnAll);
+                                Button btnCancel = (Button) PreReserveLayout.findViewById(R.id.btnCancel);
 
-                            btnRefuel.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    show.dismiss();
-                                    CampilloReserve("0");
-                                }
-                            });
+                                btnRefuel.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        show.dismiss();
+                                        CampilloReserve(String.valueOf(TransactionTypeEnum.REFUEL));
+                                    }
+                                });
 
-                            btnMoney.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    show.dismiss();
-                                    CampilloReserve("1");
-                                }
-                            });
+                                btnMoney.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        show.dismiss();
+                                        CampilloReserve(String.valueOf(TransactionTypeEnum.AMOUNT));
+                                    }
+                                });
 
-                            btnAll.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    show.dismiss();
-                                    CampilloReserve(null);
-                                }
-                            });
+                                btnAll.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        show.dismiss();
+                                        CampilloReserve(null);
+                                    }
+                                });
 
-                            btnCancel.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
+                                btnCancel.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
 
-                                    show.dismiss();
-                                    PinPadActivity.this.finish();
-                                }
-                            });
-
+                                        show.dismiss();
+                                        PinPadActivity.this.finish();
+                                    }
+                                });
+                            } else if (AuthMoney > 0) {//Si solo existe una transaccion de dinero, lanzamos el proceso de reserva automatico
+                                CampilloReserve(String.valueOf(TransactionTypeEnum.AMOUNT));
+                            } else {//Una reserva de litros habitual
+                                CampilloReserve(null);
+                            }
                         }
                     },
                     new Response.ErrorListener() {
@@ -1971,15 +2108,15 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
-    void CReserve(String trx_type ){
+    void CReserve(String trx_type) {
 
     }
 
-    void CampilloReserve(final String trx_type ){
-    //void CampilloReserve(){
-        if (!isNetworkAvailable()){
+    void CampilloReserve(final String trx_type) {
+        //void CampilloReserve(){
+        if (!isNetworkAvailable()) {
             mensajered();
-        }else {
+        } else {
             contadortimeout = new ContadorTimeOut(10000, 1000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
@@ -2009,7 +2146,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 JSONObject jsonObj = new JSONObject(response);
                                 String Success = jsonObj.getString("success");
 
-                                if(Success.equals("false")){
+                                if (Success.equals("false")) {
                                     Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
                                     codigoerror = jsonObj.getString("error_code");
                                     textoerror = jsonObj.getString("error_description");
@@ -2017,11 +2154,11 @@ public class PinPadActivity extends AppCompatActivity {
                                     msg += "\n";
                                     for (int g = 0; g < 1; g++) {
 
-                                        ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                        ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                             @Override
                                             public void run() {
-                                                if( mBitmap == null ){
+                                                if (mBitmap == null) {
                                                     mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                 }
                                                 try {
@@ -2032,15 +2169,15 @@ public class PinPadActivity extends AppCompatActivity {
                                                     woyouService.setAlignment(1, callback);
                                                     woyouService.printBitmap(mBitmap, callback);
                                                     woyouService.setFontSize(24, callback);
-                                                    woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                     String pterminal = "Terminal: " + terminal + "\n\n";
                                                     woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                    woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                    woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                     woyouService.lineWrap(2, callback);
                                                     woyouService.setAlignment(0, callback);
                                                     woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
-                                                    woyouService.printTextWithFont( "Error Code: " + codigoerror + "\n", "", 28, callback);
-                                                    woyouService.printTextWithFont( "Error: " + textoerror + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("Error Code: " + codigoerror + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("Error: " + textoerror + "\n", "", 28, callback);
                                                     woyouService.printTextWithFont("\n", "", 24, callback);
                                                     woyouService.setAlignment(1, callback);
                                                     woyouService.printTextWithFont(msg, "", 36, callback);
@@ -2050,7 +2187,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                     e.printStackTrace();
                                                 }
 
-                                            }});
+                                            }
+                                        });
 
                                         if (g == 0) {
                                             Thread.sleep(3000);
@@ -2058,7 +2196,7 @@ public class PinPadActivity extends AppCompatActivity {
                                     }
 
 
-                                }else{
+                                } else {
                                     Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", Toast.LENGTH_SHORT).show();
 
                                     int ReservesCounter = sharedpreferences.getInt("reservesCount", 0);
@@ -2094,11 +2232,11 @@ public class PinPadActivity extends AppCompatActivity {
 
                                         for (int g = 0; g < 1; g++) {
 
-                                            ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                            ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                                 @Override
                                                 public void run() {
-                                                    if( mBitmap == null ){
+                                                    if (mBitmap == null) {
                                                         mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                     }
                                                     try {
@@ -2109,35 +2247,35 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.setAlignment(1, callback);
                                                         woyouService.printBitmap(mBitmap, callback);
                                                         woyouService.setFontSize(24, callback);
-                                                        woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                        woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                         String pterminal = "Terminal: " + terminal + "\n\n";
                                                         woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                        woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                        woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                         woyouService.lineWrap(2, callback);
                                                         woyouService.setAlignment(0, callback);
                                                         woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
                                                         woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
                                                         woyouService.printTextWithFont("AUTH PRODUCTS:" + "\n", "", 30, callback);
-                                                        if(AuthDiesel != 0){
-                                                            woyouService.printTextWithFont( "DIESEL: "+ AuthDiesel + " Liters\n", "", 28, callback);
-                                                            if(KmsRequired != 0){
+                                                        if (AuthDiesel != 0) {
+                                                            woyouService.printTextWithFont("DIESEL: " + AuthDiesel + " Liters\n", "", 28, callback);
+                                                            if (KmsRequired != 0) {
                                                                 msg += "\n**ATENCION**\n\nEL CHOFER TENDRA QUE INFORMAR LOS KILOMETROS AL FINALIZAR LA OPERACION";
                                                             }
                                                         }
-                                                        if(AuthAdBlue != 0){
-                                                            woyouService.printTextWithFont( "AD BLUE: "+ AuthAdBlue + " Liters\n", "", 28, callback);
+                                                        if (AuthAdBlue != 0) {
+                                                            woyouService.printTextWithFont("AD BLUE: " + AuthAdBlue + " Liters\n", "", 28, callback);
                                                         }
-                                                        if(AuthRedDiesel != 0){
-                                                            woyouService.printTextWithFont( "RED DIESEL: "+ AuthRedDiesel + " Liters\n", "", 28, callback);
-                                                            if(HoursRequired != 0){
+                                                        if (AuthRedDiesel != 0) {
+                                                            woyouService.printTextWithFont("RED DIESEL: " + AuthRedDiesel + " Liters\n", "", 28, callback);
+                                                            if (HoursRequired != 0) {
                                                                 msg += "\n**ATENCION**\n\nEL CHOFER TENDRA QUE INFORMAR LAS HORAS DEL FRIGO AL FINALIZAR LA OPERACION\n";
                                                             }
                                                         }
-                                                        if(AuthGas != 0){
-                                                            woyouService.printTextWithFont( "GAS: "+ AuthGas + " Kilos\n", "", 28, callback);
+                                                        if (AuthGas != 0) {
+                                                            woyouService.printTextWithFont("GAS: " + AuthGas + " Kilos\n", "", 28, callback);
                                                         }
-                                                        if(AuthMoney != 0){
-                                                            woyouService.printTextWithFont( "MONEY: "+ AuthMoney + " Euros\n", "", 28, callback);
+                                                        if (AuthMoney != 0) {
+                                                            woyouService.printTextWithFont("MONEY: " + AuthMoney + " Euros\n", "", 28, callback);
                                                         }
 
                                                         woyouService.printTextWithFont("\n", "", 24, callback);
@@ -2149,7 +2287,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                         e.printStackTrace();
                                                     }
 
-                                                }});
+                                                }
+                                            });
                                             if (g == 0) {
                                                 Thread.sleep(2000);
                                             }
@@ -2158,6 +2297,11 @@ public class PinPadActivity extends AppCompatActivity {
                                         e.printStackTrace();
                                     } catch (Exception e) {
                                         e.printStackTrace();
+                                    }
+
+                                    //Si la transacción que estamos intentando finalizar es un tipo AMOUNT lanzamos directamente el proceso de firma y finalziado de la misma
+                                    if (trx_type == String.valueOf(TransactionTypeEnum.AMOUNT)) {
+                                        CheckCampilloTrx();
                                     }
                                 }
 
@@ -2184,7 +2328,9 @@ public class PinPadActivity extends AppCompatActivity {
                                         contadortimeout.cancel();
                                         sleep(1000);
                                         progress.dismiss();
-                                        PinPadActivity.this.finish();
+                                        if(trx_type != String.valueOf(TransactionTypeEnum.AMOUNT)) {
+                                            PinPadActivity.this.finish();
+                                        }
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
@@ -2205,8 +2351,8 @@ public class PinPadActivity extends AppCompatActivity {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("terminal", terminal);
                     params.put("code", codigo);
-                    if(trx_type != null){
-                        params.put("transaction_type", trx_type );
+                    if (trx_type != null) {
+                        params.put("transaction_type", trx_type);
                     }
                     return params;
                 }
@@ -2230,10 +2376,10 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
-    void CheckCampilloTrx(){
-        if (!isNetworkAvailable()){
+    void CheckCampilloTrx() {
+        if (!isNetworkAvailable()) {
             mensajered();
-        }else {
+        } else {
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
             final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
             final String terminal = sharedpreferences.getString("terminalKey", null);
@@ -2252,9 +2398,9 @@ public class PinPadActivity extends AppCompatActivity {
                                 JSONObject jsonObj = new JSONObject(response);
                                 String Success = jsonObj.getString("success");
 
-                                if(Success.equals("false")){
+                                if (Success.equals("false")) {
                                     Toast.makeText(getBaseContext(), R.string.error_no_reservado, Toast.LENGTH_SHORT).show();
-                                }else{
+                                } else {
                                     final JSONArray AuthProducts = jsonObj.getJSONArray("auth_products");
 
                                     for (int i = 0; i < AuthProducts.length(); i++) {
@@ -2266,6 +2412,14 @@ public class PinPadActivity extends AppCompatActivity {
                                         AuthMoney = c.getDouble("money");
                                     }
                                     Expendient = jsonObj.getString("expedient");
+
+                                    //Guardamos todas las ids de las transacciones pendientes para procesar las distintas firmas
+                                    TransactionIds.clear();
+                                    final JSONArray transactionIds = jsonObj.getJSONArray("transaction_ids");
+                                    for (int i = 0; i < transactionIds.length(); i++) {
+                                        TransactionIds.add(String.valueOf(transactionIds.getInt(i)));
+                                    }
+
                                     KmsRequired = jsonObj.getInt("kms_required");
                                     HoursRequired = jsonObj.getInt("hours_required");
 
@@ -2278,9 +2432,9 @@ public class PinPadActivity extends AppCompatActivity {
                                     editor2.putString("Gas", AuthGas.toString());
                                     editor2.putString("Money", AuthMoney.toString());
                                     editor2.apply();
-                                    if(AuthDiesel == 0 && AuthAdBlue == 0 && AuthRedDiesel == 0 && AuthGas == 00){
-                                        CampilloSignature(0.00,0.00,0.00,0.00,0.00,0.00);
-                                    }else{
+                                    if (AuthDiesel == 0 && AuthAdBlue == 0 && AuthRedDiesel == 0 && AuthGas == 00) {
+                                        CampilloSignature(0.00, 0.00, 0.00, 0.00, 0.00, 0.00);
+                                    } else {
                                         CampilloQts();
                                     }
                                 }
@@ -2332,47 +2486,53 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
 
-    void CampilloQts(){
+    void CampilloQts() {
         LayoutInflater inflater = getLayoutInflater();
-        View dialogoLayout = inflater.inflate(R.layout.liters_dialog, null);
-        TextView lbl_producto = (TextView) dialogoLayout.findViewById(R.id.labelcuantos);
+        CampilloLitersLayout = inflater.inflate(R.layout.liters_dialog, null);
+        TextView lbl_producto = (TextView) CampilloLitersLayout.findViewById(R.id.labelcuantos);
 
-        final CardView DieselCard = (CardView) dialogoLayout.findViewById(R.id.DieselCard);
-        final CardView AdblueCard = (CardView) dialogoLayout.findViewById(R.id.AdblueCard);
-        final CardView RedDieselCard = (CardView) dialogoLayout.findViewById(R.id.RedDieselCard);
-        final CardView GasCard = (CardView) dialogoLayout.findViewById(R.id.GasCard);
-        final CardView KilometersCard = (CardView) dialogoLayout.findViewById(R.id.KilometersCard);
-        final CardView HoursCard = (CardView) dialogoLayout.findViewById(R.id.HoursCard);
+        final CardView DieselCard = (CardView) CampilloLitersLayout.findViewById(R.id.DieselCard);
+        final CardView AdblueCard = (CardView) CampilloLitersLayout.findViewById(R.id.AdblueCard);
+        final CardView RedDieselCard = (CardView) CampilloLitersLayout.findViewById(R.id.RedDieselCard);
+        final CardView GasCard = (CardView) CampilloLitersLayout.findViewById(R.id.GasCard);
+        final CardView KilometersCard = (CardView) CampilloLitersLayout.findViewById(R.id.KilometersCard);
+        final CardView HoursCard = (CardView) CampilloLitersLayout.findViewById(R.id.HoursCard);
 
-        final TextView dieselLiters = (TextView) dialogoLayout.findViewById(R.id.dieselLiters);
-        final TextView adblueLiters = (TextView) dialogoLayout.findViewById(R.id.adblueLiters);
-        final TextView reddieselLiters = (TextView) dialogoLayout.findViewById(R.id.reddieselLiters);
-        final TextView gasLiters = (TextView) dialogoLayout.findViewById(R.id.gasLiters);
-        final TextView kilometers = (TextView) dialogoLayout.findViewById(R.id.kilometers);
-        final TextView hours = (TextView) dialogoLayout.findViewById(R.id.hours);
+        final TextView dieselLiters = (TextView) CampilloLitersLayout.findViewById(R.id.dieselLiters);
+        final TextView adblueLiters = (TextView) CampilloLitersLayout.findViewById(R.id.adblueLiters);
+        final TextView reddieselLiters = (TextView) CampilloLitersLayout.findViewById(R.id.reddieselLiters);
+        final TextView gasLiters = (TextView) CampilloLitersLayout.findViewById(R.id.gasLiters);
+        final TextView kilometers = (TextView) CampilloLitersLayout.findViewById(R.id.kilometers);
+        final TextView hours = (TextView) CampilloLitersLayout.findViewById(R.id.hours);
 
+        dieselLiters.setText("0");
+        adblueLiters.setText("0");
+        reddieselLiters.setText("0");
+        gasLiters.setText("0");
 
-        Button btnCancel = (Button) dialogoLayout.findViewById(R.id.btnCancel);
-        Button btnAccept = (Button) dialogoLayout.findViewById(R.id.btnAccept);
+        Button btnCancel = (Button) CampilloLitersLayout.findViewById(R.id.btnCancel);
+        Button btnAccept = (Button) CampilloLitersLayout.findViewById(R.id.btnAccept);
 
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        final boolean qr = sharedpreferences.getBoolean("qrKey", false);
 
-        if(AuthDiesel == 0){
+        if (AuthDiesel == 0) {
             DieselCard.setVisibility(GONE);
         }
-        if(AuthAdBlue == 0){
+        if (AuthAdBlue == 0) {
             AdblueCard.setVisibility(GONE);
         }
-        if(AuthRedDiesel == 0){
+        if (AuthRedDiesel == 0) {
             RedDieselCard.setVisibility(GONE);
         }
-        if(AuthGas == 0){
+        if (AuthGas == 0) {
             GasCard.setVisibility(GONE);
         }
 
-        if(KmsRequired == 0){
+        if (KmsRequired == 0) {
             KilometersCard.setVisibility(GONE);
         }
-        if(HoursRequired == 0){
+        if (HoursRequired == 0) {
             HoursCard.setVisibility(GONE);
         }
 
@@ -2381,9 +2541,54 @@ public class PinPadActivity extends AppCompatActivity {
 
         builder.setCancelable(false);
 
-        builder.setView(dialogoLayout);
+        builder.setView(CampilloLitersLayout);
 
         final AlertDialog show = builder.show();
+
+        //Si el terminal tiene los QR activados generamo todos los eventos de los 4 productos para que salte el lector
+        if (qr) {
+            dieselLiters.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean hasFocus) {
+                    if (hasFocus) {
+                        productType = ProductEnum.DIESEL;
+                        totalLiters = 0;
+                        dialogQR();
+                    }
+                }
+            });
+            adblueLiters.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean hasFocus) {
+                    if (hasFocus) {
+                        productType = ProductEnum.ADBLUE;
+                        totalLiters = 0;
+                        dialogQR();
+                    }
+                }
+            });
+            reddieselLiters.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean hasFocus) {
+                    if (hasFocus) {
+                        productType = ProductEnum.RED;
+                        totalLiters = 0;
+                        dialogQR();
+                    }
+                }
+            });
+            gasLiters.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean hasFocus) {
+                    if (hasFocus) {
+                        productType = ProductEnum.GAS;
+                        totalLiters = 0;
+                        dialogQR();
+                    }
+                }
+            });
+        }
+
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -2397,7 +2602,7 @@ public class PinPadActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (DieselCard.getVisibility() != GONE) {
                     int l = dieselLiters.length();
-                    if(l == 0){
+                    if (l == 0) {
                         Toast.makeText(getBaseContext(), "Litros de DIESEL A Obligatorios!!!", Toast.LENGTH_SHORT).show();
                         dieselLiters.requestFocus();
                         return;
@@ -2405,7 +2610,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
                 if (AdblueCard.getVisibility() != GONE) {
                     int l = adblueLiters.length();
-                    if(l == 0){
+                    if (l == 0) {
                         Toast.makeText(getBaseContext(), "Litros de AD BLUE Obligatorios!!!", Toast.LENGTH_SHORT).show();
                         adblueLiters.requestFocus();
                         return;
@@ -2413,7 +2618,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
                 if (RedDieselCard.getVisibility() != GONE) {
                     int l = reddieselLiters.length();
-                    if(l == 0){
+                    if (l == 0) {
                         Toast.makeText(getBaseContext(), "Litros de DIESEL ROJO Obligatorios!!!", Toast.LENGTH_SHORT).show();
                         reddieselLiters.requestFocus();
                         return;
@@ -2421,7 +2626,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
                 if (GasCard.getVisibility() != GONE) {
                     int l = gasLiters.length();
-                    if(l == 0){
+                    if (l == 0) {
                         Toast.makeText(getBaseContext(), "Kilos de GAS Obligatorios!!!", Toast.LENGTH_SHORT).show();
                         gasLiters.requestFocus();
                         return;
@@ -2429,7 +2634,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
                 if (KilometersCard.getVisibility() != GONE) {
                     int l = kilometers.length();
-                    if(l == 0){
+                    if (l == 0) {
                         Toast.makeText(getBaseContext(), "Se han de informar los KILÓMETROS!!!", Toast.LENGTH_SHORT).show();
                         kilometers.requestFocus();
                         return;
@@ -2437,7 +2642,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
                 if (HoursCard.getVisibility() != GONE) {
                     int l = hours.length();
-                    if(l == 0){
+                    if (l == 0) {
                         Toast.makeText(getBaseContext(), "Se han de informar las HORAS del frigo!!!", Toast.LENGTH_SHORT).show();
                         hours.requestFocus();
                         return;
@@ -2448,22 +2653,22 @@ public class PinPadActivity extends AppCompatActivity {
                 show.dismiss();
 
 
-                if(dieselLiters.getText().toString().matches("")){
+                if (dieselLiters.getText().toString().matches("")) {
                     dieselLiters.setText("0.00");
                 }
-                if(adblueLiters.getText().toString().matches("")){
+                if (adblueLiters.getText().toString().matches("")) {
                     adblueLiters.setText("0.00");
                 }
-                if(reddieselLiters.getText().toString().matches("")){
+                if (reddieselLiters.getText().toString().matches("")) {
                     reddieselLiters.setText("0.00");
                 }
-                if(gasLiters.getText().toString().matches("")){
+                if (gasLiters.getText().toString().matches("")) {
                     gasLiters.setText("0.00");
                 }
-                if(kilometers.getText().toString().matches("")){
+                if (kilometers.getText().toString().matches("")) {
                     kilometers.setText("0.00");
                 }
-                if(hours.getText().toString().matches("")){
+                if (hours.getText().toString().matches("")) {
                     hours.setText("0.00");
                 }
 
@@ -2487,7 +2692,7 @@ public class PinPadActivity extends AppCompatActivity {
         });
     }
 
-    void CampilloSignature(final Double rDiesel, final Double rAdBlue, final Double rRedDiesel, final Double rGas,final Double rKms, final Double rHours){
+    void CampilloSignature(final Double rDiesel, final Double rAdBlue, final Double rRedDiesel, final Double rGas, final Double rKms, final Double rHours) {
         dialog = new Dialog(PinPadActivity.this);
         // Removing the features of Normal Dialogs
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -2515,41 +2720,38 @@ public class PinPadActivity extends AppCompatActivity {
         mGetSign.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
+                for (int i = 0; i < TransactionIds.size(); i++) {
+                    Log.v("log_tag", "Panel Saved");
+                    StoredPath = DIRECTORY + TransactionIds.get(i) + ".png";
+                    view.setDrawingCacheEnabled(true);
+                    mSignature.save(view, StoredPath);
+                    dialog.dismiss();
+                    //Toast.makeText(getApplicationContext(), "Successfully Saved", Toast.LENGTH_SHORT).show();
+                    // Calling the same class
+                    //recreate();
+                    FileApi service = RetroClient.getApiService();
+                    File file = new File(StoredPath);
+                    RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
 
-                Log.v("log_tag", "Panel Saved");
-                StoredPath = DIRECTORY + Expendient + ".png";
-                view.setDrawingCacheEnabled(true);
-                mSignature.save(view, StoredPath);
-                dialog.dismiss();
-                //Toast.makeText(getApplicationContext(), "Successfully Saved", Toast.LENGTH_SHORT).show();
-                // Calling the same class
-                //recreate();
-                FileApi service = RetroClient.getApiService();
-                File file = new File(StoredPath);
-                RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+                    MultipartBody.Part body =
+                            MultipartBody.Part.createFormData("signature", file.getName(), requestFile);
 
-                MultipartBody.Part body =
-                        MultipartBody.Part.createFormData("signature", file.getName(), requestFile);
+                    Call<Respond> resultCall = service.uploadImage(body);
 
-                Call<Respond> resultCall = service.uploadImage(body);
+                    resultCall.enqueue(new Callback<Respond>() {
+                        @Override
+                        public void onResponse(Call<Respond> call, retrofit2.Response<Respond> response) {
 
-                resultCall.enqueue(new Callback<Respond>() {
-                    @Override
-                    public void onResponse(Call<Respond> call, retrofit2.Response<Respond> response) {
+                        }
 
-                    }
+                        @Override
+                        public void onFailure(Call<Respond> call, Throwable t) {
+                            Log.e("Error upload signature","Error");
+                        }
+                    });
+                }
 
-                    @Override
-                    public void onFailure(Call<Respond> call, Throwable t) {
-
-                    }
-                });
-
-
-
-
-                CampilloFinish(rDiesel,rAdBlue,rRedDiesel,rGas,rKms,rHours);
-
+                CampilloFinish(rDiesel, rAdBlue, rRedDiesel, rGas, rKms, rHours);
             }
         });
 
@@ -2565,10 +2767,10 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
-    void CampilloFinish(final Double rDiesel, final Double rAdBlue, final Double rRedDiesel, final Double rGas, final Double rKms, final Double rHours){
-        if (!isNetworkAvailable()){
+    void CampilloFinish(final Double rDiesel, final Double rAdBlue, final Double rRedDiesel, final Double rGas, final Double rKms, final Double rHours) {
+        if (!isNetworkAvailable()) {
             mensajered();
-        }else {
+        } else {
             contadortimeout = new ContadorTimeOut(10000, 1000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
@@ -2605,7 +2807,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 JSONObject jsonObj = new JSONObject(response);
                                 String Success = jsonObj.getString("success");
 
-                                if(Success.equals("false")){
+                                if (Success.equals("false")) {
                                     Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
                                     codigoerror = jsonObj.getString("error_code");
                                     textoerror = jsonObj.getString("error_description");
@@ -2613,11 +2815,11 @@ public class PinPadActivity extends AppCompatActivity {
                                     msg += "\n";
                                     for (int g = 0; g < 1; g++) {
 
-                                        ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                        ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                             @Override
                                             public void run() {
-                                                if( mBitmap == null ){
+                                                if (mBitmap == null) {
                                                     mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                 }
 
@@ -2630,15 +2832,15 @@ public class PinPadActivity extends AppCompatActivity {
                                                     woyouService.setAlignment(1, callback);
                                                     woyouService.printBitmap(mBitmap, callback);
                                                     woyouService.setFontSize(24, callback);
-                                                    woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                     String pterminal = "Terminal: " + terminal + "\n\n";
                                                     woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                    woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                    woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                     woyouService.lineWrap(2, callback);
                                                     woyouService.setAlignment(0, callback);
                                                     woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
-                                                    woyouService.printTextWithFont( "Error Code: " + codigoerror + "\n", "", 28, callback);
-                                                    woyouService.printTextWithFont( "Error: " + textoerror + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("Error Code: " + codigoerror + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("Error: " + textoerror + "\n", "", 28, callback);
                                                     woyouService.printTextWithFont("\n", "", 24, callback);
                                                     woyouService.setAlignment(1, callback);
                                                     woyouService.printTextWithFont(msg, "", 36, callback);
@@ -2648,7 +2850,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                     e.printStackTrace();
                                                 }
 
-                                            }});
+                                            }
+                                        });
 
                                         if (g == 0) {
                                             Thread.sleep(3000);
@@ -2656,18 +2859,18 @@ public class PinPadActivity extends AppCompatActivity {
                                     }
 
 
-                                }else{
+                                } else {
                                     Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", Toast.LENGTH_SHORT).show();
 
                                     try {
 
                                         for (int g = 0; g < 2; g++) {
 
-                                            ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                            ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                                 @Override
                                                 public void run() {
-                                                    if( mBitmap == null ){
+                                                    if (mBitmap == null) {
                                                         mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                     }
                                                     Bitmap bitmap = BitmapFactory.decodeFile(StoredPath);
@@ -2679,26 +2882,26 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.setAlignment(1, callback);
                                                         woyouService.printBitmap(mBitmap, callback);
                                                         woyouService.setFontSize(24, callback);
-                                                        woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                                        woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                                         String pterminal = "Terminal: " + terminal + "\n\n";
                                                         woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                        woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                                        woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                                         woyouService.lineWrap(2, callback);
                                                         woyouService.setAlignment(0, callback);
                                                         woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
                                                         //woyouService.printTextWithFont( "Operation Code: " + operation + "\n", "", 30, callback);
-                                                        woyouService.printTextWithFont( "\n", "", 28, callback);
+                                                        woyouService.printTextWithFont("\n", "", 28, callback);
                                                         woyouService.setFontSize(28, callback);
                                                         String[] text = new String[3];
-                                                        int[] width = new int[] { 10, 8, 8 };
-                                                        int[] align = new int[] { 0, 2, 2 }; //
+                                                        int[] width = new int[]{10, 8, 8};
+                                                        int[] align = new int[]{0, 2, 2}; //
 
                                                         text[0] = "Product";
                                                         text[1] = "Liters";
                                                         text[2] = "Total";
-                                                        woyouService.printColumnsText(text, width, new int[] {0,2,2}, callback);
+                                                        woyouService.printColumnsText(text, width, new int[]{0, 2, 2}, callback);
 
-                                                        if(rDiesel > 0 ){
+                                                        if (rDiesel > 0) {
                                                             double total = Float.valueOf(Dieselprice) * rDiesel;
                                                             BigDecimal a = new BigDecimal(total);
                                                             final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
@@ -2709,7 +2912,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                             woyouService.printColumnsText(text, width, align, callback);
                                                         }
 
-                                                        if(rAdBlue > 0 ){
+                                                        if (rAdBlue > 0) {
                                                             double total = Float.valueOf(Adblueprice) * rAdBlue;
                                                             BigDecimal a = new BigDecimal(total);
                                                             final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
@@ -2720,7 +2923,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                             woyouService.printColumnsText(text, width, align, callback);
                                                         }
 
-                                                        if(rRedDiesel > 0 ){
+                                                        if (rRedDiesel > 0) {
                                                             double total = Float.valueOf(RedDieselprice) * rRedDiesel;
                                                             BigDecimal a = new BigDecimal(total);
                                                             final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
@@ -2731,7 +2934,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                             woyouService.printColumnsText(text, width, align, callback);
                                                         }
 
-                                                        if(rGas > 0 ){
+                                                        if (rGas > 0) {
                                                             double total = Float.valueOf(Gasprice) * rGas;
                                                             BigDecimal a = new BigDecimal(total);
                                                             final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
@@ -2742,7 +2945,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                             woyouService.printColumnsText(text, width, align, callback);
                                                         }
 
-                                                        if(AuthMoney > 0 ){
+                                                        if (AuthMoney > 0) {
                                                             text[0] = "ENTREGA";
                                                             text[1] = " ";
                                                             text[2] = AuthMoney.toString();
@@ -2759,7 +2962,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                         e.printStackTrace();
                                                     }
 
-                                                }});
+                                                }
+                                            });
                                             if (g == 0) {
                                                 Thread.sleep(2000);
                                             }
@@ -2862,7 +3066,9 @@ public class PinPadActivity extends AppCompatActivity {
                 sb.append(Character.forDigit(a[i] & 0x0f, 16));
             }
             return sb.toString();
-        } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

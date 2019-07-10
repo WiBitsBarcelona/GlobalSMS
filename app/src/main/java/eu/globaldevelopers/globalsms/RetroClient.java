@@ -14,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetroClient {
 
-    private static final String ROOT_URL = "https://caa1.globaltank.app/api/campillo/v1/";
+    private static final String ROOT_URL = "https://sandbox.globaltank.app/api/campillo/v1/";
 
 
     public RetroClient() {

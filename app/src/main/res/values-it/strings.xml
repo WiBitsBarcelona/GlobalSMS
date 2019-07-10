@@ -84,6 +84,8 @@
     <string  istxt="1" name="dialogo_qr_diesel">Il biglietto ha quanti QR del prodotto DIESEL?</string>
     <string  istxt="1" name="dialogo_qr_adblue">Il biglietto ha quanti QR del prodotto AD BLUE?</string>
     <string  istxt="1" name="dialogo_qr_diesel_rojo">Il biglietto ha quanti QR del prodotto GASOLIO AGRICOLO?</string>
+    <string name="dialogo_qr_gas">Il biglietto ha quanti QR del prodotto GAS?</string>
+
     <string  istxt="1" name="mensaje_qr_repetido">Questo QR è già stato scansionato!!</string>
     <string  istxt="1" name="btn_turno">Chiudi turno</string>
     <string  istxt="1" name="btn_operacion">Controllare l Operazione</string>
