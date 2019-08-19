@@ -107,6 +107,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import eu.globaldevelopers.globalsms.Enums.ProcessTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductEnum;
+import eu.globaldevelopers.globalsms.Enums.ProductIntEnum;
 import eu.globaldevelopers.globalsms.Enums.TransactionTypeEnum;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -132,6 +133,7 @@ public class PinPadActivity extends AppCompatActivity {
     String msg;
     String detalle;
     String litros;
+    String TextEuros;
     String codigoerror = "";
     String textoerror = "";
     String operation;
@@ -1497,19 +1499,50 @@ public class PinPadActivity extends AppCompatActivity {
                                             editor.putInt("reservesCount", Reserves);
                                             editor.apply();
                                             Log.d("Reserves", String.valueOf(Reserves));
-                                            litros = "Authorized Liters: " + getValue("max_liters", element2) + "\n\n\n\n";
+                                            litros = "Authorized Liters: " + getValue("max_liters", element2);
                                             String producto = getValue("product_code", element2);
                                             switch (producto) {
                                                 case "DIZ":
                                                     textoproducto = "Authorized Product: DIESEL";
-
                                                     break;
                                                 case "ADB":
                                                     textoproducto = "Authorized Product: AD BLUE";
                                                     break;
                                                 case "FOD":
                                                     textoproducto = "Authorized Product: RED DIESEL";
+                                                    break;
                                             }
+
+                                            //Comprobamos si esta activada la opcion de mostrar los euros en la configuracion del temrinal
+                                            final boolean showEuros = sharedpreferences.getBoolean("showeuroKey", false);
+                                            TextEuros = "";
+                                            switch (prod) {
+                                                case ProductIntEnum.DIESEL:
+                                                    if (showEuros) {
+                                                        dieselactual = sharedpreferences2.getString("dieselKey", "0.00");
+                                                        TextEuros = "Authorized Euros: " + (Float.valueOf(getValue("max_liters", element2)) * Float.valueOf(dieselactual));
+                                                    }
+                                                    break;
+                                                case ProductIntEnum.ADBLUE:
+                                                    if (showEuros) {
+                                                        adblueactual = sharedpreferences2.getString("adblueKey", "0.00");
+                                                        TextEuros = "Authorized Euros: " + (Float.valueOf(getValue("max_liters", element2)) * Float.valueOf(adblueactual));
+                                                    }
+                                                    break;
+                                                case ProductIntEnum.RED:
+                                                    if (showEuros) {
+                                                        reddieselactual = sharedpreferences2.getString("reddieselKey", "0.00");
+                                                        TextEuros = "Authorized Euros: " + (Float.valueOf(getValue("max_liters", element2)) * Float.valueOf(reddieselactual));
+                                                    }
+                                                    break;
+                                                case ProductIntEnum.BIODIESEL:
+                                                    if (showEuros) {
+                                                        biodieselactual = sharedpreferences2.getString("biodieselKey", "0.00");
+                                                        TextEuros = "Authorized Euros: " + (Float.valueOf(getValue("max_liters", element2)) * Float.valueOf(biodieselactual));
+                                                    }
+                                                    break;
+                                            }
+
                                             try {
 
                                                 for (int g = 0; g < 1; g++) {
@@ -1538,7 +1571,8 @@ public class PinPadActivity extends AppCompatActivity {
                                                                 woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
                                                                 woyouService.printTextWithFont(textoproducto + "\n", "", 28, callback);
                                                                 woyouService.printTextWithFont(litros + "\n", "", 28, callback);
-                                                                woyouService.printTextWithFont("\n", "", 24, callback);
+                                                                woyouService.printTextWithFont(TextEuros + "\n", "", 28, callback);
+                                                                woyouService.printTextWithFont("\n\n\n\n", "", 24, callback);
                                                                 woyouService.setAlignment(1, callback);
                                                                 woyouService.printTextWithFont(msg, "", 36, callback);
                                                                 woyouService.lineWrap(4, callback);
@@ -1750,7 +1784,7 @@ public class PinPadActivity extends AppCompatActivity {
                 editor.putString(producto, "1");
                 editor.apply();
                 show.dismiss();
-                newReserve("1");
+                newReserve(ProductIntEnum.DIESEL);
 
             }
         });
@@ -1763,7 +1797,7 @@ public class PinPadActivity extends AppCompatActivity {
                 editor.putString(producto, "13");
                 editor.apply();
                 show.dismiss();
-                newReserve("13");
+                newReserve(ProductIntEnum.ADBLUE);
 
             }
         });
@@ -1776,7 +1810,7 @@ public class PinPadActivity extends AppCompatActivity {
                 editor.putString(producto, "15");
                 editor.apply();
                 show.dismiss();
-                newReserve("15");
+                newReserve(ProductIntEnum.RED);
 
             }
         });
@@ -1789,7 +1823,7 @@ public class PinPadActivity extends AppCompatActivity {
                 editor.putString(producto, "14");
                 editor.apply();
                 show.dismiss();
-                newReserve("14");
+                newReserve(ProductIntEnum.BIODIESEL);
 
             }
         });
@@ -1874,7 +1908,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         });
 
                                         if (g == 0) {
-                                            Thread.sleep(3000);
+                                            Thread.sleep(2000);
                                         }
                                     }
 
@@ -1911,11 +1945,8 @@ public class PinPadActivity extends AppCompatActivity {
                                     editor2.putString("Money", AuthMoney.toString());
                                     editor2.apply();
 
-                                    //Comprobamos si solo hay transaccion de dinero
-                                    boolean multipleTrType = (AuthDiesel > 0 || AuthAdBlue > 0 || AuthRedDiesel > 0 || AuthGas > 0) && AuthMoney > 0;
-
                                     try {
-                                        for (int g = 0; g < 1 && multipleTrType; g++) {
+                                        for (int g = 0; g < 1; g++) {
 
                                             ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
@@ -2017,59 +2048,69 @@ public class PinPadActivity extends AppCompatActivity {
                             t.start();
 
                             //Si existe mas de un tipo de transacción en la reserva lanzamos el dialog de seleccion
-                            if ((AuthDiesel > 0 || AuthAdBlue > 0 || AuthRedDiesel > 0 || AuthGas > 0) && AuthMoney > 0) {
-                                LayoutInflater inflater = getLayoutInflater();
-                                View PreReserveLayout = inflater.inflate(R.layout.prereserve_dialog, null);
-                                builder2 = new AlertDialog.Builder(PinPadActivity.this);
+                            LayoutInflater inflater = getLayoutInflater();
+                            View PreReserveLayout = inflater.inflate(R.layout.prereserve_dialog, null);
+                            builder2 = new AlertDialog.Builder(PinPadActivity.this);
 
-                                builder2.setCancelable(false);
+                            builder2.setCancelable(false);
 
-                                builder2.setView(PreReserveLayout);
+                            builder2.setView(PreReserveLayout);
 
-                                final AlertDialog show = builder2.show();
+                            final AlertDialog show = builder2.show();
 
-                                Button btnRefuel = (Button) PreReserveLayout.findViewById(R.id.btnRefuel);
-                                Button btnMoney = (Button) PreReserveLayout.findViewById(R.id.btnMoney);
-                                Button btnAll = (Button) PreReserveLayout.findViewById(R.id.btnAll);
-                                Button btnCancel = (Button) PreReserveLayout.findViewById(R.id.btnCancel);
+                            Button btnRefuel = (Button) PreReserveLayout.findViewById(R.id.btnRefuel);
+                            Button btnMoney = (Button) PreReserveLayout.findViewById(R.id.btnMoney);
+                            Button btnAll = (Button) PreReserveLayout.findViewById(R.id.btnAll);
+                            Button btnCancel = (Button) PreReserveLayout.findViewById(R.id.btnCancel);
 
-                                btnRefuel.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        show.dismiss();
-                                        CampilloReserve(String.valueOf(TransactionTypeEnum.REFUEL));
-                                    }
-                                });
+                            boolean authRefuel = AuthDiesel > 0 || AuthAdBlue > 0 || AuthRedDiesel > 0 || AuthGas > 0;
+                            boolean authMoney = AuthMoney > 0;
 
-                                btnMoney.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        show.dismiss();
-                                        CampilloReserve(String.valueOf(TransactionTypeEnum.AMOUNT));
-                                    }
-                                });
-
-                                btnAll.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        show.dismiss();
-                                        CampilloReserve(null);
-                                    }
-                                });
-
-                                btnCancel.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-
-                                        show.dismiss();
-                                        PinPadActivity.this.finish();
-                                    }
-                                });
-                            } else if (AuthMoney > 0) {//Si solo existe una transaccion de dinero, lanzamos el proceso de reserva automatico
-                                CampilloReserve(String.valueOf(TransactionTypeEnum.AMOUNT));
-                            } else {//Una reserva de litros habitual
-                                CampilloReserve(null);
+                            if(!authRefuel){
+                                btnRefuel.setVisibility(GONE);
                             }
+
+                            if(!authMoney){
+                                btnMoney.setVisibility(GONE);
+                            }
+
+                            if(!authMoney || !authRefuel){
+                                btnAll.setVisibility(GONE);
+                            }
+
+
+                            btnRefuel.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    show.dismiss();
+                                    CampilloReserve(String.valueOf(TransactionTypeEnum.REFUEL));
+                                }
+                            });
+
+                            btnMoney.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    show.dismiss();
+                                    CampilloReserve(String.valueOf(TransactionTypeEnum.AMOUNT));
+                                }
+                            });
+
+                            btnAll.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    show.dismiss();
+                                    CampilloReserve(null);
+                                }
+                            });
+
+                            btnCancel.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    show.dismiss();
+                                    PinPadActivity.this.finish();
+                                }
+                            });
                         }
                     },
                     new Response.ErrorListener() {
@@ -2328,7 +2369,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         contadortimeout.cancel();
                                         sleep(1000);
                                         progress.dismiss();
-                                        if(trx_type != String.valueOf(TransactionTypeEnum.AMOUNT)) {
+                                        if (trx_type != String.valueOf(TransactionTypeEnum.AMOUNT)) {
                                             PinPadActivity.this.finish();
                                         }
                                     } catch (InterruptedException e) {
@@ -2746,7 +2787,7 @@ public class PinPadActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(Call<Respond> call, Throwable t) {
-                            Log.e("Error upload signature","Error");
+                            Log.e("Error upload signature", "Error");
                         }
                     });
                 }
@@ -2854,7 +2895,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         });
 
                                         if (g == 0) {
-                                            Thread.sleep(3000);
+                                            Thread.sleep(5000);
                                         }
                                     }
 
@@ -2965,7 +3006,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 }
                                             });
                                             if (g == 0) {
-                                                Thread.sleep(2000);
+                                                Thread.sleep(5000);
                                             }
                                         }
                                     } catch (NullPointerException e) {

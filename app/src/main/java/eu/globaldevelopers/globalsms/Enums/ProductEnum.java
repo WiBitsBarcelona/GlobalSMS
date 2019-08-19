@@ -4,5 +4,6 @@ public enum ProductEnum {
     DIESEL,
     ADBLUE,
     RED,
-    GAS
+    GAS,
+    BIODIESEL
 }

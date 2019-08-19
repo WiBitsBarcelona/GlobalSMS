@@ -29,7 +29,7 @@ import java.nio.channels.FileChannel;
 public class ConfigActivity extends AppCompatActivity {
     EditText ed1,ed2,ed3, ed4;
     Spinner PosList, locList;
-    ToggleButton QrSiNo;
+    ToggleButton QrSiNo, EurSiNo;
 
     public static final String MyPREFERENCES = "MyPrefs" ;
     public static final String cab = "cabeceraKey";
@@ -37,6 +37,7 @@ public class ConfigActivity extends AppCompatActivity {
     public static final String sec = "secretKey";
     public static final String ser = "serverKey";
     public static final String qr = "qrKey";
+    public static final String showEuro = "showeuroKey";
     public static final String pos = "posKey";
     public static final String loc = "locKey";
 
@@ -55,6 +56,7 @@ public class ConfigActivity extends AppCompatActivity {
         ed3=(EditText)findViewById(R.id.instanticsecret);
         ed4=(EditText)findViewById(R.id.serveraddress);
         QrSiNo=(ToggleButton)findViewById(R.id.QrSiNo);
+        EurSiNo=(ToggleButton)findViewById(R.id.EurSiNo);
         PosList=(Spinner)findViewById(R.id.PosList);
         locList=(Spinner)findViewById(R.id.locList);
 
@@ -65,6 +67,7 @@ public class ConfigActivity extends AppCompatActivity {
         String secactual = sharedpreferences.getString("secretKey", null);
         String serveractual = sharedpreferences.getString("serverKey", null);
         boolean qractual = sharedpreferences.getBoolean("qrKey", false);
+        boolean showeuroActual = sharedpreferences.getBoolean(showEuro, false);
         int posactual = sharedpreferences.getInt("posKey", 0);
         int locactual = sharedpreferences.getInt("locKey", 0);
 
@@ -81,6 +84,16 @@ public class ConfigActivity extends AppCompatActivity {
         {
             QrSiNo.setChecked(false);
         }
+
+        if(showeuroActual == true)
+        {
+            EurSiNo.setChecked(true);
+        }
+        else
+        {
+            EurSiNo.setChecked(false);
+        }
+
         PosList.setSelection(posactual);
         locList.setSelection(locactual);
     }
@@ -177,11 +190,19 @@ public class ConfigActivity extends AppCompatActivity {
         editor.putString(ter, terN);
         editor.putString(sec, secN);
         editor.putString(ser, serN);
+
         if(QrSiNo.isChecked()){
             editor.putBoolean(qr,true);
         }else{
             editor.putBoolean(qr,false);
         }
+
+        if(EurSiNo.isChecked()){
+            editor.putBoolean(showEuro,true);
+        }else{
+            editor.putBoolean(showEuro,false);
+        }
+
         editor.putInt(pos, posN);
         editor.putInt(loc, locN);
         editor.apply();

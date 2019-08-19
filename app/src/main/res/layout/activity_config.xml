@@ -136,10 +136,34 @@
         tools:text="Use QR Scanner?" />
 
     <TextView
+        android:id="@+id/textView9"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/EurSiNo"
+        android:layout_alignBottom="@+id/EurSiNo"
+        android:layout_alignStart="@+id/textView3"
+        android:gravity="center_vertical|end"
+        android:text="Show euros?"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+        android:textStyle="bold" />
+
+    <ToggleButton
+        android:id="@+id/EurSiNo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/QrSiNo"
+        android:layout_below="@+id/QrSiNo"
+        android:layout_marginTop="14dp"
+        android:text="ToggleButton"
+        android:textOff="No"
+        android:textOn="Yes"
+        tools:text="Mostrar Euros?" />
+
+    <TextView
         android:id="@+id/textView7"
         android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/textView6"
+        android:layout_alignStart="@+id/textView9"
         android:layout_alignTop="@+id/PosList"
         android:gravity="center_vertical|end"
         android:text="POS System:"
@@ -150,10 +174,10 @@
         android:id="@+id/PosList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/QrSiNo"
+        android:layout_below="@+id/EurSiNo"
         android:layout_marginStart="18dp"
         android:layout_marginTop="14dp"
-        android:layout_toEndOf="@+id/textView6"
+        android:layout_toEndOf="@+id/textView9"
         android:entries="@array/Proveedores"
         android:minWidth="100dp" />
 
