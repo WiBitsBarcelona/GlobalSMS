@@ -456,7 +456,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (isNetworkAvailable() == false) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(10000, 1000);
+            contadortimeout = new ContadorTimeOut(10000, 10000);
             contadortimeout.start();
 
             progress = new ProgressDialog(this);
@@ -679,7 +679,7 @@ public class PinPadActivity extends AppCompatActivity {
             mensajered();
         } else {
             counter = 1;
-            contadortimeout = new ContadorTimeOut(10000, 1000);
+            contadortimeout = new ContadorTimeOut(10000, 10000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
@@ -1454,7 +1454,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (isNetworkAvailable() == false) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(10000, 1000);
+            contadortimeout = new ContadorTimeOut(10000, 10000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
@@ -1833,7 +1833,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(10000, 1000);
+            contadortimeout = new ContadorTimeOut(10000, 10000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
@@ -2014,6 +2014,70 @@ public class PinPadActivity extends AppCompatActivity {
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
+
+                                    //Si existe mas de un tipo de transacción en la reserva lanzamos el dialog de seleccion
+                                    LayoutInflater inflater = getLayoutInflater();
+                                    View PreReserveLayout = inflater.inflate(R.layout.prereserve_dialog, null);
+                                    builder2 = new AlertDialog.Builder(PinPadActivity.this);
+
+                                    builder2.setCancelable(false);
+
+                                    builder2.setView(PreReserveLayout);
+
+                                    final AlertDialog show = builder2.show();
+
+                                    Button btnRefuel = (Button) PreReserveLayout.findViewById(R.id.btnRefuel);
+                                    Button btnMoney = (Button) PreReserveLayout.findViewById(R.id.btnMoney);
+                                    Button btnAll = (Button) PreReserveLayout.findViewById(R.id.btnAll);
+                                    Button btnCancel = (Button) PreReserveLayout.findViewById(R.id.btnCancel);
+
+                                    boolean authRefuel = AuthDiesel > 0 || AuthAdBlue > 0 || AuthRedDiesel > 0 || AuthGas > 0;
+                                    boolean authMoney = AuthMoney > 0;
+
+                                    if(!authRefuel){
+                                        btnRefuel.setVisibility(GONE);
+                                    }
+
+                                    if(!authMoney){
+                                        btnMoney.setVisibility(GONE);
+                                    }
+
+                                    if(!authMoney || !authRefuel){
+                                        btnAll.setVisibility(GONE);
+                                    }
+
+
+                                    btnRefuel.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            show.dismiss();
+                                            CampilloReserve(String.valueOf(TransactionTypeEnum.REFUEL));
+                                        }
+                                    });
+
+                                    btnMoney.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            show.dismiss();
+                                            CampilloReserve(String.valueOf(TransactionTypeEnum.AMOUNT));
+                                        }
+                                    });
+
+                                    btnAll.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            show.dismiss();
+                                            CampilloReserve(null);
+                                        }
+                                    });
+
+                                    btnCancel.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            show.dismiss();
+                                            PinPadActivity.this.finish();
+                                        }
+                                    });
                                 }
 
                             } catch (final JSONException e) {
@@ -2047,70 +2111,7 @@ public class PinPadActivity extends AppCompatActivity {
                             };
                             t.start();
 
-                            //Si existe mas de un tipo de transacción en la reserva lanzamos el dialog de seleccion
-                            LayoutInflater inflater = getLayoutInflater();
-                            View PreReserveLayout = inflater.inflate(R.layout.prereserve_dialog, null);
-                            builder2 = new AlertDialog.Builder(PinPadActivity.this);
 
-                            builder2.setCancelable(false);
-
-                            builder2.setView(PreReserveLayout);
-
-                            final AlertDialog show = builder2.show();
-
-                            Button btnRefuel = (Button) PreReserveLayout.findViewById(R.id.btnRefuel);
-                            Button btnMoney = (Button) PreReserveLayout.findViewById(R.id.btnMoney);
-                            Button btnAll = (Button) PreReserveLayout.findViewById(R.id.btnAll);
-                            Button btnCancel = (Button) PreReserveLayout.findViewById(R.id.btnCancel);
-
-                            boolean authRefuel = AuthDiesel > 0 || AuthAdBlue > 0 || AuthRedDiesel > 0 || AuthGas > 0;
-                            boolean authMoney = AuthMoney > 0;
-
-                            if(!authRefuel){
-                                btnRefuel.setVisibility(GONE);
-                            }
-
-                            if(!authMoney){
-                                btnMoney.setVisibility(GONE);
-                            }
-
-                            if(!authMoney || !authRefuel){
-                                btnAll.setVisibility(GONE);
-                            }
-
-
-                            btnRefuel.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    show.dismiss();
-                                    CampilloReserve(String.valueOf(TransactionTypeEnum.REFUEL));
-                                }
-                            });
-
-                            btnMoney.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    show.dismiss();
-                                    CampilloReserve(String.valueOf(TransactionTypeEnum.AMOUNT));
-                                }
-                            });
-
-                            btnAll.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    show.dismiss();
-                                    CampilloReserve(null);
-                                }
-                            });
-
-                            btnCancel.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-
-                                    show.dismiss();
-                                    PinPadActivity.this.finish();
-                                }
-                            });
                         }
                     },
                     new Response.ErrorListener() {
@@ -2158,7 +2159,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(10000, 1000);
+            contadortimeout = new ContadorTimeOut(10000, 10000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
@@ -2812,7 +2813,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(10000, 1000);
+            contadortimeout = new ContadorTimeOut(10000, 10000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
