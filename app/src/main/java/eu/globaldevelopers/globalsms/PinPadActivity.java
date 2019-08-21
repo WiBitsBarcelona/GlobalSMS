@@ -456,7 +456,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (isNetworkAvailable() == false) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(10000, 10000);
+            contadortimeout = new ContadorTimeOut(15000, 10000);
             contadortimeout.start();
 
             progress = new ProgressDialog(this);
@@ -679,7 +679,7 @@ public class PinPadActivity extends AppCompatActivity {
             mensajered();
         } else {
             counter = 1;
-            contadortimeout = new ContadorTimeOut(10000, 10000);
+            contadortimeout = new ContadorTimeOut(15000, 10000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
@@ -1454,7 +1454,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (isNetworkAvailable() == false) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(10000, 10000);
+            contadortimeout = new ContadorTimeOut(15000, 10000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
@@ -1833,7 +1833,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(10000, 10000);
+            contadortimeout = new ContadorTimeOut(15000, 10000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
@@ -2159,7 +2159,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(10000, 10000);
+            contadortimeout = new ContadorTimeOut(15000, 10000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
@@ -2813,7 +2813,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(10000, 10000);
+            contadortimeout = new ContadorTimeOut(15000, 10000);
             contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
