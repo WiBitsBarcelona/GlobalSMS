@@ -354,6 +354,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
 
                 break;
+            case 8:
             case 9:
                 //CAMPILLO TRANSACTION
                 processType = ProcessTypeEnum.CAMPILLO;
