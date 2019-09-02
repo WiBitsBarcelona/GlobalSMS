@@ -220,7 +220,7 @@ public class PinPadActivity extends AppCompatActivity {
 
 
     //CAMPILLO
-    public static String ApiURI = "https://sandbox.globaltank.app/api/campillo/v1/";
+    public static String ApiURI;
 
     String DIRECTORY = Environment.getExternalStorageDirectory().getPath() + "/Signatures/";
     String StoredPath = DIRECTORY;
@@ -240,6 +240,10 @@ public class PinPadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_pin_pad);
+
+        //OBTENEMOS LA URL DE LA API DE LA CONFIGURACION DEL TERMINAL
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        ApiURI = sharedpreferences.getString("apiUrl", null);
 
         if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();

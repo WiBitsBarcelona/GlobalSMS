@@ -27,7 +27,7 @@ import java.nio.channels.FileChannel;
 
 
 public class ConfigActivity extends AppCompatActivity {
-    EditText ed1,ed2,ed3, ed4;
+    EditText ed1,ed2,ed3, ed4, ed5;
     Spinner PosList, locList;
     ToggleButton QrSiNo, EurSiNo;
 
@@ -36,6 +36,7 @@ public class ConfigActivity extends AppCompatActivity {
     public static final String ter = "terminalKey";
     public static final String sec = "secretKey";
     public static final String ser = "serverKey";
+    public static final String apiUrl = "apiUrl";
     public static final String qr = "qrKey";
     public static final String showEuro = "showeuroKey";
     public static final String pos = "posKey";
@@ -55,6 +56,7 @@ public class ConfigActivity extends AppCompatActivity {
         ed2=(EditText)findViewById(R.id.instanticterminal);
         ed3=(EditText)findViewById(R.id.instanticsecret);
         ed4=(EditText)findViewById(R.id.serveraddress);
+        ed5=(EditText)findViewById(R.id.apiurl);
         QrSiNo=(ToggleButton)findViewById(R.id.QrSiNo);
         EurSiNo=(ToggleButton)findViewById(R.id.EurSiNo);
         PosList=(Spinner)findViewById(R.id.PosList);
@@ -66,6 +68,7 @@ public class ConfigActivity extends AppCompatActivity {
         String teractual = sharedpreferences.getString("terminalKey", null);
         String secactual = sharedpreferences.getString("secretKey", null);
         String serveractual = sharedpreferences.getString("serverKey", null);
+        String apiUrlGpay = sharedpreferences.getString(apiUrl, null);
         boolean qractual = sharedpreferences.getBoolean("qrKey", false);
         boolean showeuroActual = sharedpreferences.getBoolean(showEuro, false);
         int posactual = sharedpreferences.getInt("posKey", 0);
@@ -75,6 +78,7 @@ public class ConfigActivity extends AppCompatActivity {
         ed2.setText(teractual);
         ed3.setText(secactual);
         ed4.setText(serveractual);
+        ed5.setText(apiUrlGpay);
 
         if(qractual == true)
         {
@@ -181,6 +185,7 @@ public class ConfigActivity extends AppCompatActivity {
         String terN  = ed2.getText().toString();
         String secN  = ed3.getText().toString();
         String serN  = ed4.getText().toString();
+        String apiUrlGpay  = ed5.getText().toString();
         int posN = PosList.getSelectedItemPosition();
         int locN = locList.getSelectedItemPosition();
 
@@ -190,6 +195,7 @@ public class ConfigActivity extends AppCompatActivity {
         editor.putString(ter, terN);
         editor.putString(sec, secN);
         editor.putString(ser, serN);
+        editor.putString(apiUrl, apiUrlGpay);
 
         if(QrSiNo.isChecked()){
             editor.putBoolean(qr,true);
