@@ -2776,7 +2776,7 @@ public class PinPadActivity extends AppCompatActivity {
                     //Toast.makeText(getApplicationContext(), "Successfully Saved", Toast.LENGTH_SHORT).show();
                     // Calling the same class
                     //recreate();
-                    FileApi service = RetroClient.getApiService();
+                    FileApi service = RetroClient.getApiService(ApiURI);
                     File file = new File(StoredPath);
                     RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
 
