@@ -1838,8 +1838,8 @@ public class PinPadActivity extends AppCompatActivity {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(15000, 10000);
-            contadortimeout.start();
+            //contadortimeout = new ContadorTimeOut(15000, 10000);
+            //contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -2105,7 +2105,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                        contadortimeout.cancel();
+                                        //contadortimeout.cancel();
                                         sleep(1000);
                                         progress.dismiss();
                                         //PinPadActivity.this.finish();
@@ -2116,13 +2116,12 @@ public class PinPadActivity extends AppCompatActivity {
                             };
                             t.start();
 
-
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            // error
+                            mensajetimeout();
                         }
                     }
             ) {
@@ -2145,7 +2144,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
             };
 
-            int socketTimeout = 6000;
+            int socketTimeout = 30000;
             int maxRetry = 0;
             RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
             postRequest.setRetryPolicy(policy);
@@ -2164,8 +2163,8 @@ public class PinPadActivity extends AppCompatActivity {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(15000, 10000);
-            contadortimeout.start();
+            //contadortimeout = new ContadorTimeOut(15000, 10000);
+            //contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -2372,7 +2371,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                        contadortimeout.cancel();
+                                        //contadortimeout.cancel();
                                         sleep(1000);
                                         progress.dismiss();
                                         if (trx_type != String.valueOf(TransactionTypeEnum.AMOUNT)) {
@@ -2389,7 +2388,7 @@ public class PinPadActivity extends AppCompatActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            // error
+                            mensajetimeout();
                         }
                     }
             ) {
@@ -2413,7 +2412,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
             };
 
-            int socketTimeout = 6000;
+            int socketTimeout = 30000;
             int maxRetry = 0;
             RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
             postRequest.setRetryPolicy(policy);
@@ -2818,8 +2817,8 @@ public class PinPadActivity extends AppCompatActivity {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(15000, 10000);
-            contadortimeout.start();
+            //contadortimeout = new ContadorTimeOut(15000, 10000);
+            //contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -3042,7 +3041,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                        contadortimeout.cancel();
+                                       //contadortimeout.cancel();
                                         sleep(1000);
                                         progress.dismiss();
                                         PinPadActivity.this.finish();
@@ -3058,6 +3057,7 @@ public class PinPadActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // error
+                            mensajetimeout();
                         }
                     }
             ) {
@@ -3090,7 +3090,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
             };
 
-            int socketTimeout = 6000;
+            int socketTimeout = 30000;
             int maxRetry = 0;
             RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
             postRequest.setRetryPolicy(policy);
