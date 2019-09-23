@@ -105,6 +105,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import eu.globaldevelopers.globalsms.Enums.ApiTypeEnum;
+import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import eu.globaldevelopers.globalsms.Enums.ProcessTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductIntEnum;
@@ -220,7 +222,7 @@ public class PinPadActivity extends AppCompatActivity {
 
 
     //CAMPILLO
-    public static String ApiURI;
+    public static String ApiCampilloURI, ApiGPayUrl;
 
     String DIRECTORY = Environment.getExternalStorageDirectory().getPath() + "/Signatures/";
     String StoredPath = DIRECTORY;
@@ -243,7 +245,8 @@ public class PinPadActivity extends AppCompatActivity {
 
         //OBTENEMOS LA URL DE LA API DE LA CONFIGURACION DEL TERMINAL
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        ApiURI = sharedpreferences.getString("apiUrl", null);
+        ApiCampilloURI = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, null);
+        ApiGPayUrl = sharedpreferences.getString(ConfigEnum.apiGenericUrl, null);
 
         if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();
@@ -1838,8 +1841,6 @@ public class PinPadActivity extends AppCompatActivity {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
-            //contadortimeout = new ContadorTimeOut(15000, 10000);
-            //contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -1851,11 +1852,273 @@ public class PinPadActivity extends AppCompatActivity {
             final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
             final String terminal = sharedpreferences.getString("terminalKey", null);
             final String secret = sharedpreferences.getString("secretKey", null);
-            final String server = sharedpreferences.getString("serverKey", null);
-            final String turno = sharedpreferences.getString("turnoKey", null);
             RequestQueue queue = Volley.newRequestQueue(this);
-            final String Checksum = md5(terminal + secret + codigo);
-            String url = ApiURI + "terminals/check/reserve";
+            String url = ApiCampilloURI + "terminals/check/reserve";
+            Log.e(TAG, "Uri: " + url);
+            StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+                            final String hora = new SimpleDateFormat("HH:mm").format(new Date());
+                            try {
+                                Log.e(TAG, "Response: " + response);
+                                JSONObject jsonObj = new JSONObject(response);
+                                String Success = jsonObj.getString("success");
+
+                                if (Success.equals("false")) {
+                                    Thread.sleep(1000);
+                                    //Si la transaccion de campillo no se encuentra la buscamos en la API generica
+                                    globalPayPreReserve();
+                                } else {
+                                    Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", Toast.LENGTH_SHORT).show();
+
+                                    int ReservesCounter = sharedpreferences.getInt("reservesCount", 0);
+                                    int Reserves = ReservesCounter + 1;
+                                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                                    editor.putInt("reservesCount", Reserves);
+                                    editor.apply();
+
+                                    final String Expedient = jsonObj.getString("expedient");
+
+                                    final JSONArray AuthProducts = jsonObj.getJSONArray("auth_products");
+
+                                    for (int i = 0; i < AuthProducts.length(); i++) {
+                                        JSONObject c = AuthProducts.getJSONObject(i);
+                                        AuthDiesel = c.getDouble("diesel");
+                                        AuthAdBlue = c.getDouble("adblue");
+                                        AuthRedDiesel = c.getDouble("red");
+                                        AuthMoney = c.getDouble("money");
+                                    }
+                                    KmsRequired = jsonObj.getInt("kms_required");
+                                    HoursRequired = jsonObj.getInt("hours_required");
+
+                                    sharedCampillo = getSharedPreferences(LastCampilloAuth, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor2 = sharedCampillo.edit();
+                                    editor2.putString("code", codigo);
+                                    editor2.putString("Diesel", AuthDiesel.toString());
+                                    editor2.putString("AdBlue", AuthAdBlue.toString());
+                                    editor2.putString("RedDiesel", AuthRedDiesel.toString());
+                                    editor2.putString("Money", AuthMoney.toString());
+                                    editor2.apply();
+
+                                    try {
+                                        for (int g = 0; g < 1; g++) {
+
+                                            ThreadPoolManager.getInstance().executeTask(new Runnable() {
+
+                                                @Override
+                                                public void run() {
+                                                    if (mBitmap == null) {
+                                                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                                                    }
+                                                    try {
+                                                        msg = "CONSULTATION\nNOT VALID FOR\nREFUEL";
+                                                        msg += "\n";
+
+                                                        woyouService.lineWrap(2, callback);
+                                                        woyouService.setAlignment(1, callback);
+                                                        woyouService.printBitmap(mBitmap, callback);
+                                                        woyouService.setFontSize(24, callback);
+                                                        woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                                                        String pterminal = "Terminal: " + terminal + "\n\n";
+                                                        woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                                        woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                                                        woyouService.lineWrap(2, callback);
+                                                        woyouService.setAlignment(0, callback);
+                                                        woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
+                                                        woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
+                                                        woyouService.printTextWithFont("AUTH PRODUCTS:" + "\n", "", 30, callback);
+                                                        if (AuthDiesel != 0) {
+                                                            woyouService.printTextWithFont("DIESEL: " + AuthDiesel + " Liters\n", "", 28, callback);
+                                                            if (KmsRequired != 0) {
+                                                                msg += "\n**ATENCION**\n\nEL CHOFER TENDRA QUE INFORMAR LOS KILOMETROS AL FINALIZAR LA OPERACION";
+                                                            }
+                                                        }
+                                                        if (AuthAdBlue != 0) {
+                                                            woyouService.printTextWithFont("AD BLUE: " + AuthAdBlue + " Liters\n", "", 28, callback);
+                                                        }
+                                                        if (AuthRedDiesel != 0) {
+                                                            woyouService.printTextWithFont("RED DIESEL: " + AuthRedDiesel + " Liters\n", "", 28, callback);
+                                                            if (HoursRequired != 0) {
+                                                                msg += "\n**ATENCION**\n\nEL CHOFER TENDRA QUE INFORMAR LAS HORAS DEL FRIGO AL FINALIZAR LA OPERACION\n";
+                                                            }
+                                                        }
+                                                        if (AuthGas != 0) {
+                                                            woyouService.printTextWithFont("GAS: " + AuthGas + " Kilos\n", "", 28, callback);
+                                                        }
+                                                        if (AuthMoney != 0) {
+                                                            woyouService.printTextWithFont("MONEY: " + AuthMoney + " Euros\n", "", 28, callback);
+                                                        }
+
+                                                        woyouService.printTextWithFont("\n", "", 24, callback);
+                                                        woyouService.setAlignment(1, callback);
+                                                        woyouService.printTextWithFont(msg, "", 36, callback);
+                                                        woyouService.lineWrap(4, callback);
+                                                    } catch (RemoteException e) {
+                                                        // TODO Auto-generated catch block
+                                                        e.printStackTrace();
+                                                    }
+
+                                                }
+                                            });
+                                            if (g == 0) {
+                                                Thread.sleep(2000);
+                                            }
+                                        }
+                                    } catch (NullPointerException e) {
+                                        e.printStackTrace();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    //Si existe mas de un tipo de transacción en la reserva lanzamos el dialog de seleccion
+                                    LayoutInflater inflater = getLayoutInflater();
+                                    View PreReserveLayout = inflater.inflate(R.layout.prereserve_dialog, null);
+                                    builder2 = new AlertDialog.Builder(PinPadActivity.this);
+
+                                    builder2.setCancelable(false);
+
+                                    builder2.setView(PreReserveLayout);
+
+                                    final AlertDialog show = builder2.show();
+
+                                    Button btnRefuel = (Button) PreReserveLayout.findViewById(R.id.btnRefuel);
+                                    Button btnMoney = (Button) PreReserveLayout.findViewById(R.id.btnMoney);
+                                    Button btnAll = (Button) PreReserveLayout.findViewById(R.id.btnAll);
+                                    Button btnCancel = (Button) PreReserveLayout.findViewById(R.id.btnCancel);
+
+                                    boolean authRefuel = AuthDiesel > 0 || AuthAdBlue > 0 || AuthRedDiesel > 0 || AuthGas > 0;
+                                    boolean authMoney = AuthMoney > 0;
+
+                                    if (!authRefuel) {
+                                        btnRefuel.setVisibility(GONE);
+                                    }
+
+                                    if (!authMoney) {
+                                        btnMoney.setVisibility(GONE);
+                                    }
+
+                                    if (!authMoney || !authRefuel) {
+                                        btnAll.setVisibility(GONE);
+                                    }
+
+
+                                    btnRefuel.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            show.dismiss();
+                                            CampilloReserve(String.valueOf(TransactionTypeEnum.REFUEL));
+                                        }
+                                    });
+
+                                    btnMoney.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            show.dismiss();
+                                            CampilloReserve(String.valueOf(TransactionTypeEnum.AMOUNT));
+                                        }
+                                    });
+
+                                    btnAll.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            show.dismiss();
+                                            CampilloReserve(null);
+                                        }
+                                    });
+
+                                    btnCancel.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            show.dismiss();
+                                            PinPadActivity.this.finish();
+                                        }
+                                    });
+                                }
+
+                            } catch (final JSONException e) {
+                                Log.e(TAG, "Json parsing error: " + e.getMessage());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(),
+                                                "Json parsing error: " + e.getMessage(),
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+
+                            final Thread t = new Thread() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        sleep(1000);
+                                        progress.dismiss();
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            };
+                            t.start();
+
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            mensajetimeout();
+                        }
+                    }
+            ) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("terminal", terminal);
+                    params.put("code", codigo);
+                    return params;
+                }
+
+                @Override
+                public Map getHeaders() throws AuthFailureError {
+                    HashMap headers = new HashMap();
+                    //headers.put("Content-Type", "application/json");
+                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    return headers;
+                }
+            };
+
+            int socketTimeout = 30000;
+            int maxRetry = 0;
+            RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+            postRequest.setRetryPolicy(policy);
+            queue.add(postRequest);
+
+        }
+
+    }
+
+    //Llamada a la API generica de globalpay
+    void globalPayPreReserve() {
+        if (!isNetworkAvailable()) {
+            mensajered();
+        } else {
+            progress = new ProgressDialog(this);
+            progress.setMessage(this.getString(R.string.spinner_conectando));
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progress.setIndeterminate(true);
+            progress.setCancelable(false);
+            progress.setProgress(0);
+            progress.show();
+            sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
+            final String terminal = sharedpreferences.getString("terminalKey", null);
+            final String secret = sharedpreferences.getString("secretKey", null);
+            RequestQueue queue = Volley.newRequestQueue(this);
+            String url = ApiGPayUrl + "terminals/check/reserve";
             Log.e(TAG, "Uri: " + url);
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
@@ -2039,15 +2302,15 @@ public class PinPadActivity extends AppCompatActivity {
                                     boolean authRefuel = AuthDiesel > 0 || AuthAdBlue > 0 || AuthRedDiesel > 0 || AuthGas > 0;
                                     boolean authMoney = AuthMoney > 0;
 
-                                    if(!authRefuel){
+                                    if (!authRefuel) {
                                         btnRefuel.setVisibility(GONE);
                                     }
 
-                                    if(!authMoney){
+                                    if (!authMoney) {
                                         btnMoney.setVisibility(GONE);
                                     }
 
-                                    if(!authMoney || !authRefuel){
+                                    if (!authMoney || !authRefuel) {
                                         btnAll.setVisibility(GONE);
                                     }
 
@@ -2056,7 +2319,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(View v) {
                                             show.dismiss();
-                                            CampilloReserve(String.valueOf(TransactionTypeEnum.REFUEL));
+                                            globalPayReserve(String.valueOf(TransactionTypeEnum.REFUEL));
                                         }
                                     });
 
@@ -2064,7 +2327,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(View v) {
                                             show.dismiss();
-                                            CampilloReserve(String.valueOf(TransactionTypeEnum.AMOUNT));
+                                            globalPayReserve(String.valueOf(TransactionTypeEnum.AMOUNT));
                                         }
                                     });
 
@@ -2072,7 +2335,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(View v) {
                                             show.dismiss();
-                                            CampilloReserve(null);
+                                            globalPayReserve(null);
                                         }
                                     });
 
@@ -2105,10 +2368,8 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                        //contadortimeout.cancel();
                                         sleep(1000);
                                         progress.dismiss();
-                                        //PinPadActivity.this.finish();
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
@@ -2180,7 +2441,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String turno = sharedpreferences.getString("turnoKey", null);
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
-            String url = ApiURI + "terminals/reserve/" + Checksum;
+            String url = ApiCampilloURI + "terminals/reserve/" + Checksum;
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
@@ -2422,7 +2683,372 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
+    void globalPayReserve(final String trx_type) {
+        if (!isNetworkAvailable()) {
+            mensajered();
+        } else {
+            progress = new ProgressDialog(this);
+            progress.setMessage(this.getString(R.string.spinner_conectando));
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progress.setIndeterminate(true);
+            progress.setCancelable(false);
+            progress.setProgress(0);
+            progress.show();
+            sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
+            final String terminal = sharedpreferences.getString("terminalKey", null);
+            final String secret = sharedpreferences.getString("secretKey", null);
+            RequestQueue queue = Volley.newRequestQueue(this);
+            final String Checksum = md5(terminal + secret + codigo);
+            String url = ApiGPayUrl + "terminals/reserve/" + Checksum;
+            StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+                            final String hora = new SimpleDateFormat("HH:mm").format(new Date());
+                            try {
+                                Log.e(TAG, "Response: " + response);
+                                JSONObject jsonObj = new JSONObject(response);
+                                String Success = jsonObj.getString("success");
+
+                                if (Success.equals("false")) {
+                                    Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
+                                    codigoerror = jsonObj.getString("error_code");
+                                    textoerror = jsonObj.getString("error_description");
+                                    msg = "TRANSACTION REFUSED";
+                                    msg += "\n";
+                                    for (int g = 0; g < 1; g++) {
+
+                                        ThreadPoolManager.getInstance().executeTask(new Runnable() {
+
+                                            @Override
+                                            public void run() {
+                                                if (mBitmap == null) {
+                                                    mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                                                }
+                                                try {
+                                                    msg = "TRANSACTION REFUSED";
+                                                    msg += "\n";
+
+                                                    woyouService.lineWrap(2, callback);
+                                                    woyouService.setAlignment(1, callback);
+                                                    woyouService.printBitmap(mBitmap, callback);
+                                                    woyouService.setFontSize(24, callback);
+                                                    woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                                                    String pterminal = "Terminal: " + terminal + "\n\n";
+                                                    woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                                    woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                                                    woyouService.lineWrap(2, callback);
+                                                    woyouService.setAlignment(0, callback);
+                                                    woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
+                                                    woyouService.printTextWithFont("Error Code: " + codigoerror + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("Error: " + textoerror + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("\n", "", 24, callback);
+                                                    woyouService.setAlignment(1, callback);
+                                                    woyouService.printTextWithFont(msg, "", 36, callback);
+                                                    woyouService.lineWrap(4, callback);
+                                                } catch (RemoteException e) {
+                                                    // TODO Auto-generated catch block
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        });
+
+                                        if (g == 0) {
+                                            Thread.sleep(3000);
+                                        }
+                                    }
+
+
+                                } else {
+                                    Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", Toast.LENGTH_SHORT).show();
+
+                                    int ReservesCounter = sharedpreferences.getInt("reservesCount", 0);
+                                    int Reserves = ReservesCounter + 1;
+                                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                                    editor.putInt("reservesCount", Reserves);
+                                    editor.apply();
+
+                                    final String Expedient = jsonObj.getString("expedient");
+
+                                    final JSONArray AuthProducts = jsonObj.getJSONArray("auth_products");
+
+                                    for (int i = 0; i < AuthProducts.length(); i++) {
+                                        JSONObject c = AuthProducts.getJSONObject(i);
+                                        AuthDiesel = c.getDouble("diesel");
+                                        AuthAdBlue = c.getDouble("adblue");
+                                        AuthRedDiesel = c.getDouble("red");
+                                        AuthMoney = c.getDouble("money");
+                                    }
+                                    KmsRequired = jsonObj.getInt("kms_required");
+                                    HoursRequired = jsonObj.getInt("hours_required");
+
+                                    sharedCampillo = getSharedPreferences(LastCampilloAuth, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor2 = sharedCampillo.edit();
+                                    editor2.putString("code", codigo);
+                                    editor2.putString("Diesel", AuthDiesel.toString());
+                                    editor2.putString("AdBlue", AuthAdBlue.toString());
+                                    editor2.putString("RedDiesel", AuthRedDiesel.toString());
+                                    editor2.putString("Money", AuthMoney.toString());
+                                    editor2.apply();
+
+                                    try {
+
+                                        for (int g = 0; g < 1; g++) {
+
+                                            ThreadPoolManager.getInstance().executeTask(new Runnable() {
+
+                                                @Override
+                                                public void run() {
+                                                    if (mBitmap == null) {
+                                                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                                                    }
+                                                    try {
+                                                        msg = "TRANSACTION ACCEPTED";
+                                                        msg += "\n";
+
+                                                        woyouService.lineWrap(2, callback);
+                                                        woyouService.setAlignment(1, callback);
+                                                        woyouService.printBitmap(mBitmap, callback);
+                                                        woyouService.setFontSize(24, callback);
+                                                        woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                                                        String pterminal = "Terminal: " + terminal + "\n\n";
+                                                        woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                                        woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                                                        woyouService.lineWrap(2, callback);
+                                                        woyouService.setAlignment(0, callback);
+                                                        woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
+                                                        woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
+                                                        woyouService.printTextWithFont("AUTH PRODUCTS:" + "\n", "", 30, callback);
+                                                        if (AuthDiesel != 0) {
+                                                            woyouService.printTextWithFont("DIESEL: " + AuthDiesel + " Liters\n", "", 28, callback);
+                                                            if (KmsRequired != 0) {
+                                                                msg += "\n**ATENCION**\n\nEL CHOFER TENDRA QUE INFORMAR LOS KILOMETROS AL FINALIZAR LA OPERACION";
+                                                            }
+                                                        }
+                                                        if (AuthAdBlue != 0) {
+                                                            woyouService.printTextWithFont("AD BLUE: " + AuthAdBlue + " Liters\n", "", 28, callback);
+                                                        }
+                                                        if (AuthRedDiesel != 0) {
+                                                            woyouService.printTextWithFont("RED DIESEL: " + AuthRedDiesel + " Liters\n", "", 28, callback);
+                                                            if (HoursRequired != 0) {
+                                                                msg += "\n**ATENCION**\n\nEL CHOFER TENDRA QUE INFORMAR LAS HORAS DEL FRIGO AL FINALIZAR LA OPERACION\n";
+                                                            }
+                                                        }
+                                                        if (AuthGas != 0) {
+                                                            woyouService.printTextWithFont("GAS: " + AuthGas + " Kilos\n", "", 28, callback);
+                                                        }
+                                                        if (AuthMoney != 0) {
+                                                            woyouService.printTextWithFont("MONEY: " + AuthMoney + " Euros\n", "", 28, callback);
+                                                        }
+
+                                                        woyouService.printTextWithFont("\n", "", 24, callback);
+                                                        woyouService.setAlignment(1, callback);
+                                                        woyouService.printTextWithFont(msg, "", 36, callback);
+                                                        woyouService.lineWrap(4, callback);
+                                                    } catch (RemoteException e) {
+                                                        // TODO Auto-generated catch block
+                                                        e.printStackTrace();
+                                                    }
+
+                                                }
+                                            });
+                                            if (g == 0) {
+                                                Thread.sleep(2000);
+                                            }
+                                        }
+                                    } catch (NullPointerException e) {
+                                        e.printStackTrace();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    //Si la transacción que estamos intentando finalizar es un tipo AMOUNT lanzamos directamente el proceso de firma y finalziado de la misma
+                                    if (trx_type == String.valueOf(TransactionTypeEnum.AMOUNT)) {
+                                        checkGlobalPayTrx();
+                                    }
+                                }
+
+                            } catch (final JSONException e) {
+                                Log.e(TAG, "Json parsing error: " + e.getMessage());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(),
+                                                "Json parsing error: " + e.getMessage(),
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+
+                            final Thread t = new Thread() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        //contadortimeout.cancel();
+                                        sleep(1000);
+                                        progress.dismiss();
+                                        if (trx_type != String.valueOf(TransactionTypeEnum.AMOUNT)) {
+                                            PinPadActivity.this.finish();
+                                        }
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            };
+                            t.start();
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            mensajetimeout();
+                        }
+                    }
+            ) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("terminal", terminal);
+                    params.put("code", codigo);
+                    if (trx_type != null) {
+                        params.put("transaction_type", trx_type);
+                    }
+                    return params;
+                }
+
+                @Override
+                public Map getHeaders() throws AuthFailureError {
+                    HashMap headers = new HashMap();
+                    //headers.put("Content-Type", "application/json");
+                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    return headers;
+                }
+            };
+
+            int socketTimeout = 30000;
+            int maxRetry = 0;
+            RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+            postRequest.setRetryPolicy(policy);
+            queue.add(postRequest);
+
+        }
+
+    }
+
     void CheckCampilloTrx() {
+        if (!isNetworkAvailable()) {
+            mensajered();
+        } else {
+            sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+            final String terminal = sharedpreferences.getString("terminalKey", null);
+            RequestQueue queue = Volley.newRequestQueue(this);
+
+            String url = ApiCampilloURI + "terminals/check";
+            StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Log.e(TAG, "Response: " + response);
+                            try {
+                                JSONObject jsonObj = new JSONObject(response);
+                                String Success = jsonObj.getString("success");
+
+                                if (Success.equals("false")) {
+                                    checkGlobalPayTrx();
+                                    //Toast.makeText(getBaseContext(), R.string.error_no_reservado, Toast.LENGTH_SHORT).show();
+                                } else {
+                                    final JSONArray AuthProducts = jsonObj.getJSONArray("auth_products");
+
+                                    for (int i = 0; i < AuthProducts.length(); i++) {
+                                        JSONObject c = AuthProducts.getJSONObject(i);
+                                        AuthDiesel = c.getDouble("diesel");
+                                        AuthAdBlue = c.getDouble("adblue");
+                                        AuthRedDiesel = c.getDouble("red");
+                                        AuthGas = c.getDouble("gas");
+                                        AuthMoney = c.getDouble("money");
+                                    }
+                                    Expendient = jsonObj.getString("expedient");
+
+                                    //Guardamos todas las ids de las transacciones pendientes para procesar las distintas firmas
+                                    TransactionIds.clear();
+                                    final JSONArray transactionIds = jsonObj.getJSONArray("transaction_ids");
+                                    for (int i = 0; i < transactionIds.length(); i++) {
+                                        TransactionIds.add(String.valueOf(transactionIds.getInt(i)));
+                                    }
+
+                                    KmsRequired = jsonObj.getInt("kms_required");
+                                    HoursRequired = jsonObj.getInt("hours_required");
+
+                                    sharedCampillo = getSharedPreferences(LastCampilloAuth, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor2 = sharedCampillo.edit();
+                                    editor2.putString("code", codigo);
+                                    editor2.putString("Diesel", AuthDiesel.toString());
+                                    editor2.putString("AdBlue", AuthAdBlue.toString());
+                                    editor2.putString("RedDiesel", AuthRedDiesel.toString());
+                                    editor2.putString("Gas", AuthGas.toString());
+                                    editor2.putString("Money", AuthMoney.toString());
+                                    editor2.apply();
+                                    if (AuthDiesel == 0 && AuthAdBlue == 0 && AuthRedDiesel == 0 && AuthGas == 00) {
+                                        CampilloSignature(0.00, 0.00, 0.00, 0.00, 0.00, 0.00);
+                                    } else {
+                                        showQts(ApiTypeEnum.CAMPILLO);
+                                    }
+                                }
+
+                            } catch (final JSONException e) {
+                                Log.e(TAG, "Json parsing error: " + e.getMessage());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(),
+                                                "Json parsing error: " + e.getMessage(),
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // error
+                        }
+                    }
+            ) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("terminal", terminal);
+                    params.put("code", codigo);
+                    return params;
+                }
+
+                @Override
+                public Map getHeaders() throws AuthFailureError {
+                    HashMap headers = new HashMap();
+                    //headers.put("Content-Type", "application/json");
+                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    return headers;
+                }
+            };
+
+            int socketTimeout = 6000;
+            int maxRetry = 0;
+            RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+            postRequest.setRetryPolicy(policy);
+            queue.add(postRequest);
+
+        }
+    }
+
+    void checkGlobalPayTrx() {
         if (!isNetworkAvailable()) {
             mensajered();
         } else {
@@ -2434,7 +3060,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String turno = sharedpreferences.getString("turnoKey", null);
             RequestQueue queue = Volley.newRequestQueue(this);
 
-            String url = ApiURI + "terminals/check";
+            String url = ApiGPayUrl + "terminals/check";
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
@@ -2479,9 +3105,9 @@ public class PinPadActivity extends AppCompatActivity {
                                     editor2.putString("Money", AuthMoney.toString());
                                     editor2.apply();
                                     if (AuthDiesel == 0 && AuthAdBlue == 0 && AuthRedDiesel == 0 && AuthGas == 00) {
-                                        CampilloSignature(0.00, 0.00, 0.00, 0.00, 0.00, 0.00);
+                                        globalPaySignature(0.00, 0.00, 0.00, 0.00, 0.00, 0.00);
                                     } else {
-                                        CampilloQts();
+                                        showQts(ApiTypeEnum.GLOBALPAY);
                                     }
                                 }
 
@@ -2532,10 +3158,12 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
 
-    void CampilloQts() {
+    void showQts(ApiTypeEnum type) {
         LayoutInflater inflater = getLayoutInflater();
         CampilloLitersLayout = inflater.inflate(R.layout.liters_dialog, null);
         TextView lbl_producto = (TextView) CampilloLitersLayout.findViewById(R.id.labelcuantos);
+
+        final ApiTypeEnum apiType = type;
 
         final CardView DieselCard = (CardView) CampilloLitersLayout.findViewById(R.id.DieselCard);
         final CardView AdblueCard = (CardView) CampilloLitersLayout.findViewById(R.id.AdblueCard);
@@ -2733,7 +3361,14 @@ public class PinPadActivity extends AppCompatActivity {
                 double rKilometers = Double.parseDouble(kilometers.getText().toString());
                 double rHours = Double.parseDouble(hours.getText().toString());
 
-                CampilloSignature(rDiesel, rAdBlue, rRedDiesel, rGas, rKilometers, rHours);
+                switch(apiType){
+                    case CAMPILLO:
+                        CampilloSignature(rDiesel, rAdBlue, rRedDiesel, rGas, rKilometers, rHours);
+                        break;
+                    case GLOBALPAY:
+                        globalPaySignature(rDiesel, rAdBlue, rRedDiesel, rGas, rKilometers, rHours);
+                        break;
+                }
             }
         });
     }
@@ -2775,7 +3410,7 @@ public class PinPadActivity extends AppCompatActivity {
                     //Toast.makeText(getApplicationContext(), "Successfully Saved", Toast.LENGTH_SHORT).show();
                     // Calling the same class
                     //recreate();
-                    FileApi service = RetroClient.getApiService(ApiURI);
+                    FileApi service = RetroClient.getApiService(ApiCampilloURI);
                     File file = new File(StoredPath);
                     RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
 
@@ -2798,6 +3433,81 @@ public class PinPadActivity extends AppCompatActivity {
                 }
 
                 CampilloFinish(rDiesel, rAdBlue, rRedDiesel, rGas, rKms, rHours);
+            }
+        });
+
+        mCancel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.v("log_tag", "Panel Canceled");
+                dialog.dismiss();
+                // Calling the same class
+                //recreate();
+            }
+        });
+        dialog.show();
+
+    }
+
+    void globalPaySignature(final Double rDiesel, final Double rAdBlue, final Double rRedDiesel, final Double rGas, final Double rKms, final Double rHours) {
+        dialog = new Dialog(PinPadActivity.this);
+        // Removing the features of Normal Dialogs
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.signature_dialog);
+        dialog.setCancelable(true);
+        mContent = (LinearLayout) dialog.findViewById(R.id.linearLayout);
+        mSignature = new signature(getApplicationContext(), null);
+        mSignature.setBackgroundColor(Color.WHITE);
+        // Dynamically generating Layout through java code
+        mContent.addView(mSignature, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        mClear = (Button) dialog.findViewById(R.id.clear);
+        mGetSign = (Button) dialog.findViewById(R.id.getsign);
+        mGetSign.setEnabled(false);
+        mCancel = (Button) dialog.findViewById(R.id.cancel);
+        view = mContent;
+
+        mClear.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.v("log_tag", "Panel Cleared");
+                mSignature.clear();
+                mGetSign.setEnabled(false);
+            }
+        });
+
+        mGetSign.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                for (int i = 0; i < TransactionIds.size(); i++) {
+                    Log.v("log_tag", "Panel Saved");
+                    StoredPath = DIRECTORY + TransactionIds.get(i) + ".png";
+                    view.setDrawingCacheEnabled(true);
+                    mSignature.save(view, StoredPath);
+                    dialog.dismiss();
+                    //Toast.makeText(getApplicationContext(), "Successfully Saved", Toast.LENGTH_SHORT).show();
+                    // Calling the same class
+                    //recreate();
+                    FileApi service = RetroClient.getApiService(ApiGPayUrl);
+                    File file = new File(StoredPath);
+                    RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+                    MultipartBody.Part body =
+                            MultipartBody.Part.createFormData("signature", file.getName(), requestFile);
+
+                    Call<Respond> resultCall = service.uploadImage(body);
+
+                    resultCall.enqueue(new Callback<Respond>() {
+                        @Override
+                        public void onResponse(Call<Respond> call, retrofit2.Response<Respond> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Respond> call, Throwable t) {
+                            Log.e("Error upload signature", "Error");
+                        }
+                    });
+                }
+
+                globalPayTrxFinish(rDiesel, rAdBlue, rRedDiesel, rGas, rKms, rHours);
             }
         });
 
@@ -2841,7 +3551,7 @@ public class PinPadActivity extends AppCompatActivity {
 
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
-            String url = ApiURI + "terminals/finish/" + Checksum;
+            String url = ApiCampilloURI + "terminals/finish/" + Checksum;
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
@@ -3041,7 +3751,288 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                       //contadortimeout.cancel();
+                                        //contadortimeout.cancel();
+                                        sleep(1000);
+                                        progress.dismiss();
+                                        PinPadActivity.this.finish();
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            };
+                            t.start();
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // error
+                            mensajetimeout();
+                        }
+                    }
+            ) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("terminal", terminal);
+                    params.put("code", codigo);
+                    params.put("diesel_liters", rDiesel.toString());
+                    params.put("adblue_liters", rAdBlue.toString());
+                    params.put("red_liters", rRedDiesel.toString());
+                    params.put("gas_kilos", rGas.toString());
+                    params.put("amount_euros", AuthMoney.toString());
+                    params.put("diesel_pump_price", Dieselprice);
+                    params.put("adblue_pump_price", Adblueprice);
+                    params.put("red_pump_price", RedDieselprice);
+                    params.put("gas_pump_price", Gasprice);
+                    params.put("ticket_number", "0");
+                    params.put("odometer", rKms.toString());
+                    params.put("frigo_hours", rHours.toString());
+                    return params;
+                }
+
+                @Override
+                public Map getHeaders() throws AuthFailureError {
+                    HashMap headers = new HashMap();
+                    //headers.put("Content-Type", "application/json");
+                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    return headers;
+                }
+            };
+
+            int socketTimeout = 30000;
+            int maxRetry = 0;
+            RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+            postRequest.setRetryPolicy(policy);
+            queue.add(postRequest);
+
+        }
+    }
+
+    void globalPayTrxFinish(final Double rDiesel, final Double rAdBlue, final Double rRedDiesel, final Double rGas, final Double rKms, final Double rHours) {
+        if (!isNetworkAvailable()) {
+            mensajered();
+        } else {
+            progress = new ProgressDialog(this);
+            progress.setMessage(this.getString(R.string.spinner_conectando));
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progress.setIndeterminate(true);
+            progress.setCancelable(false);
+            progress.setProgress(0);
+            progress.show();
+            sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
+            final String terminal = sharedpreferences.getString("terminalKey", null);
+            final String secret = sharedpreferences.getString("secretKey", null);
+
+            sharedpreferences3 = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
+            final String Dieselprice = sharedpreferences3.getString("dieselKey", "0.00");
+            final String Adblueprice = sharedpreferences3.getString("adblueKey", "0.00");
+            final String RedDieselprice = sharedpreferences3.getString("reddieselKey", "0.00");
+            final String Gasprice = sharedpreferences3.getString("gasKey", "0.00");
+
+            RequestQueue queue = Volley.newRequestQueue(this);
+            final String Checksum = md5(terminal + secret + codigo);
+            String url = ApiGPayUrl + "terminals/finish/" + Checksum;
+            StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+                            final String hora = new SimpleDateFormat("HH:mm").format(new Date());
+                            try {
+                                Log.e(TAG, "Response: " + response);
+                                JSONObject jsonObj = new JSONObject(response);
+                                String Success = jsonObj.getString("success");
+
+                                if (Success.equals("false")) {
+                                    Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
+                                    codigoerror = jsonObj.getString("error_code");
+                                    textoerror = jsonObj.getString("error_description");
+                                    msg = "TRANSACTION REFUSED";
+                                    msg += "\n";
+                                    for (int g = 0; g < 1; g++) {
+
+                                        ThreadPoolManager.getInstance().executeTask(new Runnable() {
+
+                                            @Override
+                                            public void run() {
+                                                if (mBitmap == null) {
+                                                    mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                                                }
+
+
+                                                try {
+                                                    msg = "TRANSACTION REFUSED";
+                                                    msg += "\n";
+
+                                                    woyouService.lineWrap(2, callback);
+                                                    woyouService.setAlignment(1, callback);
+                                                    woyouService.printBitmap(mBitmap, callback);
+                                                    woyouService.setFontSize(24, callback);
+                                                    woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                                                    String pterminal = "Terminal: " + terminal + "\n\n";
+                                                    woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                                    woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                                                    woyouService.lineWrap(2, callback);
+                                                    woyouService.setAlignment(0, callback);
+                                                    woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
+                                                    woyouService.printTextWithFont("Error Code: " + codigoerror + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("Error: " + textoerror + "\n", "", 28, callback);
+                                                    woyouService.printTextWithFont("\n", "", 24, callback);
+                                                    woyouService.setAlignment(1, callback);
+                                                    woyouService.printTextWithFont(msg, "", 36, callback);
+                                                    woyouService.lineWrap(4, callback);
+                                                } catch (RemoteException e) {
+                                                    // TODO Auto-generated catch block
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        });
+
+                                        if (g == 0) {
+                                            Thread.sleep(5000);
+                                        }
+                                    }
+
+
+                                } else {
+                                    Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", Toast.LENGTH_SHORT).show();
+
+                                    try {
+
+                                        for (int g = 0; g < 2; g++) {
+
+                                            ThreadPoolManager.getInstance().executeTask(new Runnable() {
+
+                                                @Override
+                                                public void run() {
+                                                    if (mBitmap == null) {
+                                                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                                                    }
+                                                    Bitmap bitmap = BitmapFactory.decodeFile(StoredPath);
+                                                    try {
+                                                        msg = "TRANSACTION SUCCESSFULLY\n";
+                                                        msg += "COMPLETED";
+                                                        msg += "\n";
+                                                        woyouService.lineWrap(2, callback);
+                                                        woyouService.setAlignment(1, callback);
+                                                        woyouService.printBitmap(mBitmap, callback);
+                                                        woyouService.setFontSize(24, callback);
+                                                        woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                                                        String pterminal = "Terminal: " + terminal + "\n\n";
+                                                        woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                                        woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                                                        woyouService.lineWrap(2, callback);
+                                                        woyouService.setAlignment(0, callback);
+                                                        woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
+                                                        //woyouService.printTextWithFont( "Operation Code: " + operation + "\n", "", 30, callback);
+                                                        woyouService.printTextWithFont("\n", "", 28, callback);
+                                                        woyouService.setFontSize(28, callback);
+                                                        String[] text = new String[3];
+                                                        int[] width = new int[]{10, 8, 8};
+                                                        int[] align = new int[]{0, 2, 2}; //
+
+                                                        text[0] = "Product";
+                                                        text[1] = "Liters";
+                                                        text[2] = "Total";
+                                                        woyouService.printColumnsText(text, width, new int[]{0, 2, 2}, callback);
+
+                                                        if (rDiesel > 0) {
+                                                            double total = Float.valueOf(Dieselprice) * rDiesel;
+                                                            BigDecimal a = new BigDecimal(total);
+                                                            final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+                                                            totalTxt = total2.toString();
+                                                            text[0] = "DIESEL A";
+                                                            text[1] = rDiesel.toString();
+                                                            text[2] = total2.toString();
+                                                            woyouService.printColumnsText(text, width, align, callback);
+                                                        }
+
+                                                        if (rAdBlue > 0) {
+                                                            double total = Float.valueOf(Adblueprice) * rAdBlue;
+                                                            BigDecimal a = new BigDecimal(total);
+                                                            final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+                                                            totalTxt = total2.toString();
+                                                            text[0] = "AD BLUE";
+                                                            text[1] = rAdBlue.toString();
+                                                            text[2] = total2.toString();
+                                                            woyouService.printColumnsText(text, width, align, callback);
+                                                        }
+
+                                                        if (rRedDiesel > 0) {
+                                                            double total = Float.valueOf(RedDieselprice) * rRedDiesel;
+                                                            BigDecimal a = new BigDecimal(total);
+                                                            final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+                                                            totalTxt = total2.toString();
+                                                            text[0] = "D. ROJO";
+                                                            text[1] = rRedDiesel.toString();
+                                                            text[2] = total2.toString();
+                                                            woyouService.printColumnsText(text, width, align, callback);
+                                                        }
+
+                                                        if (rGas > 0) {
+                                                            double total = Float.valueOf(Gasprice) * rGas;
+                                                            BigDecimal a = new BigDecimal(total);
+                                                            final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+                                                            totalTxt = total2.toString();
+                                                            text[0] = "GAS";
+                                                            text[1] = rGas.toString();
+                                                            text[2] = total2.toString();
+                                                            woyouService.printColumnsText(text, width, align, callback);
+                                                        }
+
+                                                        if (AuthMoney > 0) {
+                                                            text[0] = "ENTREGA";
+                                                            text[1] = " ";
+                                                            text[2] = AuthMoney.toString();
+                                                            woyouService.printColumnsText(text, width, align, callback);
+                                                        }
+
+                                                        woyouService.lineWrap(2, callback);
+                                                        //woyouService.printBitmap(bitmap, callback);
+                                                        woyouService.setAlignment(1, callback);
+                                                        woyouService.printTextWithFont(msg, "", 32, callback);
+                                                        woyouService.lineWrap(4, callback);
+                                                    } catch (RemoteException e) {
+                                                        // TODO Auto-generated catch block
+                                                        e.printStackTrace();
+                                                    }
+
+                                                }
+                                            });
+                                            if (g == 0) {
+                                                Thread.sleep(5000);
+                                            }
+                                        }
+                                    } catch (NullPointerException e) {
+                                        e.printStackTrace();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                            } catch (final JSONException e) {
+                                Log.e(TAG, "Json parsing error: " + e.getMessage());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(),
+                                                "Json parsing error: " + e.getMessage(),
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+
+                            final Thread t = new Thread() {
+                                @Override
+                                public void run() {
+                                    try {
                                         sleep(1000);
                                         progress.dismiss();
                                         PinPadActivity.this.finish();

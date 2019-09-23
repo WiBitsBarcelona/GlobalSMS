@@ -25,9 +25,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
+import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
+
 
 public class ConfigActivity extends AppCompatActivity {
-    EditText ed1,ed2,ed3, ed4, ed5;
+    EditText ed1,ed2,ed3, ed4, ed5, ed6;
     Spinner PosList, locList;
     ToggleButton QrSiNo, EurSiNo;
 
@@ -36,7 +38,6 @@ public class ConfigActivity extends AppCompatActivity {
     public static final String ter = "terminalKey";
     public static final String sec = "secretKey";
     public static final String ser = "serverKey";
-    public static final String apiUrl = "apiUrl";
     public static final String qr = "qrKey";
     public static final String showEuro = "showeuroKey";
     public static final String pos = "posKey";
@@ -56,7 +57,8 @@ public class ConfigActivity extends AppCompatActivity {
         ed2=(EditText)findViewById(R.id.instanticterminal);
         ed3=(EditText)findViewById(R.id.instanticsecret);
         ed4=(EditText)findViewById(R.id.serveraddress);
-        ed5=(EditText)findViewById(R.id.apiurl);
+        ed5=(EditText)findViewById(R.id.apicampillourl);
+        ed6=(EditText)findViewById(R.id.apigenericurl);
         QrSiNo=(ToggleButton)findViewById(R.id.QrSiNo);
         EurSiNo=(ToggleButton)findViewById(R.id.EurSiNo);
         PosList=(Spinner)findViewById(R.id.PosList);
@@ -68,7 +70,8 @@ public class ConfigActivity extends AppCompatActivity {
         String teractual = sharedpreferences.getString("terminalKey", null);
         String secactual = sharedpreferences.getString("secretKey", null);
         String serveractual = sharedpreferences.getString("serverKey", null);
-        String apiUrlGpay = sharedpreferences.getString(apiUrl, null);
+        String apiUrlCampilloGpay = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, null);
+        String apiUrlGpay = sharedpreferences.getString(ConfigEnum.apiGenericUrl, null);
         boolean qractual = sharedpreferences.getBoolean("qrKey", false);
         boolean showeuroActual = sharedpreferences.getBoolean(showEuro, false);
         int posactual = sharedpreferences.getInt("posKey", 0);
@@ -78,7 +81,8 @@ public class ConfigActivity extends AppCompatActivity {
         ed2.setText(teractual);
         ed3.setText(secactual);
         ed4.setText(serveractual);
-        ed5.setText(apiUrlGpay);
+        ed5.setText(apiUrlCampilloGpay);
+        ed6.setText(apiUrlGpay);
 
         if(qractual == true)
         {
@@ -185,7 +189,8 @@ public class ConfigActivity extends AppCompatActivity {
         String terN  = ed2.getText().toString();
         String secN  = ed3.getText().toString();
         String serN  = ed4.getText().toString();
-        String apiUrlGpay  = ed5.getText().toString();
+        String apiUrlCampilloGpay  = ed5.getText().toString();
+        String apiUrlGpay  = ed6.getText().toString();
         int posN = PosList.getSelectedItemPosition();
         int locN = locList.getSelectedItemPosition();
 
@@ -195,7 +200,8 @@ public class ConfigActivity extends AppCompatActivity {
         editor.putString(ter, terN);
         editor.putString(sec, secN);
         editor.putString(ser, serN);
-        editor.putString(apiUrl, apiUrlGpay);
+        editor.putString(ConfigEnum.apiCampilloUrl, apiUrlCampilloGpay);
+        editor.putString(ConfigEnum.apiGenericUrl, apiUrlGpay);
 
         if(QrSiNo.isChecked()){
             editor.putBoolean(qr,true);

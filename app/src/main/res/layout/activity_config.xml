@@ -116,14 +116,36 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|center"
                 android:gravity="center"
-                android:text="API URL:"
+                android:text="API CAMPILLO URL:"
                 android:layout_marginTop="20dp"
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
                 android:textColorLink="#68a9ea"
                 android:textStyle="bold" />
 
             <EditText
-                android:id="@+id/apiurl"
+                android:id="@+id/apicampillourl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center"
+                android:ems="10"
+                android:gravity="center"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/textView11"
+                style="@android:style/Widget.TextView.SpinnerItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center"
+                android:gravity="center"
+                android:text="API GLOBALPAY URL:"
+                android:layout_marginTop="20dp"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+                android:textColorLink="#68a9ea"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/apigenericurl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|center"
