@@ -1868,6 +1868,7 @@ public class PinPadActivity extends AppCompatActivity {
 
                                 if (Success.equals("false")) {
                                     Thread.sleep(1000);
+                                    progress.dismiss();
                                     //Si la transaccion de campillo no se encuentra la buscamos en la API generica
                                     globalPayPreReserve();
                                 } else {
@@ -2190,7 +2191,7 @@ public class PinPadActivity extends AppCompatActivity {
                                     editor.putInt("reservesCount", Reserves);
                                     editor.apply();
 
-                                    final String Expedient = jsonObj.getString("expedient");
+                                    //final String Expedient = jsonObj.getString("expedient");
 
                                     final JSONArray AuthProducts = jsonObj.getJSONArray("auth_products");
 
@@ -2238,7 +2239,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.lineWrap(2, callback);
                                                         woyouService.setAlignment(0, callback);
                                                         woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
-                                                        woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
+                                                        //woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
                                                         woyouService.printTextWithFont("AUTH PRODUCTS:" + "\n", "", 30, callback);
                                                         if (AuthDiesel != 0) {
                                                             woyouService.printTextWithFont("DIESEL: " + AuthDiesel + " Liters\n", "", 28, callback);
@@ -2771,7 +2772,7 @@ public class PinPadActivity extends AppCompatActivity {
                                     editor.putInt("reservesCount", Reserves);
                                     editor.apply();
 
-                                    final String Expedient = jsonObj.getString("expedient");
+                                    //final String Expedient = jsonObj.getString("expedient");
 
                                     final JSONArray AuthProducts = jsonObj.getJSONArray("auth_products");
 
@@ -2820,7 +2821,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.lineWrap(2, callback);
                                                         woyouService.setAlignment(0, callback);
                                                         woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
-                                                        woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
+                                                        //woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
                                                         woyouService.printTextWithFont("AUTH PRODUCTS:" + "\n", "", 30, callback);
                                                         if (AuthDiesel != 0) {
                                                             woyouService.printTextWithFont("DIESEL: " + AuthDiesel + " Liters\n", "", 28, callback);
@@ -3083,7 +3084,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         AuthGas = c.getDouble("gas");
                                         AuthMoney = c.getDouble("money");
                                     }
-                                    Expendient = jsonObj.getString("expedient");
+                                    //Expendient = jsonObj.getString("expedient");
 
                                     //Guardamos todas las ids de las transacciones pendientes para procesar las distintas firmas
                                     TransactionIds.clear();
