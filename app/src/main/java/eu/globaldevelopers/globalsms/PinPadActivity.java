@@ -361,10 +361,9 @@ public class PinPadActivity extends AppCompatActivity {
                 }
 
                 break;
-            case 8:
-            case 9:
-                //CAMPILLO TRANSACTION
-                processType = ProcessTypeEnum.CAMPILLO;
+            default:
+                //CAMPILLO TRANSACTION O GLOBALPAY, PRIMERO COMPRUEBA SI SE TRATA DE UNA TRANSACCION DE CAMPILLO Y SI NO LA ENCUENTRA LA BUSCA EN GLOBALPAY
+                processType = ProcessTypeEnum.GLOBALPAY;
                 switch (transaction) {
                     case "Nueva":
                         CampilloPreReserve();
@@ -1247,7 +1246,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 break;
                         }
                         break;
-                    case CAMPILLO:
+                    case GLOBALPAY:
                         String scanQrContent = scanningResult.getContents();
                         String data[] = scanQrContent.split("\\|");
                         tipo = data[0];
@@ -3362,7 +3361,7 @@ public class PinPadActivity extends AppCompatActivity {
                 double rKilometers = Double.parseDouble(kilometers.getText().toString());
                 double rHours = Double.parseDouble(hours.getText().toString());
 
-                switch(apiType){
+                switch (apiType) {
                     case CAMPILLO:
                         CampilloSignature(rDiesel, rAdBlue, rRedDiesel, rGas, rKilometers, rHours);
                         break;
