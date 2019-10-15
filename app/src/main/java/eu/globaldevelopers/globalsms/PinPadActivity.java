@@ -221,7 +221,7 @@ public class PinPadActivity extends AppCompatActivity {
     Bitmap mBitmap;
 
 
-    //CAMPILLO
+    //GLOBALPAY
     public static String ApiCampilloURI, ApiGPayUrl;
 
     String DIRECTORY = Environment.getExternalStorageDirectory().getPath() + "/Signatures/";
@@ -2117,6 +2117,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
             final String terminal = sharedpreferences.getString("terminalKey", null);
             final String secret = sharedpreferences.getString("secretKey", null);
+            final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
             RequestQueue queue = Volley.newRequestQueue(this);
             String url = ApiGPayUrl + "terminals/check/reserve";
             Log.e(TAG, "Uri: " + url);
@@ -2392,6 +2393,7 @@ public class PinPadActivity extends AppCompatActivity {
                     Log.e(TAG, "Setting body PreReserveCampillo");
                     Log.e(TAG, "Setting body PreReserveCampillo " + terminal + " " + codigo);
                     params.put("terminal", terminal);
+                    params.put("turno", turno);
                     params.put("code", codigo);
                     return params;
                 }
@@ -2438,7 +2440,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String terminal = sharedpreferences.getString("terminalKey", null);
             final String secret = sharedpreferences.getString("secretKey", null);
             final String server = sharedpreferences.getString("serverKey", null);
-            final String turno = sharedpreferences.getString("turnoKey", null);
+            final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
             String url = ApiCampilloURI + "terminals/reserve/" + Checksum;
@@ -2657,6 +2659,7 @@ public class PinPadActivity extends AppCompatActivity {
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("terminal", terminal);
+                    params.put("turno", turno);
                     params.put("code", codigo);
                     if (trx_type != null) {
                         params.put("transaction_type", trx_type);
@@ -2698,6 +2701,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
             final String terminal = sharedpreferences.getString("terminalKey", null);
             final String secret = sharedpreferences.getString("secretKey", null);
+            final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
             String url = ApiGPayUrl + "terminals/reserve/" + Checksum;
@@ -2916,6 +2920,7 @@ public class PinPadActivity extends AppCompatActivity {
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("terminal", terminal);
+                    params.put("turno", turno);
                     params.put("code", codigo);
                     if (trx_type != null) {
                         params.put("transaction_type", trx_type);

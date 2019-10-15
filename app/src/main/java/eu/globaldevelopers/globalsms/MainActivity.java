@@ -27,12 +27,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.PermissionRequest;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -48,10 +47,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import eu.globaldevelopers.globalsms.Class.Transaction;
+import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import woyou.aidlservice.jiuiv5.ICallback;
 import woyou.aidlservice.jiuiv5.IWoyouService;
 
@@ -61,11 +61,11 @@ public class MainActivity extends AppCompatActivity {
 
     TextView bagde;
 
-    public static final String MyPREFERENCES = "MySupply" ;
-    public static final String MyCONFIG = "MyPrefs" ;
+    public static final String MyPREFERENCES = "MySupply";
+    public static final String MyCONFIG = "MyPrefs";
     public static final String tipotrans = "tipoKey";
-    public static String lang="";
-    public static final String MyPREFERENCES2 = "MyPrefs" ;
+    public static String lang = "";
+    public static final String MyPREFERENCES2 = "MyPrefs";
 
     private static final String TAG = "PrinterTestDemo";
 
@@ -95,16 +95,27 @@ public class MainActivity extends AppCompatActivity {
 
     private DatePickerDialog dailyDatePickerDialog;
 
+    public static String ApiCampilloURI, ApiGPayUrl;
+
+    //TOTALES CIERRE TURNO
+    private Transaction TransactionWorkShift;
+    private boolean pendingTransactions = false;
+
+
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         currentApiVersion = android.os.Build.VERSION.SDK_INT;
 
         sharedpreferences = getSharedPreferences(MyCONFIG, Context.MODE_PRIVATE);
+
+        ApiCampilloURI = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, null);
+        ApiGPayUrl = sharedpreferences.getString(ConfigEnum.apiGenericUrl, null);
+
         int locactual = sharedpreferences.getInt("locKey", 0);
 
-        switch(locactual){
+        switch (locactual) {
             case 0:
                 lang = "en";
                 break;
@@ -115,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 lang = "es";
                 break;
             case 3:
-                lang= "it";
+                lang = "it";
                 break;
             default:
                 lang = "es";
@@ -131,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
-        if(Build.VERSION.SDK_INT < 19){
+        if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();
             v.setSystemUiVisibility(View.GONE);
         } else {
@@ -146,50 +157,38 @@ public class MainActivity extends AppCompatActivity {
 
         reservesCounter();
 
-        int MY_PERMISSIONS_REQUEST_CAMERA=0;
+        int MY_PERMISSIONS_REQUEST_CAMERA = 0;
         // Here, this is the current activity
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-        {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA))
-            {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
 
-            }
-            else
-            {
-                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA );
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
             }
         }
 
-        int MY_PERMISSIONS_REQUEST_WRITE=0;
+        int MY_PERMISSIONS_REQUEST_WRITE = 0;
         // Here, this is the current activity
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-        {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-            {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
-            }
-            else
-            {
-                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE );
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE);
             }
         }
 
 
-        int MY_PERMISSIONS_REQUEST_READ=0;
+        int MY_PERMISSIONS_REQUEST_READ = 0;
         // Here, this is the current activity
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-        {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE))
-            {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-            }
-            else
-            {
-                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ );
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ);
             }
         }
-
     }
+
     private SimpleDateFormat dateFormatter;
 
     @Override
@@ -199,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         sharedpreferences = getSharedPreferences(MyCONFIG, Context.MODE_PRIVATE);
         int locactual = sharedpreferences.getInt("locKey", 0);
 
-        switch(locactual){
+        switch (locactual) {
             case 0:
                 lang = "en";
                 break;
@@ -210,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
                 lang = "es";
                 break;
             case 3:
-                lang= "it";
+                lang = "it";
                 break;
             default:
                 lang = "es";
@@ -223,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
         getBaseContext().getResources().updateConfiguration(config,
                 getBaseContext().getResources().getDisplayMetrics());
 
-        if(Build.VERSION.SDK_INT < 19){
+        if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();
             v.setSystemUiVisibility(View.GONE);
         } else {
@@ -260,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
         //finish();
     }
 
-    public void FinalizarFunction(View view){
+    public void FinalizarFunction(View view) {
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -272,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(Intent);
     }
 
-    public void CancelarFunction(View view){
+    public void CancelarFunction(View view) {
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -285,22 +284,22 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    public void PreciosFunction(View view){
+    public void PreciosFunction(View view) {
         Intent Intent = new Intent(this, PreciosActivity.class);
         startActivity(Intent);
         finish();
 
     }
 
-    public void CopiaFunction(View view){
+    public void CopiaFunction(View view) {
         Intent Intent = new Intent(this, activity_copia_new.class);
         startActivity(Intent);
         finish();
 
     }
 
-    public void CierreFunction(View view){
-        AlertDialog.Builder alert =new AlertDialog.Builder(this);
+    public void CierreFunction(View view) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(R.string.titulo_cierre_turno);
         alert.setCancelable(false);
         alert.setMessage(R.string.alert_cierre_turno);
@@ -308,7 +307,8 @@ public class MainActivity extends AppCompatActivity {
 
         alert.setPositiveButton(R.string.btn_cierre_aceptar, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                close_work_shift();
+                TransactionWorkShift = new Transaction();
+                summaryWorkShift();
             }
         });
 
@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-    public void ReportDayFunction(View view){
+    public void ReportDayFunction(View view) {
         dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         Calendar newCalendar = Calendar.getInstance();
         dailyDatePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
@@ -331,12 +331,12 @@ public class MainActivity extends AppCompatActivity {
                 PrintDailyReport(dateFormatter.format(newDate.getTime()));
             }
 
-        },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+        }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
 
         dailyDatePickerDialog.show();
     }
 
-    public void PrintDailyReport(final String dateF){
+    public void PrintDailyReport(final String dateF) {
         progress = new ProgressDialog(this);
         progress.setMessage(this.getString(R.string.spinner_conectando));
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -366,12 +366,12 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                             final String hora = new SimpleDateFormat("HH:mm").format(new Date()) + "\n\n";
-                            try{
-                                ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                            try {
+                                ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
                                     @Override
                                     public void run() {
-                                        if( mBitmap == null ){
+                                        if (mBitmap == null) {
                                             mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                         }
                                         try {
@@ -379,10 +379,10 @@ public class MainActivity extends AppCompatActivity {
                                             woyouService.setAlignment(1, callback);
                                             woyouService.printBitmap(mBitmap, callback);
                                             woyouService.setFontSize(24, callback);
-                                            woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
+                                            woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
                                             String pterminal = "Terminal: " + terminal + "\n\n";
                                             woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                            woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
+                                            woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                             woyouService.lineWrap(1, callback);
                                             woyouService.setAlignment(0, callback);
 
@@ -393,8 +393,7 @@ public class MainActivity extends AppCompatActivity {
                                             String p_id_act = null;
                                             String product_txt = null;
                                             // Get all jsonObject from jsonArray
-                                            for (int i = 0; i < jsonArray.length(); i++)
-                                            {
+                                            for (int i = 0; i < jsonArray.length(); i++) {
                                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
                                                 String date_str = null, product_id = null, code = null, liters = null, trans_code = null;
@@ -402,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
                                                 //Date
                                                 if (jsonObject.has("fecha_hora") && !jsonObject.isNull("fecha_hora")) {
                                                     date_str = jsonObject.getString("fecha_hora");
-                                                    if(new_report == 0){
+                                                    if (new_report == 0) {
                                                         String[] f_separated = date_str.split(" ");
                                                         String[] datearray = f_separated[0].split("-");
                                                         String dia = datearray[2];
@@ -418,14 +417,14 @@ public class MainActivity extends AppCompatActivity {
                                                 // product_id
                                                 if (jsonObject.has("producto") && !jsonObject.isNull("producto")) {
                                                     product_id = jsonObject.getString("producto");
-                                                    if(!product_id.equals(p_id_act)){
-                                                        switch (product_id){
+                                                    if (!product_id.equals(p_id_act)) {
+                                                        switch (product_id) {
                                                             case "1":
                                                                 product_txt = "\n\nDIESEL\n\n";
                                                                 break;
                                                             case "13":
-                                                                if(total_liters != 0){
-                                                                    String total_diesel = "\n TOTAL DIESEL: "+ String.format("%.2f", total_liters) + "\n\n";
+                                                                if (total_liters != 0) {
+                                                                    String total_diesel = "\n TOTAL DIESEL: " + String.format("%.2f", total_liters) + "\n\n";
                                                                     woyouService.printTextWithFont(total_diesel, "", 24, callback);
                                                                 }
                                                                 total_liters = 0;
@@ -436,12 +435,12 @@ public class MainActivity extends AppCompatActivity {
                                                         woyouService.printTextWithFont(product_txt, "", 24, callback);
 
                                                         String[] text = new String[3];
-                                                        int[] width = new int[] { 9, 8, 11 };
+                                                        int[] width = new int[]{9, 8, 11};
 
                                                         text[0] = "Code";
                                                         text[1] = "Liters";
                                                         text[2] = "Transaction";
-                                                        woyouService.printColumnsText(text, width, new int[] {0,2,2}, callback);
+                                                        woyouService.printColumnsText(text, width, new int[]{0, 2, 2}, callback);
                                                     }
 
 
@@ -464,8 +463,8 @@ public class MainActivity extends AppCompatActivity {
                                                 }
 
                                                 String[] text2 = new String[3];
-                                                int[] width2 = new int[] { 9, 8, 11 };
-                                                int[] align = new int[] { 0, 2, 2 };
+                                                int[] width2 = new int[]{9, 8, 11};
+                                                int[] align = new int[]{0, 2, 2};
                                                 text2[0] = code;
                                                 text2[1] = liters;
                                                 text2[2] = trans_code;
@@ -474,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
                                                 p_id_act = product_id;
                                             }
                                             //TOTAL ADBLUE
-                                            if(total_liters != 0) {
+                                            if (total_liters != 0) {
                                                 String total_adb = "\n TOTAL ADBLUE: " + String.format("%.2f", total_liters) + "\n\n";
                                                 woyouService.printTextWithFont(total_adb, "", 24, callback);
                                             }
@@ -486,7 +485,8 @@ public class MainActivity extends AppCompatActivity {
                                             e.printStackTrace();
                                         }
 
-                                    }});
+                                    }
+                                });
 
                             } catch (NullPointerException e) {
                                 e.printStackTrace();
@@ -527,28 +527,36 @@ public class MainActivity extends AppCompatActivity {
         t.start();
     }
 
-    public void CheckFunction(View view){
+    public void CheckFunction(View view) {
         Intent Intent = new Intent(this, CheckActivity.class);
         startActivity(Intent);
 
     }
 
-    public void CheckWorkShift(){
+    public void CheckWorkShift() {
         //FUNCION PARA MIRAR SI EXITE UN TURNO ABIERTO SI NO EXISTE LO ABRIMOS.
         sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
-        final String server = sharedpreferences.getString("serverKey", null);
         final String terminal = sharedpreferences.getString("terminalKey", null);
         RequestQueue queue = Volley.newRequestQueue(this);  // this = context
-        String url = server + "/check_ws.php";
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+        String url = ApiGPayUrl + BuildConfig.EP_TERMINALS_CHECK_WORKSHIFT + "?terminal=" + terminal;
+        StringRequest postRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String DataReceived) {
-                        Log.d("Response", DataReceived);
-                        //Toast.makeText(getBaseContext(), DataReceived, Toast.LENGTH_SHORT).show();
-                        SharedPreferences.Editor editor = sharedpreferences.edit();
-                        editor.putString("turnoKey", DataReceived);
-                        editor.apply();
+                        try {
+                            JSONObject jsonObject = new JSONObject(DataReceived);
+                            boolean dataSuccess = jsonObject.getBoolean("success");
+
+                            if (dataSuccess) {
+                                JSONObject data = jsonObject.getJSONObject("data");
+                                SharedPreferences.Editor editor = sharedpreferences.edit();
+                                editor.putString(ConfigEnum.workShiftKey, data.getString("work_shift_id"));
+                                editor.putString(ConfigEnum.workShiftOpenDateKey, data.getString("date_open"));
+                                editor.apply();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -560,152 +568,117 @@ public class MainActivity extends AppCompatActivity {
                 }
         ) {
             @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("terminal", terminal);
-                return params;
+            public Map getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                //headers.put("Content-Type", "application/json");
+                headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
+                return headers;
             }
         };
         queue.add(postRequest);
     }
 
 
-    public void close_work_shift(){
+    public void summaryWorkShift() {
         sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
         final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
         final String terminal = sharedpreferences.getString("terminalKey", null);
         final String server = sharedpreferences.getString("serverKey", null);
-        final String turno = sharedpreferences.getString("turnoKey", null);
+        final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
 
         RequestQueue queue = Volley.newRequestQueue(this);  // this = context
-        String url = server + "/close_work_shift.php";
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+        String url = ApiGPayUrl + BuildConfig.EP_TERMINALS_SUMMARY_WORKSHIFT + "?terminal=" + terminal + "&turno=" + turno;
+        StringRequest postRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(final String DataReceived) {
-                        if (DataReceived.equals("hayreservas")) {
-                            //Hay operaciones reservadas no se puede cerrar el turno.
-                            Toast.makeText(getBaseContext(), R.string.error_hay_reservas, Toast.LENGTH_SHORT).show();
-                        } else if (DataReceived.equals("nohayoperaciones")){
-                            //No hay operaciones pendientes de cerrar
-                            Toast.makeText(getBaseContext(), R.string.error_no_hay_operaciones, Toast.LENGTH_SHORT).show();
+                        try {
+                            JSONObject jsonObject = new JSONObject(DataReceived);
+                            boolean dataSuccess = jsonObject.getBoolean("success");
+                            if (!dataSuccess) {
+                                //Hay operaciones reservadas no se puede cerrar el turno.
+                                Toast.makeText(getBaseContext(), R.string.error_hay_reservas, Toast.LENGTH_SHORT).show();
+                            } else {
 
-                        } else {
-                            //Toast.makeText(getBaseContext(), DataReceived, Toast.LENGTH_SHORT).show();
-                            final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
-                            final String hora = new SimpleDateFormat("HH:mm").format(new Date()) + "\n\n";
-                            try{
-                                ThreadPoolManager.getInstance().executeTask(new Runnable(){
+                                jsonObject = jsonObject.getJSONObject("data");
+                                final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+                                final String hora = new SimpleDateFormat("HH:mm").format(new Date()) + "\n\n";
 
-                                    @Override
-                                    public void run() {
-                                        if( mBitmap == null ){
-                                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
-                                        }
-                                        try {
-                                            woyouService.lineWrap(2, callback);
-                                            woyouService.setAlignment(1, callback);
-                                            woyouService.printBitmap(mBitmap, callback);
-                                            woyouService.setFontSize(24, callback);
-                                            woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
-                                            String pterminal = "Terminal: " + terminal + "\n\n";
-                                            woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                            woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
-                                            woyouService.lineWrap(1, callback);
-                                            woyouService.setAlignment(0, callback);
+                                try {
+                                    //INSTANTIC
+                                    if(jsonObject.has("instantic") && !jsonObject.isNull("instantic")) {
+                                        JSONArray instanticSummary = jsonObject.getJSONArray("instantic");
 
-                                            JSONArray jsonArray = new JSONArray(DataReceived);
+                                        // Get all jsonObject from jsonArray
+                                        for (int i = 0; i < instanticSummary.length(); i++) {
+                                            JSONObject objSummary = instanticSummary.getJSONObject(i);
 
-                                            String report_txt = null, producto_txt = null, estado_txt = null;
-                                            // Get all jsonObject from jsonArray
-                                            Integer newReport = 0 , newProduct = 0;
-                                            String workShiftId = null, date_str,  n_transactions = null, estado = null, producto = null, tot_liters = null;
-                                            for (int i = 0; i < jsonArray.length(); i++)
-                                            {
-                                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+//                                    if (newReport == 0) {
+//                                        newReport = 1;
+//                                        //Work Shift
+//                                        if (jsonObject.has("work_shift_id") && !jsonObject.isNull("work_shift_id")) {
+//                                            workShiftId = jsonObject.getString("work_shift_id");
+//                                            String ws_id = "WORK SHIFT ID: " + workShiftId + "\n\n";
+//                                        }
+//                                        //Date Opened
+//                                        if (jsonObject.has("date_open") && !jsonObject.isNull("date_open")) {
+//                                            date_str = jsonObject.getString("date_open");
+//                                            String[] f_separated = date_str.split(" ");
+//                                            String[] datearray = f_separated[0].split("-");
+//                                            String dia = datearray[2];
+//                                            String mes = datearray[1];
+//                                            String anho = datearray[0];
+//                                            String date = "Opened at: " + dia + "/" + mes + "/" + anho + " " + f_separated[1] + "\n\n\n";
+//                                        }
+//                                    }
+                                            //n_transactions
+//                                    if (jsonObject.has("n_transactions") && !jsonObject.isNull("n_transactions")) {
+//                                        n_transactions = jsonObject.getString("n_transactions");
+//
+//                                    }
 
-                                                if (newReport == 0) {
-                                                    newReport = 1;
-                                                    //Work Shift
-                                                    if (jsonObject.has("work_shift_id") && !jsonObject.isNull("work_shift_id")) {
-                                                        workShiftId = jsonObject.getString("work_shift_id");
-                                                        String ws_id = "WORK SHIFT ID: " + workShiftId + "\n\n";
-                                                        woyouService.printTextWithFont(ws_id, "", 30, callback);
-                                                    }
-                                                    //Date Opened
-                                                    if (jsonObject.has("date_open") && !jsonObject.isNull("date_open")) {
-                                                        date_str = jsonObject.getString("date_open");
-                                                        String[] f_separated = date_str.split(" ");
-                                                        String[] datearray = f_separated[0].split("-");
-                                                        String dia = datearray[2];
-                                                        String mes = datearray[1];
-                                                        String anho = datearray[0];
-                                                        String date = "Opened at: " + dia + "/" + mes + "/" + anho + " " + f_separated[1] + "\n\n\n";
-                                                        woyouService.printTextWithFont(date, "", 28, callback);
-                                                    }
+                                            // producto
+                                            if (objSummary.has("producto") && !objSummary.isNull("producto")) {
+                                                String producto = objSummary.getString("producto");
+                                                switch (producto) {
+                                                    case "1":
+                                                        TransactionWorkShift.addTotalDieselLiters(Float.parseFloat(objSummary.getString("real_liters")));
+                                                        break;
+                                                    case "13":
+                                                        TransactionWorkShift.addTotalAdblueLiters(Float.parseFloat(objSummary.getString("real_liters")));
+                                                        break;
+                                                    case "15":
+                                                        TransactionWorkShift.addTotalRedLiters(Float.parseFloat(objSummary.getString("real_liters")));
+                                                        break;
                                                 }
-                                                //n_transactions
-                                                if (jsonObject.has("n_transactions") && !jsonObject.isNull("n_transactions")) {
-                                                    n_transactions = jsonObject.getString("n_transactions");
-
-                                                }
-
-                                                // estado
-                                                if (jsonObject.has("estado") && !jsonObject.isNull("estado")) {
-                                                    estado = jsonObject.getString("estado");
-                                                    switch (estado){
-                                                        case "CANCELADA":
-                                                            estado_txt = "CANCELLED";
-                                                            break;
-                                                        case "FINALIZADA":
-                                                            estado_txt = "FINISHED";
-                                                            break;
-                                                    }
-                                                }
-
-                                                // producto
-                                                if (jsonObject.has("producto") && !jsonObject.isNull("producto")) {
-                                                    producto = jsonObject.getString("producto");
-                                                    switch (producto){
-                                                        case "1":
-                                                            producto_txt = "DIESEL";
-                                                            break;
-                                                        case "13":
-                                                            producto_txt = "AD BLUE";
-                                                            break;
-                                                        case "15":
-                                                            producto_txt = "RED DIESEL";
-                                                            break;
-                                                    }
-                                                }
-
-                                                // liters
-                                                if (jsonObject.has("liters") && !jsonObject.isNull("liters")) {
-                                                    tot_liters = jsonObject.getString("liters");
-                                                }
-
-                                                report_txt = producto_txt + " Transactions " + estado_txt + ": " + n_transactions + "\nLiters: " + tot_liters + "\n\n";
-                                                woyouService.printTextWithFont(report_txt, "", 24, callback);
                                             }
-                                            String dateF = "\nClosed at: " + fecha + " " + hora + "\n\n";
-                                            woyouService.printTextWithFont( dateF, "", 28, callback);
-                                            woyouService.lineWrap(2, callback);
-                                        } catch (RemoteException e) {
-                                            // TODO Auto-generated catch block
-                                            e.printStackTrace();
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
                                         }
+                                    }
+                                    //CAMPILLO
+                                    if(jsonObject.has("campillo") && !jsonObject.isNull("campillo")) {
+                                        JSONObject campilloSummary = jsonObject.getJSONObject("campillo");
+                                        TransactionWorkShift.addTotalDieselLiters(Float.parseFloat(campilloSummary.getString("diesel_liters")));
+                                        TransactionWorkShift.addTotalAdblueLiters(Float.parseFloat(campilloSummary.getString("adblue_liters")));
+                                        TransactionWorkShift.addTotalRedLiters(Float.parseFloat(campilloSummary.getString("red_liters")));
+                                    }
 
-                                    }});
+                                    //GLOBALPAY
+                                    if(jsonObject.has("globalpay") && !jsonObject.isNull("globalpay")) {
+                                        JSONObject globalpaySummary = jsonObject.getJSONObject("globalpay");
+                                        TransactionWorkShift.addTotalDieselLiters(Float.parseFloat(globalpaySummary.getString("diesel_liters")));
+                                        TransactionWorkShift.addTotalAdblueLiters(Float.parseFloat(globalpaySummary.getString("adblue_liters")));
+                                        TransactionWorkShift.addTotalRedLiters(Float.parseFloat(globalpaySummary.getString("red_liters")));
+                                    }
 
-                            } catch (NullPointerException e) {
-                                e.printStackTrace();
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                                    closeWorkShift();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                //CheckWorkShift();
                             }
-
-                            CheckWorkShift();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
 
                     }
@@ -725,11 +698,139 @@ public class MainActivity extends AppCompatActivity {
                 params.put("turno", turno);
                 return params;
             }
+            @Override
+            public Map getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                //headers.put("Content-Type", "application/json");
+                headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
+                return headers;
+            }
         };
         queue.add(postRequest);
     }
 
+    public void closeWorkShift() {
+        sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String secret = sharedpreferences.getString("secretKey", null);
 
+
+        RequestQueue queue = Volley.newRequestQueue(this);  // this = context
+
+        String url = ApiGPayUrl + BuildConfig.EP_TERMINALS_CLOSE_WORKSHIFT;
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(final String DataReceived) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(DataReceived);
+                            boolean dataSuccess = jsonObject.getBoolean("success");
+                            if (!dataSuccess) {
+                                //Toast.makeText(getBaseContext(), R.string.error_hay_reservas, Toast.LENGTH_SHORT).show();
+
+                            } else {
+                                printTotalsWorkShift();
+                                CheckWorkShift();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Toast.makeText(getBaseContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("terminal", terminal);
+                return params;
+            }
+            @Override
+            public Map getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                //headers.put("Content-Type", "application/json");
+                headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
+                return headers;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+    public void printTotalsWorkShift() {
+
+
+        final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
+        final String turnoDateOpen = sharedpreferences.getString(ConfigEnum.workShiftOpenDateKey, null);
+
+
+        final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+        final String hora = new SimpleDateFormat("HH:mm").format(new Date()) + "\n\n";
+
+        ThreadPoolManager.getInstance().executeTask(new Runnable() {
+
+            @Override
+            public void run() {
+                if (mBitmap == null) {
+                    mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                }
+                try {
+                    woyouService.lineWrap(2, callback);
+                    woyouService.setAlignment(1, callback);
+                    woyouService.printBitmap(mBitmap, callback);
+                    woyouService.setFontSize(24, callback);
+                    woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                    String pterminal = "Terminal: " + terminal + "\n\n";
+                    woyouService.printTextWithFont(pterminal, "", 24, callback);
+                    woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                    woyouService.lineWrap(1, callback);
+                    woyouService.setAlignment(0, callback);
+
+                    woyouService.printTextWithFont("WORK SHIFT ID: " + turno + "\n\n", "", 29, callback);
+
+                    String[] f_separated = turnoDateOpen.split(" ");
+                    String[] datearray = f_separated[0].split("-");
+                    String day = datearray[2];
+                    String month = datearray[1];
+                    String year = datearray[0];
+                    woyouService.printTextWithFont("Opened at: " + day + "/" + month + "/" + year + " " + f_separated[1] + "\n\n\n", "", 28, callback);
+
+                    String strTotals = "";
+                    if (TransactionWorkShift.getTotalDieselLiters() > 0) {
+                        strTotals += "Diesel Transactions finished: \nLiters: " + TransactionWorkShift.getTotalDieselLiters() + "\n\n";
+                    }
+                    if (TransactionWorkShift.getTotalAdblueLiters() > 0) {
+                        strTotals += "Adblue Transactions finished: \nLiters: " + TransactionWorkShift.getTotalAdblueLiters() + "\n\n";
+                    }
+                    if (TransactionWorkShift.getTotalRedLiters() > 0) {
+                        strTotals += "Gas B Transactions finished: \nLiters: " + TransactionWorkShift.getTotalRedLiters() + "\n\n";
+                    }
+                    if (TransactionWorkShift.getTotalGasKilos() > 0) {
+                        strTotals += "Gas Transactions finished: \nKilos: " + TransactionWorkShift.getTotalGasKilos() + "\n\n";
+                    }
+
+
+                    woyouService.printTextWithFont(strTotals, "", 24, callback);
+
+                    String dateF = "\nClosed at: " + fecha + " " + hora + "\n\n";
+                    woyouService.printTextWithFont(dateF, "", 28, callback);
+                    woyouService.lineWrap(2, callback);
+                } catch (RemoteException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            }
+        });
+    }
 
     @Override
     public void onDestroy() {
@@ -753,29 +854,30 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onReturnString(final String value) throws RemoteException {
-                Log.i(TAG,"printlength:" + value + "\n");
+                Log.i(TAG, "printlength:" + value + "\n");
             }
 
             @Override
             public void onRaiseException(int code, final String msg) throws RemoteException {
-                Log.i(TAG,"onRaiseException: " + msg);
-                runOnUiThread(new Runnable(){
+                Log.i(TAG, "onRaiseException: " + msg);
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
 
-                    }});
+                    }
+                });
 
             }
         };
 
-        Intent intent=new Intent();
+        Intent intent = new Intent();
         intent.setPackage("woyou.aidlservice.jiuiv5");
         intent.setAction("woyou.aidlservice.jiuiv5.IWoyouService");
         startService(intent);
         bindService(intent, connService, Context.BIND_AUTO_CREATE);
     }
 
-    public void reservesCounter(){
+    public void reservesCounter() {
         //FUNCION PARA MIRAR SI EXITEN RESERVAVAS ACTIVAS.
         sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
         final String server = sharedpreferences.getString("serverKey", null);
@@ -788,11 +890,11 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(String DataReceived) {
                         Log.d("Response", DataReceived);
                         int ReservesCounter = Integer.parseInt(DataReceived);
-                        bagde =(TextView) findViewById(R.id.textcount);
-                        if (ReservesCounter == 0){
+                        bagde = (TextView) findViewById(R.id.textcount);
+                        if (ReservesCounter == 0) {
                             //NO HAY CODIGOS RESERVADOS. NO MUESTRO EL BADGE
                             bagde.setVisibility(View.INVISIBLE);
-                        }else{
+                        } else {
                             //HAY CODIGOS RESERVADOS. MUESTRO EL BADGE
                             bagde.setText(String.valueOf(ReservesCounter));
                             bagde.setVisibility(View.VISIBLE);
@@ -842,11 +944,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasFocus)
-    {
+    public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if(currentApiVersion >= Build.VERSION_CODES.KITKAT && hasFocus)
-        {
+        if (currentApiVersion >= Build.VERSION_CODES.KITKAT && hasFocus) {
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION

@@ -6,14 +6,20 @@ android {
         applicationId "eu.globaldevelopers.globalsms"
         minSdkVersion 22
         targetSdkVersion 25
-        versionCode 4
-        versionName "4.00"
+        versionCode 5
+        versionName "5.00"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug{
+            buildConfigField "String", "GLOBALPAY_TOKEN", "\"Bearer zjeqytn8bQbpOo9xdzjsrHUYe4amAlReIpWoGA0nqSQADQNLLA\""
+            buildConfigField "String", "EP_TERMINALS_CHECK_WORKSHIFT", "\"terminals/check/workshift\""
+            buildConfigField "String", "EP_TERMINALS_CLOSE_WORKSHIFT", "\"terminals/close/workshift\""
+            buildConfigField "String", "EP_TERMINALS_SUMMARY_WORKSHIFT", "\"terminals/summary/workshift\""
         }
     }
     aaptOptions {
