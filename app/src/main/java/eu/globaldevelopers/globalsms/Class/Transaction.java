@@ -9,6 +9,7 @@ public class Transaction {
     private float totalAdblueLiters;
     private float totalRedLiters;
     private float totalGasKilos;
+    private int totalTransactions;
 
     public float getTotalDieselAmount() {
         return totalDieselAmount;
@@ -106,5 +107,15 @@ public class Transaction {
         this.totalGasKilos += totalGasKilos;
     }
 
+    public int getTotalTransactions() {
+        return totalTransactions;
+    }
 
+    public void setTotalTransactions(int totalTransactions) {
+        this.totalTransactions = totalTransactions;
+    }
+
+    public void addTotalTransactions(int totalTransactions) {
+        this.totalTransactions += totalTransactions;
+    }
 }

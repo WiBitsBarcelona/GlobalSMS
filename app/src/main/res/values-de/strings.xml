@@ -92,6 +92,7 @@
     <string name="btn_dia">Tagesbericht</string>
     <string name="titulo_cierre_turno">ACHTUNG!!</string>
     <string name="alert_cierre_turno">Dieser Prozess schließt die aktuelle Arbeitsschicht und öffnet eine neue. Diese Aktion kann nicht rückgängig gemacht werden</string>
+    <string name="closing_workshift">Closing work shift...</string>
     <string name="btn_cierre_cancel">STORNIEREN</string>
     <string name="btn_cierre_aceptar">AKZEPTIERT</string>
     <string name="titulo_check">Input the Code you want to Check</string>

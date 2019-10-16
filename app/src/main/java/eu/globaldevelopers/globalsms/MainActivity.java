@@ -32,9 +32,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -98,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     public static String ApiCampilloURI, ApiGPayUrl;
 
     //TOTALES CIERRE TURNO
-    private Transaction TransactionWorkShift;
+    private Transaction transactionGpWs, transactionInWs;
     private boolean pendingTransactions = false;
 
 
@@ -305,10 +307,22 @@ public class MainActivity extends AppCompatActivity {
         alert.setMessage(R.string.alert_cierre_turno);
         alert.setIcon(R.drawable.attention);
 
+        //LOADER
+        progress = new ProgressDialog(this);
+        progress.setMessage(this.getString(R.string.closing_workshift));
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setIndeterminate(true);
+        progress.setCancelable(true);
+        progress.setProgress(0);
+
         alert.setPositiveButton(R.string.btn_cierre_aceptar, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                TransactionWorkShift = new Transaction();
+                //LOADER
+                progress.show();
+                transactionGpWs = new Transaction();
+                transactionInWs = new Transaction();
                 summaryWorkShift();
+
             }
         });
 
@@ -575,6 +589,11 @@ public class MainActivity extends AppCompatActivity {
                 return headers;
             }
         };
+
+        int socketTimeout = 30000;
+        int maxRetry = 0;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        postRequest.setRetryPolicy(policy);
         queue.add(postRequest);
     }
 
@@ -612,70 +631,48 @@ public class MainActivity extends AppCompatActivity {
                                         // Get all jsonObject from jsonArray
                                         for (int i = 0; i < instanticSummary.length(); i++) {
                                             JSONObject objSummary = instanticSummary.getJSONObject(i);
-
-//                                    if (newReport == 0) {
-//                                        newReport = 1;
-//                                        //Work Shift
-//                                        if (jsonObject.has("work_shift_id") && !jsonObject.isNull("work_shift_id")) {
-//                                            workShiftId = jsonObject.getString("work_shift_id");
-//                                            String ws_id = "WORK SHIFT ID: " + workShiftId + "\n\n";
-//                                        }
-//                                        //Date Opened
-//                                        if (jsonObject.has("date_open") && !jsonObject.isNull("date_open")) {
-//                                            date_str = jsonObject.getString("date_open");
-//                                            String[] f_separated = date_str.split(" ");
-//                                            String[] datearray = f_separated[0].split("-");
-//                                            String dia = datearray[2];
-//                                            String mes = datearray[1];
-//                                            String anho = datearray[0];
-//                                            String date = "Opened at: " + dia + "/" + mes + "/" + anho + " " + f_separated[1] + "\n\n\n";
-//                                        }
-//                                    }
-                                            //n_transactions
-//                                    if (jsonObject.has("n_transactions") && !jsonObject.isNull("n_transactions")) {
-//                                        n_transactions = jsonObject.getString("n_transactions");
-//
-//                                    }
-
                                             // producto
                                             if (objSummary.has("producto") && !objSummary.isNull("producto")) {
                                                 String producto = objSummary.getString("producto");
                                                 switch (producto) {
                                                     case "1":
-                                                        TransactionWorkShift.addTotalDieselLiters(Float.parseFloat(objSummary.getString("real_liters")));
+                                                        transactionInWs.addTotalDieselLiters(Float.parseFloat(objSummary.getString("real_liters")));
                                                         break;
                                                     case "13":
-                                                        TransactionWorkShift.addTotalAdblueLiters(Float.parseFloat(objSummary.getString("real_liters")));
+                                                        transactionInWs.addTotalAdblueLiters(Float.parseFloat(objSummary.getString("real_liters")));
                                                         break;
                                                     case "15":
-                                                        TransactionWorkShift.addTotalRedLiters(Float.parseFloat(objSummary.getString("real_liters")));
+                                                        transactionInWs.addTotalRedLiters(Float.parseFloat(objSummary.getString("real_liters")));
                                                         break;
                                                 }
                                             }
+
+                                            transactionInWs.addTotalTransactions(objSummary.getInt("total_transactions"));
                                         }
                                     }
                                     //CAMPILLO
                                     if(jsonObject.has("campillo") && !jsonObject.isNull("campillo")) {
                                         JSONObject campilloSummary = jsonObject.getJSONObject("campillo");
-                                        TransactionWorkShift.addTotalDieselLiters(Float.parseFloat(campilloSummary.getString("diesel_liters")));
-                                        TransactionWorkShift.addTotalAdblueLiters(Float.parseFloat(campilloSummary.getString("adblue_liters")));
-                                        TransactionWorkShift.addTotalRedLiters(Float.parseFloat(campilloSummary.getString("red_liters")));
+                                        transactionGpWs.addTotalDieselLiters(Float.parseFloat(campilloSummary.getString("diesel_liters")));
+                                        transactionGpWs.addTotalAdblueLiters(Float.parseFloat(campilloSummary.getString("adblue_liters")));
+                                        transactionGpWs.addTotalRedLiters(Float.parseFloat(campilloSummary.getString("red_liters")));
+                                        transactionGpWs.addTotalTransactions(campilloSummary.getInt("total_transactions"));
                                     }
 
                                     //GLOBALPAY
                                     if(jsonObject.has("globalpay") && !jsonObject.isNull("globalpay")) {
                                         JSONObject globalpaySummary = jsonObject.getJSONObject("globalpay");
-                                        TransactionWorkShift.addTotalDieselLiters(Float.parseFloat(globalpaySummary.getString("diesel_liters")));
-                                        TransactionWorkShift.addTotalAdblueLiters(Float.parseFloat(globalpaySummary.getString("adblue_liters")));
-                                        TransactionWorkShift.addTotalRedLiters(Float.parseFloat(globalpaySummary.getString("red_liters")));
+                                        transactionGpWs.addTotalDieselLiters(Float.parseFloat(globalpaySummary.getString("diesel_liters")));
+                                        transactionGpWs.addTotalAdblueLiters(Float.parseFloat(globalpaySummary.getString("adblue_liters")));
+                                        transactionGpWs.addTotalRedLiters(Float.parseFloat(globalpaySummary.getString("red_liters")));
+                                        transactionGpWs.addTotalTransactions(globalpaySummary.getInt("total_transactions"));
                                     }
 
                                     closeWorkShift();
+
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-
-                                //CheckWorkShift();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -706,6 +703,11 @@ public class MainActivity extends AppCompatActivity {
                 return headers;
             }
         };
+
+        int socketTimeout = 30000;
+        int maxRetry = 0;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        postRequest.setRetryPolicy(policy);
         queue.add(postRequest);
     }
 
@@ -731,6 +733,7 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 printTotalsWorkShift();
                                 CheckWorkShift();
+                                progress.dismiss();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -760,6 +763,11 @@ public class MainActivity extends AppCompatActivity {
                 return headers;
             }
         };
+
+        int socketTimeout = 30000;
+        int maxRetry = 0;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        postRequest.setRetryPolicy(policy);
         queue.add(postRequest);
     }
 
@@ -803,22 +811,47 @@ public class MainActivity extends AppCompatActivity {
                     String year = datearray[0];
                     woyouService.printTextWithFont("Opened at: " + day + "/" + month + "/" + year + " " + f_separated[1] + "\n\n\n", "", 28, callback);
 
-                    String strTotals = "";
-                    if (TransactionWorkShift.getTotalDieselLiters() > 0) {
-                        strTotals += "Diesel Transactions finished: \nLiters: " + TransactionWorkShift.getTotalDieselLiters() + "\n\n";
-                    }
-                    if (TransactionWorkShift.getTotalAdblueLiters() > 0) {
-                        strTotals += "Adblue Transactions finished: \nLiters: " + TransactionWorkShift.getTotalAdblueLiters() + "\n\n";
-                    }
-                    if (TransactionWorkShift.getTotalRedLiters() > 0) {
-                        strTotals += "Gas B Transactions finished: \nLiters: " + TransactionWorkShift.getTotalRedLiters() + "\n\n";
-                    }
-                    if (TransactionWorkShift.getTotalGasKilos() > 0) {
-                        strTotals += "Gas Transactions finished: \nKilos: " + TransactionWorkShift.getTotalGasKilos() + "\n\n";
+                    if(transactionInWs.getTotalTransactions() > 0) {
+                        woyouService.printTextWithFont("SMS transactions (" + transactionInWs.getTotalTransactions() + "):\n\n", "", 27, callback);
+
+                        String strTotals = "";
+                        if (transactionInWs.getTotalDieselLiters() > 0) {
+                            strTotals += "Diesel Transactions finished: \nLiters: " + transactionInWs.getTotalDieselLiters() + "\n\n";
+                        }
+                        if (transactionInWs.getTotalAdblueLiters() > 0) {
+                            strTotals += "Adblue Transactions finished: \nLiters: " + transactionInWs.getTotalAdblueLiters() + "\n\n";
+                        }
+                        if (transactionInWs.getTotalRedLiters() > 0) {
+                            strTotals += "Gas B Transactions finished: \nLiters: " + transactionInWs.getTotalRedLiters() + "\n\n";
+                        }
+                        if (transactionInWs.getTotalGasKilos() > 0) {
+                            strTotals += "Gas Transactions finished: \nKilos: " + transactionInWs.getTotalGasKilos() + "\n\n";
+                        }
+
+                        woyouService.printTextWithFont(strTotals, "", 24, callback);
                     }
 
+                    if(transactionGpWs.getTotalTransactions() > 0) {
+                        woyouService.printTextWithFont("GlobalPay DNI transactions (" + transactionGpWs.getTotalTransactions() + "):\n\n", "", 27, callback);
 
-                    woyouService.printTextWithFont(strTotals, "", 24, callback);
+                        String strTotals = "";
+                        if (transactionGpWs.getTotalDieselLiters() > 0) {
+                            strTotals += "Diesel Transactions finished: \nLiters: " + transactionGpWs.getTotalDieselLiters() + "\n\n";
+                        }
+                        if (transactionGpWs.getTotalAdblueLiters() > 0) {
+                            strTotals += "Adblue Transactions finished: \nLiters: " + transactionGpWs.getTotalAdblueLiters() + "\n\n";
+                        }
+                        if (transactionGpWs.getTotalRedLiters() > 0) {
+                            strTotals += "Gas B Transactions finished: \nLiters: " + transactionGpWs.getTotalRedLiters() + "\n\n";
+                        }
+                        if (transactionGpWs.getTotalGasKilos() > 0) {
+                            strTotals += "Gas Transactions finished: \nKilos: " + transactionGpWs.getTotalGasKilos() + "\n\n";
+                        }
+
+                        woyouService.printTextWithFont(strTotals, "", 24, callback);
+                    }
+
+                    woyouService.printTextWithFont("Total transactions: " + (transactionGpWs.getTotalTransactions() + transactionInWs.getTotalTransactions()) + "\n\n", "", 24, callback);
 
                     String dateF = "\nClosed at: " + fecha + " " + hora + "\n\n";
                     woyouService.printTextWithFont(dateF, "", 28, callback);

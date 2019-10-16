@@ -92,6 +92,7 @@
     <string name="btn_dia">Informe Diario</string>
     <string name="titulo_cierre_turno">ATENCIÓN!!</string>
     <string name="alert_cierre_turno">Este proceso cerrará el turno actual y abrirá un nuevo turno. Esta acción no se puede deshacer</string>
+    <string name="closing_workshift">Cerrando turno...</string>
     <string name="btn_cierre_cancel">CANCELAR</string>
     <string name="btn_cierre_aceptar">ACEPTAR</string>
     <string name="titulo_check">Informa el Código que quieres comprobar</string>
