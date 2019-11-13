@@ -24,7 +24,7 @@ public class RetroClient {
     private static Retrofit getRetroClient(String baseUrl) {
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .client(getHeader("Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk"))
+                .client(getHeader("Bearer zjeqytn8bQbpOo9xdzjsrHUYe4amAlReIpWoGA0nqSQADQNLLA"))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }

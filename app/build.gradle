@@ -5,7 +5,7 @@ android {
     defaultConfig {
         applicationId "eu.globaldevelopers.globalsms"
         minSdkVersion 22
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 6
         versionName "6.00"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -18,12 +18,22 @@ android {
             buildConfigField "String", "EP_TERMINALS_CHECK_WORKSHIFT", "\"terminals/check/workshift\""
             buildConfigField "String", "EP_TERMINALS_CLOSE_WORKSHIFT", "\"terminals/close/workshift\""
             buildConfigField "String", "EP_TERMINALS_SUMMARY_WORKSHIFT", "\"terminals/summary/workshift\""
+            buildConfigField "String", "EP_GLOBALPAY_FINISH", "\"terminals/finish/\""
+            buildConfigField "String", "EP_GLOBALPAY_PRERESERVE", "\"terminals/check/reserve\""
+            buildConfigField "String", "EP_GLOBALPAY_RESERVE", "\"terminals/reserve/\""
+            buildConfigField "String", "EP_GLOBALPAY_CHECK", "\"terminals/check\""
+            buildConfigField "String", "EP_GLOBALPAY_USER_CUSTOMIZATIONS", "\"terminals/user/customizations\""
         }
         debug{
             buildConfigField "String", "GLOBALPAY_TOKEN", "\"Bearer zjeqytn8bQbpOo9xdzjsrHUYe4amAlReIpWoGA0nqSQADQNLLA\""
             buildConfigField "String", "EP_TERMINALS_CHECK_WORKSHIFT", "\"terminals/check/workshift\""
             buildConfigField "String", "EP_TERMINALS_CLOSE_WORKSHIFT", "\"terminals/close/workshift\""
             buildConfigField "String", "EP_TERMINALS_SUMMARY_WORKSHIFT", "\"terminals/summary/workshift\""
+            buildConfigField "String", "EP_GLOBALPAY_FINISH", "\"terminals/finish/\""
+            buildConfigField "String", "EP_GLOBALPAY_PRERESERVE", "\"terminals/check/reserve\""
+            buildConfigField "String", "EP_GLOBALPAY_RESERVE", "\"terminals/reserve/\""
+            buildConfigField "String", "EP_GLOBALPAY_CHECK", "\"terminals/check\""
+            buildConfigField "String", "EP_GLOBALPAY_USER_CUSTOMIZATIONS", "\"terminals/user/customizations\""
         }
     }
     aaptOptions {

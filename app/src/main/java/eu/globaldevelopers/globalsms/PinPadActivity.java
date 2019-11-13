@@ -105,6 +105,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import eu.globaldevelopers.globalsms.Class.DataUserCustomization;
+import eu.globaldevelopers.globalsms.Class.PrintTicket;
 import eu.globaldevelopers.globalsms.Enums.ApiTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import eu.globaldevelopers.globalsms.Enums.ProcessTypeEnum;
@@ -1852,7 +1854,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String terminal = sharedpreferences.getString("terminalKey", null);
             final String secret = sharedpreferences.getString("secretKey", null);
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = ApiCampilloURI + "terminals/check/reserve";
+            String url = ApiCampilloURI + BuildConfig.EP_GLOBALPAY_PRERESERVE;
             Log.e(TAG, "Uri: " + url);
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
@@ -2119,7 +2121,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String secret = sharedpreferences.getString("secretKey", null);
             final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = ApiGPayUrl + "terminals/check/reserve";
+            String url = ApiGPayUrl + BuildConfig.EP_GLOBALPAY_PRERESERVE;
             Log.e(TAG, "Uri: " + url);
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
@@ -2443,7 +2445,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
-            String url = ApiCampilloURI + "terminals/reserve/" + Checksum;
+            String url = ApiCampilloURI + BuildConfig.EP_GLOBALPAY_RESERVE + Checksum;
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
@@ -2704,7 +2706,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
-            String url = ApiGPayUrl + "terminals/reserve/" + Checksum;
+            String url = ApiGPayUrl + BuildConfig.EP_GLOBALPAY_RESERVE + Checksum;
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
@@ -2955,7 +2957,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String terminal = sharedpreferences.getString("terminalKey", null);
             RequestQueue queue = Volley.newRequestQueue(this);
 
-            String url = ApiCampilloURI + "terminals/check";
+            String url = ApiCampilloURI + BuildConfig.EP_GLOBALPAY_CHECK;
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
@@ -3065,7 +3067,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String turno = sharedpreferences.getString("turnoKey", null);
             RequestQueue queue = Volley.newRequestQueue(this);
 
-            String url = ApiGPayUrl + "terminals/check";
+            String url = ApiGPayUrl + BuildConfig.EP_GLOBALPAY_CHECK;
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
@@ -3556,7 +3558,7 @@ public class PinPadActivity extends AppCompatActivity {
 
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
-            String url = ApiCampilloURI + "terminals/finish/" + Checksum;
+            String url = ApiCampilloURI + BuildConfig.EP_GLOBALPAY_FINISH + Checksum;
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
@@ -3838,7 +3840,7 @@ public class PinPadActivity extends AppCompatActivity {
 
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
-            String url = ApiGPayUrl + "terminals/finish/" + Checksum;
+            String url = ApiGPayUrl + BuildConfig.EP_GLOBALPAY_FINISH + Checksum;
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
@@ -3892,7 +3894,6 @@ public class PinPadActivity extends AppCompatActivity {
                                                     // TODO Auto-generated catch block
                                                     e.printStackTrace();
                                                 }
-
                                             }
                                         });
 
@@ -3900,117 +3901,50 @@ public class PinPadActivity extends AppCompatActivity {
                                             Thread.sleep(5000);
                                         }
                                     }
-
-
                                 } else {
                                     Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", Toast.LENGTH_SHORT).show();
 
+                                    //USER CUSTOMIZATIONS
+                                    FileApi service = RetroClient.getApiService(ApiGPayUrl);
+
+                                    Call<DataUserCustomization> resultCall = service.getUserCustomizations(jsonObj.getString("customer_code"), terminal);
+
+
                                     try {
-
-                                        for (int g = 0; g < 2; g++) {
-
-                                            ThreadPoolManager.getInstance().executeTask(new Runnable() {
-
-                                                @Override
-                                                public void run() {
-                                                    if (mBitmap == null) {
-                                                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
-                                                    }
-                                                    Bitmap bitmap = BitmapFactory.decodeFile(StoredPath);
-                                                    try {
-                                                        msg = "TRANSACTION SUCCESSFULLY\n";
-                                                        msg += "COMPLETED";
-                                                        msg += "\n";
-                                                        woyouService.lineWrap(2, callback);
-                                                        woyouService.setAlignment(1, callback);
-                                                        woyouService.printBitmap(mBitmap, callback);
-                                                        woyouService.setFontSize(24, callback);
-                                                        woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
-                                                        String pterminal = "Terminal: " + terminal + "\n\n";
-                                                        woyouService.printTextWithFont(pterminal, "", 24, callback);
-                                                        woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
-                                                        woyouService.lineWrap(2, callback);
-                                                        woyouService.setAlignment(0, callback);
-                                                        woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
-                                                        //woyouService.printTextWithFont( "Operation Code: " + operation + "\n", "", 30, callback);
-                                                        woyouService.printTextWithFont("\n", "", 28, callback);
-                                                        woyouService.setFontSize(28, callback);
-                                                        String[] text = new String[3];
-                                                        int[] width = new int[]{10, 8, 8};
-                                                        int[] align = new int[]{0, 2, 2}; //
-
-                                                        text[0] = "Product";
-                                                        text[1] = "Liters";
-                                                        text[2] = "Total";
-                                                        woyouService.printColumnsText(text, width, new int[]{0, 2, 2}, callback);
-
-                                                        if (rDiesel > 0) {
-                                                            double total = Float.valueOf(Dieselprice) * rDiesel;
-                                                            BigDecimal a = new BigDecimal(total);
-                                                            final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-                                                            totalTxt = total2.toString();
-                                                            text[0] = "DIESEL A";
-                                                            text[1] = rDiesel.toString();
-                                                            text[2] = total2.toString();
-                                                            woyouService.printColumnsText(text, width, align, callback);
-                                                        }
-
-                                                        if (rAdBlue > 0) {
-                                                            double total = Float.valueOf(Adblueprice) * rAdBlue;
-                                                            BigDecimal a = new BigDecimal(total);
-                                                            final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-                                                            totalTxt = total2.toString();
-                                                            text[0] = "AD BLUE";
-                                                            text[1] = rAdBlue.toString();
-                                                            text[2] = total2.toString();
-                                                            woyouService.printColumnsText(text, width, align, callback);
-                                                        }
-
-                                                        if (rRedDiesel > 0) {
-                                                            double total = Float.valueOf(RedDieselprice) * rRedDiesel;
-                                                            BigDecimal a = new BigDecimal(total);
-                                                            final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-                                                            totalTxt = total2.toString();
-                                                            text[0] = "D. ROJO";
-                                                            text[1] = rRedDiesel.toString();
-                                                            text[2] = total2.toString();
-                                                            woyouService.printColumnsText(text, width, align, callback);
-                                                        }
-
-                                                        if (rGas > 0) {
-                                                            double total = Float.valueOf(Gasprice) * rGas;
-                                                            BigDecimal a = new BigDecimal(total);
-                                                            final BigDecimal total2 = a.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-                                                            totalTxt = total2.toString();
-                                                            text[0] = "GAS";
-                                                            text[1] = rGas.toString();
-                                                            text[2] = total2.toString();
-                                                            woyouService.printColumnsText(text, width, align, callback);
-                                                        }
-
-                                                        if (AuthMoney > 0) {
-                                                            text[0] = "ENTREGA";
-                                                            text[1] = " ";
-                                                            text[2] = AuthMoney.toString();
-                                                            woyouService.printColumnsText(text, width, align, callback);
-                                                        }
-
-                                                        woyouService.lineWrap(2, callback);
-                                                        //woyouService.printBitmap(bitmap, callback);
-                                                        woyouService.setAlignment(1, callback);
-                                                        woyouService.printTextWithFont(msg, "", 32, callback);
-                                                        woyouService.lineWrap(4, callback);
-                                                    } catch (RemoteException e) {
-                                                        // TODO Auto-generated catch block
-                                                        e.printStackTrace();
-                                                    }
-
-                                                }
-                                            });
-                                            if (g == 0) {
-                                                Thread.sleep(5000);
-                                            }
+                                        if (mBitmap == null) {
+                                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                         }
+                                        resultCall.enqueue(new Callback<DataUserCustomization>() {
+                                            @Override
+                                            public void onResponse(Call<DataUserCustomization> call, retrofit2.Response<DataUserCustomization> response) {
+                                                Boolean showPrices = false;
+                                                if (response.body() != null) {
+                                                    DataUserCustomization data = response.body();
+                                                }
+
+                                                //PRINT TICKET
+                                                PrintTicket printTicket = new PrintTicket(woyouService, callback, cabecera, terminal, fecha, hora, mBitmap);
+
+                                                try {
+                                                    for (int g = 0; g < 2; g++) {
+                                                        //PRINTING TICKET
+                                                        printTicket.printFinishTicket(rDiesel, rAdBlue, rRedDiesel, rGas, AuthMoney, codigo, Dieselprice, Adblueprice, RedDieselprice, Gasprice, showPrices);
+                                                        if (g == 0) {
+                                                            Thread.sleep(5000);
+                                                        }
+                                                    }
+                                                } catch (NullPointerException e) {
+                                                    e.printStackTrace();
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<DataUserCustomization> call, Throwable t) {
+
+                                            }
+                                        });
                                     } catch (NullPointerException e) {
                                         e.printStackTrace();
                                     } catch (Exception e) {
