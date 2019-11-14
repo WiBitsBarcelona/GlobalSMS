@@ -105,13 +105,17 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import eu.globaldevelopers.globalsms.Class.CustomizationValue;
 import eu.globaldevelopers.globalsms.Class.DataUserCustomization;
 import eu.globaldevelopers.globalsms.Class.PrintTicket;
+import eu.globaldevelopers.globalsms.Class.UserCustomization;
 import eu.globaldevelopers.globalsms.Enums.ApiTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
+import eu.globaldevelopers.globalsms.Enums.CustomizationsEnum;
 import eu.globaldevelopers.globalsms.Enums.ProcessTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductIntEnum;
+import eu.globaldevelopers.globalsms.Enums.ProductPriceKeyEnum;
 import eu.globaldevelopers.globalsms.Enums.TransactionTypeEnum;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -154,10 +158,10 @@ public class PinPadActivity extends AppCompatActivity {
     /**
      * AUTHORIZATIONS
      */
-    Double AuthDiesel = 0.00;
-    Double AuthAdBlue = 0.00;
-    Double AuthRedDiesel = 0.00;
-    Double AuthGas = 0.00;
+    Double AuthDiesel, DieselPrice = 0.00;
+    Double AuthAdBlue, AdbluePrice = 0.00;
+    Double AuthRedDiesel, RedPrice = 0.00;
+    Double AuthGas, GasPrice = 0.00;
     Double AuthMoney = 0.00;
     View CampilloLitersLayout;
 
@@ -2202,6 +2206,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         AuthDiesel = c.getDouble("diesel");
                                         AuthAdBlue = c.getDouble("adblue");
                                         AuthRedDiesel = c.getDouble("red");
+                                        AuthGas = c.getDouble("gas");
                                         AuthMoney = c.getDouble("money");
                                     }
                                     KmsRequired = jsonObj.getInt("kms_required");
@@ -3833,10 +3838,10 @@ public class PinPadActivity extends AppCompatActivity {
             final String secret = sharedpreferences.getString("secretKey", null);
 
             sharedpreferences3 = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
-            final String Dieselprice = sharedpreferences3.getString("dieselKey", "0.00");
-            final String Adblueprice = sharedpreferences3.getString("adblueKey", "0.00");
-            final String RedDieselprice = sharedpreferences3.getString("reddieselKey", "0.00");
-            final String Gasprice = sharedpreferences3.getString("gasKey", "0.00");
+            DieselPrice = Double.parseDouble(sharedpreferences3.getString("dieselKey", "0.00"));
+            AdbluePrice = Double.parseDouble(sharedpreferences3.getString("adblueKey", "0.00"));
+            RedPrice = Double.parseDouble(sharedpreferences3.getString("reddieselKey", "0.00"));
+            GasPrice = Double.parseDouble(sharedpreferences3.getString("gasKey", "0.00"));
 
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
@@ -3907,37 +3912,52 @@ public class PinPadActivity extends AppCompatActivity {
                                     //USER CUSTOMIZATIONS
                                     FileApi service = RetroClient.getApiService(ApiGPayUrl);
 
-                                    Call<DataUserCustomization> resultCall = service.getUserCustomizations(jsonObj.getString("customer_code"), terminal);
+                                    String customer_code = jsonObj.getString("customer_code");
+                                    Call<DataUserCustomization> resultCall = service.getUserCustomizations(customer_code, terminal);
 
 
                                     try {
                                         if (mBitmap == null) {
                                             mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                         }
+
+                                        //USER CUSTOMIZATIONS
                                         resultCall.enqueue(new Callback<DataUserCustomization>() {
                                             @Override
                                             public void onResponse(Call<DataUserCustomization> call, retrofit2.Response<DataUserCustomization> response) {
                                                 Boolean showPrices = false;
                                                 if (response.body() != null) {
                                                     DataUserCustomization data = response.body();
+                                                    if (data.success) {
+                                                        for (UserCustomization user_customization : data.data.user_customizations) {
+                                                            //SI EL CLIENTE TIENE UNA CUSTOMIZACION
+                                                            if (user_customization.customization.code.equals(CustomizationsEnum.TICKET_CUSTOMER_PRICE.toString())) {
+                                                                showPrices = true;
+                                                                for (CustomizationValue customization_value : user_customization.customization_values) {
+                                                                    Double value = Double.parseDouble(customization_value.value);
+                                                                    switch (customization_value.name) {
+                                                                        case ProductPriceKeyEnum.DIESEL:
+                                                                            DieselPrice = value > 0 ? value : DieselPrice;
+                                                                            break;
+                                                                        case ProductPriceKeyEnum.ADBLUE:
+                                                                            AdbluePrice = value > 0 ? value : AdbluePrice;
+                                                                            break;
+                                                                        case ProductPriceKeyEnum.RED:
+                                                                            RedPrice = value > 0 ? value : RedPrice;
+                                                                            break;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                 }
 
                                                 //PRINT TICKET
                                                 PrintTicket printTicket = new PrintTicket(woyouService, callback, cabecera, terminal, fecha, hora, mBitmap);
 
-                                                try {
-                                                    for (int g = 0; g < 2; g++) {
-                                                        //PRINTING TICKET
-                                                        printTicket.printFinishTicket(rDiesel, rAdBlue, rRedDiesel, rGas, AuthMoney, codigo, Dieselprice, Adblueprice, RedDieselprice, Gasprice, showPrices);
-                                                        if (g == 0) {
-                                                            Thread.sleep(5000);
-                                                        }
-                                                    }
-                                                } catch (NullPointerException e) {
-                                                    e.printStackTrace();
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
+                                                //PRINTING TICKET
+                                                printTicket.printFinishTicket(rDiesel, rAdBlue, rRedDiesel, rGas, AuthMoney, codigo, DieselPrice, AdbluePrice, RedPrice, GasPrice, showPrices);
+
                                             }
 
                                             @Override
@@ -4001,10 +4021,10 @@ public class PinPadActivity extends AppCompatActivity {
                     params.put("red_liters", rRedDiesel.toString());
                     params.put("gas_kilos", rGas.toString());
                     params.put("amount_euros", AuthMoney.toString());
-                    params.put("diesel_pump_price", Dieselprice);
-                    params.put("adblue_pump_price", Adblueprice);
-                    params.put("red_pump_price", RedDieselprice);
-                    params.put("gas_pump_price", Gasprice);
+                    params.put("diesel_pump_price", DieselPrice.toString());
+                    params.put("adblue_pump_price", AdbluePrice.toString());
+                    params.put("red_pump_price", RedPrice.toString());
+                    params.put("gas_pump_price", GasPrice.toString());
                     params.put("ticket_number", "0");
                     params.put("odometer", rKms.toString());
                     params.put("frigo_hours", rHours.toString());
@@ -4015,7 +4035,7 @@ public class PinPadActivity extends AppCompatActivity {
                 public Map getHeaders() throws AuthFailureError {
                     HashMap headers = new HashMap();
                     //headers.put("Content-Type", "application/json");
-                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
                     return headers;
                 }
             };
