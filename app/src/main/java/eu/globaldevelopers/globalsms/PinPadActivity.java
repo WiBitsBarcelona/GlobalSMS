@@ -446,6 +446,7 @@ public class PinPadActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // error
+                            mensajetimeout();
                         }
                     }
             ) {
@@ -457,7 +458,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
             };
 
-            int socketTimeout = 6000;
+            int socketTimeout = 30000;
             int maxRetry = 0;
             RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
             postRequest.setRetryPolicy(policy);
@@ -469,8 +470,6 @@ public class PinPadActivity extends AppCompatActivity {
         if (isNetworkAvailable() == false) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(15000, 10000);
-            contadortimeout.start();
 
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
@@ -622,7 +621,6 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                        contadortimeout.cancel();
                                         sleep(1000);
                                         progress.dismiss();
                                         PinPadActivity.this.finish();
@@ -638,6 +636,7 @@ public class PinPadActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // error
+                            mensajetimeout();
                         }
                     }
             ) {
@@ -653,7 +652,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
             };
 
-            int socketTimeout = 6000;
+            int socketTimeout = 30000;
             int maxRetry = 0;
             RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
             postRequest2.setRetryPolicy(policy);
@@ -692,8 +691,6 @@ public class PinPadActivity extends AppCompatActivity {
             mensajered();
         } else {
             counter = 1;
-            contadortimeout = new ContadorTimeOut(15000, 10000);
-            contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -890,7 +887,6 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                        contadortimeout.cancel();
                                         sleep(1000);
                                         progress.dismiss();
                                         PinPadActivity.this.finish();
@@ -906,6 +902,7 @@ public class PinPadActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // error
+                            mensajetimeout();
                         }
                     }
             ) {
@@ -926,7 +923,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
             };
 
-            int socketTimeout = 6000;
+            int socketTimeout = 30000;
             int maxRetry = 0;
             RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
             postRequest2.setRetryPolicy(policy);
@@ -1467,8 +1464,6 @@ public class PinPadActivity extends AppCompatActivity {
         if (isNetworkAvailable() == false) {
             mensajered();
         } else {
-            contadortimeout = new ContadorTimeOut(15000, 10000);
-            contadortimeout.start();
             progress = new ProgressDialog(this);
             progress.setMessage(this.getString(R.string.spinner_conectando));
             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -1665,7 +1660,6 @@ public class PinPadActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     try {
-                                        contadortimeout.cancel();
                                         sleep(1000);
                                         progress.dismiss();
                                         PinPadActivity.this.finish();
@@ -1681,6 +1675,7 @@ public class PinPadActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // error
+                            mensajetimeout();
                         }
                     }
             ) {
@@ -1696,7 +1691,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
             };
 
-            int socketTimeout = 6000;
+            int socketTimeout = 30000;
             int maxRetry = 0;
             RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
             postRequest.setRetryPolicy(policy);
@@ -3031,6 +3026,7 @@ public class PinPadActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // error
+                            mensajetimeout();
                         }
                     }
             ) {
@@ -3051,7 +3047,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
             };
 
-            int socketTimeout = 6000;
+            int socketTimeout = 30000;
             int maxRetry = 0;
             RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
             postRequest.setRetryPolicy(policy);
@@ -3140,6 +3136,7 @@ public class PinPadActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // error
+                            mensajetimeout();
                         }
                     }
             ) {
@@ -3160,7 +3157,7 @@ public class PinPadActivity extends AppCompatActivity {
                 }
             };
 
-            int socketTimeout = 6000;
+            int socketTimeout = 30000;
             int maxRetry = 0;
             RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, maxRetry, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
             postRequest.setRetryPolicy(policy);
@@ -3933,8 +3930,9 @@ public class PinPadActivity extends AppCompatActivity {
                                                             //SI EL CLIENTE TIENE UNA CUSTOMIZACION
                                                             if (user_customization.customization.code.equals(CustomizationsEnum.TICKET_CUSTOMER_PRICE.toString())) {
                                                                 showPrices = true;
+                                                                double rapple = 0.00;
                                                                 for (CustomizationValue customization_value : user_customization.customization_values) {
-                                                                    Double value = Double.parseDouble(customization_value.value);
+                                                                    double value = Double.parseDouble(customization_value.value);
                                                                     switch (customization_value.name) {
                                                                         case ProductPriceKeyEnum.DIESEL:
                                                                             DieselPrice = value > 0 ? value : DieselPrice;
@@ -3944,6 +3942,9 @@ public class PinPadActivity extends AppCompatActivity {
                                                                             break;
                                                                         case ProductPriceKeyEnum.RED:
                                                                             RedPrice = value > 0 ? value : RedPrice;
+                                                                            break;
+                                                                        case "rapple":
+                                                                            rapple = value;
                                                                             break;
                                                                     }
                                                                 }
