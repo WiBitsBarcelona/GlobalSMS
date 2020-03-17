@@ -23,6 +23,12 @@ android {
             buildConfigField "String", "EP_GLOBALPAY_RESERVE", "\"terminals/reserve/\""
             buildConfigField "String", "EP_GLOBALPAY_CHECK", "\"terminals/check\""
             buildConfigField "String", "EP_GLOBALPAY_USER_CUSTOMIZATIONS", "\"terminals/user/customizations\""
+            //GLOBALWALLET
+            buildConfigField "String", "URL_BASE", "\"https://sandbox.globaltank.app/api/\""
+            buildConfigField "String", "URL_GLOBALWALLET", "\"globalwallet/v1/\""
+            buildConfigField "String", "GLOBALWALLET_TOKEN", "\"Bearer AKUMr490GPtEqFFfJpIyWtqZM7YSCnYe1csxpmgPOiDuntOVDk\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD_QUERY", "\"qr/card/query\""
+
         }
         debug{
             buildConfigField "String", "GLOBALPAY_TOKEN", "\"Bearer zjeqytn8bQbpOo9xdzjsrHUYe4amAlReIpWoGA0nqSQADQNLLA\""
@@ -34,6 +40,11 @@ android {
             buildConfigField "String", "EP_GLOBALPAY_RESERVE", "\"terminals/reserve/\""
             buildConfigField "String", "EP_GLOBALPAY_CHECK", "\"terminals/check\""
             buildConfigField "String", "EP_GLOBALPAY_USER_CUSTOMIZATIONS", "\"terminals/user/customizations\""
+            //GLOBALWALLET
+            buildConfigField "String", "URL_BASE", "\"https://sandbox.globaltank.app/api/\""
+            buildConfigField "String", "URL_GLOBALWALLET", "\"globalwallet/v1/\""
+            buildConfigField "String", "GLOBALWALLET_TOKEN", "\"Bearer AKUMr490GPtEqFFfJpIyWtqZM7YSCnYe1csxpmgPOiDuntOVDk\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD_QUERY", "\"qr/card/query\""
         }
     }
     aaptOptions {

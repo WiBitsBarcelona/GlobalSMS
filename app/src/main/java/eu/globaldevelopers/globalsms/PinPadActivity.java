@@ -109,6 +109,7 @@ import eu.globaldevelopers.globalsms.Class.CustomizationValue;
 import eu.globaldevelopers.globalsms.Class.DataUserCustomization;
 import eu.globaldevelopers.globalsms.Class.PrintTicket;
 import eu.globaldevelopers.globalsms.Class.UserCustomization;
+import eu.globaldevelopers.globalsms.Class.globalwallet.CardQueryResponse;
 import eu.globaldevelopers.globalsms.Enums.ApiTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import eu.globaldevelopers.globalsms.Enums.CustomizationsEnum;
@@ -1167,6 +1168,22 @@ public class PinPadActivity extends AppCompatActivity {
         integrator.initiateScan();
     }
 
+    //SCAN QR FROM PINPAN DIRECTLY, PROCESSTYPE = GLOBALWALLET
+    public void scanQR(View v) {
+        processType = ProcessTypeEnum.GLOBALWALLET;//SET PROCESS GLOBALWALLET
+
+        IntentIntegrator integrator = new IntentIntegrator(this);
+        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
+
+        integrator.setPrompt(this.getString(R.string.texto_qr));
+        integrator.setResultDisplayDuration(0);
+        integrator.autoWide();
+        integrator.setOrientation(90);
+        integrator.setCameraId(0);
+        integrator.setCaptureLayout(R.layout.activity_scan);
+        integrator.initiateScan();
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
         //retrieve scan result
@@ -1281,6 +1298,10 @@ public class PinPadActivity extends AppCompatActivity {
                                     break;
                             }
                         }
+                        break;
+                    case GLOBALWALLET:
+                        scanQrContent = scanningResult.getContents();
+                        getQrCardQuery(scanQrContent);
                         break;
                 }
             }
@@ -3419,7 +3440,7 @@ public class PinPadActivity extends AppCompatActivity {
                     //Toast.makeText(getApplicationContext(), "Successfully Saved", Toast.LENGTH_SHORT).show();
                     // Calling the same class
                     //recreate();
-                    FileApi service = RetroClient.getApiService(ApiCampilloURI);
+                    FileApi service = RetroClient.getApiService(ApiCampilloURI, BuildConfig.GLOBALPAY_TOKEN);
                     File file = new File(StoredPath);
                     RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
 
@@ -3494,7 +3515,7 @@ public class PinPadActivity extends AppCompatActivity {
                     //Toast.makeText(getApplicationContext(), "Successfully Saved", Toast.LENGTH_SHORT).show();
                     // Calling the same class
                     //recreate();
-                    FileApi service = RetroClient.getApiService(ApiGPayUrl);
+                    FileApi service = RetroClient.getApiService(ApiGPayUrl, BuildConfig.GLOBALPAY_TOKEN);
                     File file = new File(StoredPath);
                     RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
 
@@ -3907,7 +3928,7 @@ public class PinPadActivity extends AppCompatActivity {
                                     Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", Toast.LENGTH_SHORT).show();
 
                                     //USER CUSTOMIZATIONS
-                                    FileApi service = RetroClient.getApiService(ApiGPayUrl);
+                                    FileApi service = RetroClient.getApiService(ApiGPayUrl, BuildConfig.GLOBALPAY_TOKEN);
 
                                     String customer_code = jsonObj.getString("customer_code");
                                     Call<DataUserCustomization> resultCall = service.getUserCustomizations(customer_code, terminal);
@@ -4195,6 +4216,40 @@ public class PinPadActivity extends AppCompatActivity {
             dirtyRect.top = Math.min(lastTouchY, eventY);
             dirtyRect.bottom = Math.max(lastTouchY, eventY);
         }
+    }
+
+    /*
+    GLOBALWALLET
+     */
+    private void getQrCardQuery(String card_number){
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+
+        //USER CUSTOMIZATIONS
+        FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
+
+        Call<CardQueryResponse> cardQuery = service.getQrCardQuery(terminal, card_number);
+
+        //USER CUSTOMIZATIONS
+        cardQuery.enqueue(new Callback<CardQueryResponse>() {
+            @Override
+            public void onResponse(Call<CardQueryResponse> call, retrofit2.Response<CardQueryResponse> response) {
+                CardQueryResponse data = response.body();
+                if(data.success){
+                    LayoutInflater inflater = getLayoutInflater();
+                    View PreReserveLayout = inflater.inflate(R.layout.globalwallet_qrcard_validate, null);
+                    builder2 = new AlertDialog.Builder(PinPadActivity.this);
+
+                    builder2.setCancelable(false);
+
+                    builder2.setView(PreReserveLayout);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CardQueryResponse> call, Throwable t) {
+                t.getMessage();
+            }
+        });
     }
 
 }

@@ -28,6 +28,7 @@
     <string name="entrada_litros">Input the Liters for this Supply</string>
     <string name="texto_qr">Scan QR Code from POS receipt</string>
 
+
     <!-- Strings related to Cambiar Precios -->
     <string name="titulo_precios">Select Product to change the price</string>
     <string name="precio_diesel">DIESEL</string>

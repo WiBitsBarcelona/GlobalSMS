@@ -21,16 +21,16 @@ public class RetroClient {
 
     }
 
-    private static Retrofit getRetroClient(String baseUrl) {
+    private static Retrofit getRetroClient(String baseUrl, String token) {
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .client(getHeader(BuildConfig.GLOBALPAY_TOKEN))
+                .client(getHeader(token))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
 
-    public static FileApi getApiService(String baseUrl) {
-        return getRetroClient(baseUrl).create(FileApi.class);
+    public static FileApi getApiService(String baseUrl, String token) {
+        return getRetroClient(baseUrl, token).create(FileApi.class);
     }
 
     static public OkHttpClient getHeader(final String authorizationValue ) {

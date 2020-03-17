@@ -178,9 +178,10 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:backgroundTint="#BFFFFFFF"
-            android:enabled="false"
+            android:enabled="true"
             android:paddingTop="30dp"
-            android:text=""
+            android:text="QR"
+            android:onClick="scanQR"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="@android:color/white" />
 
