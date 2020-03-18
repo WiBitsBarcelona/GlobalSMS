@@ -108,8 +108,10 @@ import javax.xml.transform.stream.StreamResult;
 import eu.globaldevelopers.globalsms.Class.CustomizationValue;
 import eu.globaldevelopers.globalsms.Class.DataUserCustomization;
 import eu.globaldevelopers.globalsms.Class.PrintTicket;
+import eu.globaldevelopers.globalsms.Class.Product;
 import eu.globaldevelopers.globalsms.Class.UserCustomization;
 import eu.globaldevelopers.globalsms.Class.globalwallet.CardQueryResponse;
+import eu.globaldevelopers.globalsms.Class.globalwallet.QrTransaction;
 import eu.globaldevelopers.globalsms.Enums.ApiTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import eu.globaldevelopers.globalsms.Enums.CustomizationsEnum;
@@ -4235,13 +4237,44 @@ public class PinPadActivity extends AppCompatActivity {
             public void onResponse(Call<CardQueryResponse> call, retrofit2.Response<CardQueryResponse> response) {
                 CardQueryResponse data = response.body();
                 if(data.success){
+                    final QrTransaction transaction = data.data;//Declare transaction as final for use in validate onClickListener
+
                     LayoutInflater inflater = getLayoutInflater();
-                    View PreReserveLayout = inflater.inflate(R.layout.globalwallet_qrcard_validate, null);
-                    builder2 = new AlertDialog.Builder(PinPadActivity.this);
 
-                    builder2.setCancelable(false);
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(PinPadActivity.this);
 
-                    builder2.setView(PreReserveLayout);
+                    View qrCardValidate = inflater.inflate(R.layout.globalwallet_qrcard_validate, null);
+                    builder.setView(qrCardValidate);//SHOW ALERT DIALOG
+                    builder.setCancelable(false);
+                    final AlertDialog dialog = builder.show();
+
+                    Button btnCancel = (Button) qrCardValidate.findViewById(R.id.buttonCancel);
+                    Button btnValidate = (Button) qrCardValidate.findViewById(R.id.buttonValidate);
+                    EditText maxQuantity = (EditText) qrCardValidate.findViewById(R.id.maxQuantity);
+
+                    maxQuantity.setText(transaction.max_quantity.toString());//SET MAX QUANTITY OF PRODUCTS
+
+                    //CARDS VISIBILITY
+                    for(Product product : transaction.card.type.products){
+                        int productId = getResources().getIdentifier(product.lang_code, "id", getPackageName());
+                        CardView productCard = (CardView) qrCardValidate.findViewById(productId);
+                        productCard.setVisibility(CardView.VISIBLE);
+                    }
+
+                    btnCancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    btnValidate.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                            validateQrTransaction(transaction);
+                        }
+                    });
                 }
             }
 
@@ -4250,6 +4283,10 @@ public class PinPadActivity extends AppCompatActivity {
                 t.getMessage();
             }
         });
+    }
+
+    private void validateQrTransaction(QrTransaction transaction){
+
     }
 
 }
