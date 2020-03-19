@@ -28,6 +28,8 @@ android {
             buildConfigField "String", "URL_GLOBALWALLET", "\"globalwallet/v1/\""
             buildConfigField "String", "GLOBALWALLET_TOKEN", "\"Bearer AKUMr490GPtEqFFfJpIyWtqZM7YSCnYe1csxpmgPOiDuntOVDk\""
             buildConfigField "String", "EP_GLOBALWALLET_CARD_QUERY", "\"qr/card/query\""
+            buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_VALIDATE", "\"qr/transaction/validate\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD", "\"qr/card\""
 
         }
         debug{
@@ -45,6 +47,8 @@ android {
             buildConfigField "String", "URL_GLOBALWALLET", "\"globalwallet/v1/\""
             buildConfigField "String", "GLOBALWALLET_TOKEN", "\"Bearer AKUMr490GPtEqFFfJpIyWtqZM7YSCnYe1csxpmgPOiDuntOVDk\""
             buildConfigField "String", "EP_GLOBALWALLET_CARD_QUERY", "\"qr/card/query\""
+            buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_VALIDATE", "\"qr/transaction/validate\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD", "\"qr/card\""
         }
     }
     aaptOptions {

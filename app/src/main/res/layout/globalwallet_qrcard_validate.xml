@@ -17,7 +17,7 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Productos autorizados:"
+                    android:text="@string/authorized_products"
                     android:textAlignment="center"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:padding="10dp"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:cardBackgroundColor="@android:color/darker_gray"
             app:cardCornerRadius="10dp">
 
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:padding="10dp"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:cardBackgroundColor="@android:color/holo_blue_dark"
             app:cardCornerRadius="10dp">
 
@@ -86,7 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:padding="10dp"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:cardBackgroundColor="@android:color/holo_red_dark"
             app:cardCornerRadius="10dp">
 
@@ -114,7 +114,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:padding="10dp"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:cardBackgroundColor="@android:color/holo_green_light"
             app:cardCornerRadius="10dp">
 
@@ -155,13 +155,13 @@
                             android:layout_width="0dip"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Cantidad autorizada"
-                            android:textAlignment="viewEnd"
+                            android:text="@string/max_quantity"
+                            android:textAlignment="center"
                             android:textColor="@android:color/black"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
-                        <EditText
+                        <TextView
                             android:id="@+id/maxQuantity"
                             android:layout_width="0dip"
                             android:layout_height="wrap_content"
@@ -182,6 +182,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:backgroundTint="#e51400"
                     android:text="@string/btn_pinpad_cancel" />
 
 
@@ -190,7 +191,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/btn_pinpad_ok" />
+                    android:backgroundTint="#8cbf26"
+                    android:text="@string/refuel" />
         </LinearLayout>
 
 

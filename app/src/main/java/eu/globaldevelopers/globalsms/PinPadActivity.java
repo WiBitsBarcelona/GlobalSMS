@@ -109,6 +109,7 @@ import eu.globaldevelopers.globalsms.Class.CustomizationValue;
 import eu.globaldevelopers.globalsms.Class.DataUserCustomization;
 import eu.globaldevelopers.globalsms.Class.PrintTicket;
 import eu.globaldevelopers.globalsms.Class.Product;
+import eu.globaldevelopers.globalsms.Class.SampleResponse;
 import eu.globaldevelopers.globalsms.Class.UserCustomization;
 import eu.globaldevelopers.globalsms.Class.globalwallet.CardQueryResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.QrTransaction;
@@ -1302,8 +1303,21 @@ public class PinPadActivity extends AppCompatActivity {
                         }
                         break;
                     case GLOBALWALLET:
-                        scanQrContent = scanningResult.getContents();
-                        getQrCardQuery(scanQrContent);
+                        final String methodType = sharedpreferences.getString("tipoKey", null);
+
+                        switch (methodType) {
+                            case "Nueva":
+                                scanQrContent = scanningResult.getContents();
+                                getQrCardQuery(scanQrContent);
+                                break;
+                            case "Cierre":
+                                break;
+                            case "Cancela":
+                                Toast toast = Toast.makeText(getApplicationContext(), "Invalid operation", Toast.LENGTH_SHORT);
+                                toast.show();
+                                break;
+                        }
+
                         break;
                 }
             }
@@ -3977,7 +3991,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 }
 
                                                 //PRINT TICKET
-                                                PrintTicket printTicket = new PrintTicket(woyouService, callback, cabecera, terminal, fecha, hora, mBitmap);
+                                                PrintTicket printTicket = new PrintTicket(woyouService, callback, cabecera, terminal, fecha, hora, mBitmap, getResources(), getPackageName());
 
                                                 //PRINTING TICKET
                                                 printTicket.printFinishTicket(rDiesel, rAdBlue, rRedDiesel, rGas, AuthMoney, codigo, DieselPrice, AdbluePrice, RedPrice, GasPrice, showPrices);
@@ -4226,12 +4240,9 @@ public class PinPadActivity extends AppCompatActivity {
     private void getQrCardQuery(String card_number){
         final String terminal = sharedpreferences.getString("terminalKey", null);
 
-        //USER CUSTOMIZATIONS
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
-
         Call<CardQueryResponse> cardQuery = service.getQrCardQuery(terminal, card_number);
 
-        //USER CUSTOMIZATIONS
         cardQuery.enqueue(new Callback<CardQueryResponse>() {
             @Override
             public void onResponse(Call<CardQueryResponse> call, retrofit2.Response<CardQueryResponse> response) {
@@ -4250,7 +4261,7 @@ public class PinPadActivity extends AppCompatActivity {
 
                     Button btnCancel = (Button) qrCardValidate.findViewById(R.id.buttonCancel);
                     Button btnValidate = (Button) qrCardValidate.findViewById(R.id.buttonValidate);
-                    EditText maxQuantity = (EditText) qrCardValidate.findViewById(R.id.maxQuantity);
+                    TextView maxQuantity = (TextView) qrCardValidate.findViewById(R.id.maxQuantity);
 
                     maxQuantity.setText(transaction.max_quantity.toString());//SET MAX QUANTITY OF PRODUCTS
 
@@ -4271,8 +4282,7 @@ public class PinPadActivity extends AppCompatActivity {
                     btnValidate.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            dialog.dismiss();
-                            validateQrTransaction(transaction);
+                            validateQrTransaction(transaction, dialog);
                         }
                     });
                 }
@@ -4285,7 +4295,47 @@ public class PinPadActivity extends AppCompatActivity {
         });
     }
 
-    private void validateQrTransaction(QrTransaction transaction){
+    private void validateQrTransaction(final QrTransaction transaction, final AlertDialog dialog){
+        FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
+        Call<SampleResponse> validateTransaction = service.validateTransaction(transaction.id);
+
+        validateTransaction.enqueue(new Callback<SampleResponse>() {
+            @Override
+            public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
+                SampleResponse data = response.body();
+                if(data.success){
+                    Toast.makeText(getBaseContext(), "TRANSACCIÓN VALIDADA", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+
+                    //PRINT TICKET
+                    printTransactionValidated(transaction);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SampleResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void printTransactionValidated(QrTransaction transaction){
+        final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+        final String hora = new SimpleDateFormat("HH:mm").format(new Date());
+
+        if (mBitmap == null) {
+            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+        }
+
+        PrintTicket printTicket = new PrintTicket(woyouService, callback, cabecera, terminal, fecha, hora, mBitmap, getResources(), getPackageName());
+
+        printTicket.printTransactionValidated(transaction);
+    }
+
+    private void getQrCardInfo(String card_number){
+
 
     }
 

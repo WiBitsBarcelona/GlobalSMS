@@ -1,7 +1,9 @@
 package eu.globaldevelopers.globalsms;
 
 import eu.globaldevelopers.globalsms.Class.DataUserCustomization;
+import eu.globaldevelopers.globalsms.Class.SampleResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.CardQueryResponse;
+import eu.globaldevelopers.globalsms.Class.globalwallet.CardResponse;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Multipart;
@@ -22,4 +24,12 @@ public interface FileApi {
 
     @POST(BuildConfig.EP_GLOBALWALLET_CARD_QUERY)
     Call<CardQueryResponse> getQrCardQuery(@Query("terminal") String terminal, @Query("card_number") String card_number);
+
+
+    @POST(BuildConfig.EP_GLOBALWALLET_TRANSACTION_VALIDATE)
+    Call<SampleResponse> validateTransaction(@Query("transaction_id") int transaction_id);
+
+
+    @GET(BuildConfig.EP_GLOBALWALLET_CARD)
+    Call<CardResponse> getQrCard(@Query("card_number") String card_number);
 }

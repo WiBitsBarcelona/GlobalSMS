@@ -120,4 +120,15 @@
     <string name="entrada_kms">Input Odometer KMs</string>
     <string name="hours">Hours</string>
     <string name="entrada_horas">Input Frigo Hours</string>
+
+    <!-- Globalwallet -->
+    <string name="authorized_products">Authorized products</string>
+    <string name="max_quantity">Max quantity</string>
+    <string name="transaction_validated">Transaction validated</string>
+    <string name="refuel">Refuel</string>
+    <string name="transaction_pending_ticket">TRANSACTION IN PROGRESS</string>
+    <string name="gas_a">Diesel</string>
+    <string name="adblue">Adblue</string>
+    <string name="gas_b">Red diesel</string>
+    <string name="gas">Gas</string>
 </resources>

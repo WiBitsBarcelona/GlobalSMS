@@ -120,4 +120,14 @@
     <string name="hours">Horas</string>
     <string name="entrada_horas">Introduce las horas del frigo</string>
 
+    <!-- Globalwallet -->
+    <string name="authorized_products">Productos autorizados</string>
+    <string name="max_quantity">Cantidad máxima</string>
+    <string name="transaction_validated">Transacción validada</string>
+    <string name="refuel">Repostar</string>
+    <string name="transaction_pending_ticket">TRANSACCIÓN EN CURSO</string>
+    <string name="gas_a">Diesel</string>
+    <string name="adblue">Adblue</string>
+    <string name="gas_b">Gasoleo rojo</string>
+    <string name="gas">Gas</string>
 </resources>
