@@ -4,6 +4,7 @@ import eu.globaldevelopers.globalsms.Class.DataUserCustomization;
 import eu.globaldevelopers.globalsms.Class.SampleResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.CardQueryResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.CardResponse;
+import eu.globaldevelopers.globalsms.Class.globalwallet.UnlockRequestResponse;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Multipart;
@@ -23,7 +24,7 @@ public interface FileApi {
     Call<DataUserCustomization> getUserCustomizations(@Query("customer_code") String customer_code, @Query("terminal") String terminal);
 
     @POST(BuildConfig.EP_GLOBALWALLET_CARD_QUERY)
-    Call<CardQueryResponse> getQrCardQuery(@Query("terminal") String terminal, @Query("card_number") String card_number);
+    Call<CardQueryResponse> getQrCardQuery(@Query("card_number") String card_number, @Query("terminal") String terminal);
 
 
     @POST(BuildConfig.EP_GLOBALWALLET_TRANSACTION_VALIDATE)
@@ -32,4 +33,11 @@ public interface FileApi {
 
     @GET(BuildConfig.EP_GLOBALWALLET_CARD)
     Call<CardResponse> getQrCard(@Query("card_number") String card_number);
+
+    @POST(BuildConfig.EP_GLOBALWALLET_CARD_UNLOCK_REQUEST)
+    Call<SampleResponse> sendQrCardUnlockRequest(@Query("card_number") String card_number, @Query("terminal") String terminal);
+
+    @GET(BuildConfig.EP_GLOBALWALLET_CARD_UNLOCK_REQUEST)
+    Call<UnlockRequestResponse> getQrCardUnlockRequest(@Query("card_number") String card_number);
+
 }

@@ -29,8 +29,9 @@ android {
             buildConfigField "String", "GLOBALWALLET_TOKEN", "\"Bearer AKUMr490GPtEqFFfJpIyWtqZM7YSCnYe1csxpmgPOiDuntOVDk\""
             buildConfigField "String", "EP_GLOBALWALLET_CARD_QUERY", "\"qr/card/query\""
             buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_VALIDATE", "\"qr/transaction/validate\""
+            buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_SALE", "\"qr/transaction/sale\""
             buildConfigField "String", "EP_GLOBALWALLET_CARD", "\"qr/card\""
-
+            buildConfigField "String", "EP_GLOBALWALLET_CARD_UNLOCK_REQUEST", "\"qr/card/unlock/request\""
         }
         debug{
             buildConfigField "String", "GLOBALPAY_TOKEN", "\"Bearer zjeqytn8bQbpOo9xdzjsrHUYe4amAlReIpWoGA0nqSQADQNLLA\""
@@ -48,7 +49,9 @@ android {
             buildConfigField "String", "GLOBALWALLET_TOKEN", "\"Bearer AKUMr490GPtEqFFfJpIyWtqZM7YSCnYe1csxpmgPOiDuntOVDk\""
             buildConfigField "String", "EP_GLOBALWALLET_CARD_QUERY", "\"qr/card/query\""
             buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_VALIDATE", "\"qr/transaction/validate\""
+            buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_SALE", "\"qr/transaction/sale\""
             buildConfigField "String", "EP_GLOBALWALLET_CARD", "\"qr/card\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD_UNLOCK_REQUEST", "\"qr/card/unlock/request\""
         }
     }
     aaptOptions {

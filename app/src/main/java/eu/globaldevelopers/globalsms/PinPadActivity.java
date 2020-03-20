@@ -1,8 +1,6 @@
 package eu.globaldevelopers.globalsms;
 
 
-import android.Manifest;
-import android.app.Application;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -12,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,22 +20,17 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.SSLCertificateSocketFactory;
-import android.net.SSLSessionCache;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.text.InputType;
 import android.util.AttributeSet;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -58,7 +50,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -74,29 +65,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Result;
@@ -112,7 +91,9 @@ import eu.globaldevelopers.globalsms.Class.Product;
 import eu.globaldevelopers.globalsms.Class.SampleResponse;
 import eu.globaldevelopers.globalsms.Class.UserCustomization;
 import eu.globaldevelopers.globalsms.Class.globalwallet.CardQueryResponse;
+import eu.globaldevelopers.globalsms.Class.globalwallet.CardResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.QrTransaction;
+import eu.globaldevelopers.globalsms.Class.globalwallet.UnlockRequestResponse;
 import eu.globaldevelopers.globalsms.Enums.ApiTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import eu.globaldevelopers.globalsms.Enums.CustomizationsEnum;
@@ -1303,7 +1284,8 @@ public class PinPadActivity extends AppCompatActivity {
                         }
                         break;
                     case GLOBALWALLET:
-                        final String methodType = sharedpreferences.getString("tipoKey", null);
+                        sharedpreferences2 = getSharedPreferences(MySUPPLY, Context.MODE_PRIVATE);
+                        final String methodType = sharedpreferences2.getString("tipoKey", null);
 
                         switch (methodType) {
                             case "Nueva":
@@ -1311,6 +1293,8 @@ public class PinPadActivity extends AppCompatActivity {
                                 getQrCardQuery(scanQrContent);
                                 break;
                             case "Cierre":
+                                scanQrContent = scanningResult.getContents();
+                                getQrCardInfo(scanQrContent);
                                 break;
                             case "Cancela":
                                 Toast toast = Toast.makeText(getApplicationContext(), "Invalid operation", Toast.LENGTH_SHORT);
@@ -4241,7 +4225,7 @@ public class PinPadActivity extends AppCompatActivity {
         final String terminal = sharedpreferences.getString("terminalKey", null);
 
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
-        Call<CardQueryResponse> cardQuery = service.getQrCardQuery(terminal, card_number);
+        Call<CardQueryResponse> cardQuery = service.getQrCardQuery(card_number, terminal);
 
         cardQuery.enqueue(new Callback<CardQueryResponse>() {
             @Override
@@ -4334,8 +4318,121 @@ public class PinPadActivity extends AppCompatActivity {
         printTicket.printTransactionValidated(transaction);
     }
 
-    private void getQrCardInfo(String card_number){
+    private void getQrCardInfo(final String card_number){
+        FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
+        Call<CardResponse> cardRequest = service.getQrCard(card_number);
 
+        cardRequest.enqueue(new Callback<CardResponse>() {
+            @Override
+            public void onResponse(Call<CardResponse> call, retrofit2.Response<CardResponse> response) {
+                CardResponse data = response.body();
+                if(data.success){
+                    LayoutInflater inflater = getLayoutInflater();
+
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(PinPadActivity.this);
+
+                    final View litersDialog = inflater.inflate(R.layout.liters_dialog_hidden_products, null);
+                    builder.setView(litersDialog);//SHOW ALERT DIALOG
+                    builder.setCancelable(false);
+                    final AlertDialog dialog = builder.show();
+
+                    Button btnCancel = (Button) litersDialog.findViewById(R.id.btnCancel);
+                    Button btnAccept = (Button) litersDialog.findViewById(R.id.btnAccept);
+
+                    //CARDS PRODUCT VISIBILITY
+                    for(Product product : data.data.type.products){
+                        int productId = getResources().getIdentifier(product.lang_code, "id", getPackageName());
+                        CardView productCard = (CardView) litersDialog.findViewById(productId);
+                        productCard.setVisibility(CardView.VISIBLE);
+                    }
+
+                    btnCancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    btnAccept.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            EditText diesel = (EditText) litersDialog.findViewById(R.id.gas_a_quantity);
+                            EditText adblue = (EditText) litersDialog.findViewById(R.id.adblue_quantity);
+                            EditText red = (EditText) litersDialog.findViewById(R.id.gas_b_quantity);
+                            EditText gas = (EditText) litersDialog.findViewById(R.id.gas_quantity);
+
+                            double dieselQuantity = Double.parseDouble(diesel.getText().toString());
+                            double adblueQuantity = Double.parseDouble(adblue.getText().toString());
+                            double redQuantity = Double.parseDouble(red.getText().toString());
+                            double gasQuantity = Double.parseDouble(gas.getText().toString());
+
+                            //saveQrTransactionSale(card_number, dieselQuantity, adblueQuantity, redQuantity, gasQuantity);
+                            sendQrCardUnlockRequest(card_number);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CardResponse> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private void sendQrCardUnlockRequest(final String card_number){
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+
+        FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
+        Call<SampleResponse> unlockRequest = service.sendQrCardUnlockRequest(card_number, terminal);
+
+        unlockRequest.enqueue(new Callback<SampleResponse>() {
+            @Override
+            public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
+                SampleResponse data = response.body();
+                if(data.success){
+                    getQrCardUnlockedRequest(card_number);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SampleResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void getQrCardUnlockedRequest(final String card_number){
+        FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
+        Call<UnlockRequestResponse> unlockRequest = service.getQrCardUnlockRequest(card_number);
+
+        unlockRequest.enqueue(new Callback<UnlockRequestResponse>() {
+            @Override
+            public void onResponse(Call<UnlockRequestResponse> call, retrofit2.Response<UnlockRequestResponse> response) {
+                UnlockRequestResponse data = response.body();
+                if(data.success && data.data.unlock_pin == 1){
+                    int a = 0;
+                    Log.println(Log.DEBUG,"GLOBALWALLET","PROCESO DE COMPRA TERMINADO");
+                }else{
+                    try{
+                        Thread.sleep(2000);
+                        Log.println(Log.DEBUG,"GLOBALWALLET","VOLVIENDO A LEER UNLOCK REQUEST");
+                        getQrCardUnlockedRequest(card_number);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UnlockRequestResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void saveQrTransactionSale(String card_number, double dieselQuantity, double adbueQuantity, double redQuantity, double gasQuantity){
 
     }
 
