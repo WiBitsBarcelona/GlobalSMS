@@ -1,5 +1,7 @@
 package eu.globaldevelopers.globalsms.Class.globalwallet;
 
+import eu.globaldevelopers.globalsms.Class.Product;
+
 public class QrTransaction {
     public Integer id;
     public Integer transaction_type_id;
@@ -7,6 +9,7 @@ public class QrTransaction {
     public String terminal;
     public String station_code;
     public Integer product_id;
+    public Product product;
     public Integer pump_number;
     public Float quantity;
     public Float pump_price;

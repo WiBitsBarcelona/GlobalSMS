@@ -23,6 +23,7 @@
     <string name="btn_pinpad_ok">Ok</string>
     <string name="alert_no_code">Tienes que informar el Código recibido por el Conductor!!</string>
     <string name="spinner_conectando">Conectando con el Servidor e Imprimiendo, espera...</string>
+    <string name="progress_dialog_transaction">Completando transacción, por favor espere...</string>
     <string name="titulo_litros">LITROS</string>
     <string name="entrada_litros">Introduce los litros para este repostaje</string>
     <string name="texto_qr">Escanea el Código QR del Ticket</string>
@@ -124,8 +125,10 @@
     <string name="authorized_products">Productos autorizados</string>
     <string name="max_quantity">Cantidad máxima</string>
     <string name="transaction_validated">Transacción validada</string>
+    <string name="transaction_completed">Transacción completada</string>
     <string name="refuel">Repostar</string>
     <string name="transaction_pending_ticket">TRANSACCIÓN EN CURSO</string>
+    <string name="transaction_completed_ticket">TRANSACCIÓN COMPLETADA</string>
     <string name="gas_a">Diesel</string>
     <string name="adblue">Adblue</string>
     <string name="gas_b">Gasoleo rojo</string>

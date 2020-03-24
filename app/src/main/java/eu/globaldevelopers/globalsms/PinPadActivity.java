@@ -93,12 +93,14 @@ import eu.globaldevelopers.globalsms.Class.UserCustomization;
 import eu.globaldevelopers.globalsms.Class.globalwallet.CardQueryResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.CardResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.QrTransaction;
+import eu.globaldevelopers.globalsms.Class.globalwallet.SaleTransactionResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.UnlockRequestResponse;
 import eu.globaldevelopers.globalsms.Enums.ApiTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import eu.globaldevelopers.globalsms.Enums.CustomizationsEnum;
 import eu.globaldevelopers.globalsms.Enums.ProcessTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductEnum;
+import eu.globaldevelopers.globalsms.Enums.ProductGWIntEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductIntEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductPriceKeyEnum;
 import eu.globaldevelopers.globalsms.Enums.TransactionTypeEnum;
@@ -183,7 +185,7 @@ public class PinPadActivity extends AppCompatActivity {
 
     public static final String producto = "productoKey";
 
-    ProgressDialog progress;
+    ProgressDialog progress,mProgressDialog;
 
     ContadorTimeOut contadortimeout;
 
@@ -4219,6 +4221,22 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     /*
+    UTILITIES
+     */
+    private void showProgressDialog(Context context, String message) {
+        mProgressDialog = new ProgressDialog(context);
+        mProgressDialog.setMessage(message);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        mProgressDialog.dismiss();
+    }
+
+
+    /*
     GLOBALWALLET
      */
     private void getQrCardQuery(String card_number){
@@ -4288,7 +4306,7 @@ public class PinPadActivity extends AppCompatActivity {
             public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
                 SampleResponse data = response.body();
                 if(data.success){
-                    Toast.makeText(getBaseContext(), "TRANSACCIÓN VALIDADA", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), getResources().getString(R.string.transaction_validated), Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
 
                     //PRINT TICKET
@@ -4304,6 +4322,21 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     private void printTransactionValidated(QrTransaction transaction){
+        final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+        final String hora = new SimpleDateFormat("HH:mm").format(new Date());
+
+        if (mBitmap == null) {
+            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+        }
+
+        PrintTicket printTicket = new PrintTicket(woyouService, callback, cabecera, terminal, fecha, hora, mBitmap, getResources(), getPackageName());
+
+        printTicket.printTransactionValidated(transaction);
+    }
+
+    private void printTransactionCompleted(QrTransaction transaction){
         final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
         final String terminal = sharedpreferences.getString("terminalKey", null);
         final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
@@ -4356,18 +4389,28 @@ public class PinPadActivity extends AppCompatActivity {
                     btnAccept.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            EditText diesel = (EditText) litersDialog.findViewById(R.id.gas_a_quantity);
-                            EditText adblue = (EditText) litersDialog.findViewById(R.id.adblue_quantity);
-                            EditText red = (EditText) litersDialog.findViewById(R.id.gas_b_quantity);
-                            EditText gas = (EditText) litersDialog.findViewById(R.id.gas_quantity);
+                            //SEND UNLOCK REQUEST
+                            showProgressDialog(PinPadActivity.this, getResources().getString(R.string.progress_dialog_transaction));
+                            sendQrCardUnlockRequest(card_number, new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    dialog.dismiss();
+                                    Log.println(Log.DEBUG,"GLOBALWALLET","PROCESO DE COMPRA TERMINADO");
+                                    EditText diesel = (EditText) litersDialog.findViewById(R.id.gas_a_quantity);
+                                    EditText adblue = (EditText) litersDialog.findViewById(R.id.adblue_quantity);
+                                    EditText red = (EditText) litersDialog.findViewById(R.id.gas_b_quantity);
+                                    EditText gas = (EditText) litersDialog.findViewById(R.id.gas_quantity);
 
-                            double dieselQuantity = Double.parseDouble(diesel.getText().toString());
-                            double adblueQuantity = Double.parseDouble(adblue.getText().toString());
-                            double redQuantity = Double.parseDouble(red.getText().toString());
-                            double gasQuantity = Double.parseDouble(gas.getText().toString());
+                                    double dieselQuantity = Double.parseDouble(diesel.getText().toString());
+                                    double adblueQuantity = Double.parseDouble(adblue.getText().toString());
+                                    double redQuantity = Double.parseDouble(red.getText().toString());
+                                    double gasQuantity = Double.parseDouble(gas.getText().toString());
 
-                            //saveQrTransactionSale(card_number, dieselQuantity, adblueQuantity, redQuantity, gasQuantity);
-                            sendQrCardUnlockRequest(card_number);
+                                    saveQrTransactionSale(card_number, dieselQuantity, adblueQuantity, redQuantity, gasQuantity);
+                                }
+                            });
                         }
                     });
                 }
@@ -4381,7 +4424,7 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
-    private void sendQrCardUnlockRequest(final String card_number){
+    private void sendQrCardUnlockRequest(final String card_number, final Runnable callback){
         final String terminal = sharedpreferences.getString("terminalKey", null);
 
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
@@ -4392,7 +4435,7 @@ public class PinPadActivity extends AppCompatActivity {
             public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
                 SampleResponse data = response.body();
                 if(data.success){
-                    getQrCardUnlockedRequest(card_number);
+                    checkQrCardUnlockedRequest(card_number, callback);
                 }
             }
 
@@ -4403,7 +4446,7 @@ public class PinPadActivity extends AppCompatActivity {
         });
     }
 
-    private void getQrCardUnlockedRequest(final String card_number){
+    private void checkQrCardUnlockedRequest(final String card_number, final Runnable callback){
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
         Call<UnlockRequestResponse> unlockRequest = service.getQrCardUnlockRequest(card_number);
 
@@ -4412,13 +4455,13 @@ public class PinPadActivity extends AppCompatActivity {
             public void onResponse(Call<UnlockRequestResponse> call, retrofit2.Response<UnlockRequestResponse> response) {
                 UnlockRequestResponse data = response.body();
                 if(data.success && data.data.unlock_pin == 1){
-                    int a = 0;
-                    Log.println(Log.DEBUG,"GLOBALWALLET","PROCESO DE COMPRA TERMINADO");
+                    //PROCESO DE COMPRA TERMINADO - EXECUTE CALLBACK FOR FINISH TRANSACTION
+                    callback.run();
                 }else{
                     try{
-                        Thread.sleep(2000);
+                        Thread.sleep(1000);
                         Log.println(Log.DEBUG,"GLOBALWALLET","VOLVIENDO A LEER UNLOCK REQUEST");
-                        getQrCardUnlockedRequest(card_number);
+                        checkQrCardUnlockedRequest(card_number, callback);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -4433,6 +4476,59 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     private void saveQrTransactionSale(String card_number, double dieselQuantity, double adbueQuantity, double redQuantity, double gasQuantity){
+        sharedpreferences3 = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
+        String terminal = sharedpreferences.getString("terminalKey", null);
+        FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
+        ArrayList<Double> pumpPrices = new ArrayList<>();
+        ArrayList<Double> quantities = new ArrayList<>();
+        ArrayList<Integer> products = new ArrayList<>();
+
+        if(dieselQuantity > 0){
+            pumpPrices.add(Double.parseDouble(sharedpreferences3.getString("dieselKey", "0.00")));
+            quantities.add(dieselQuantity);
+            products.add(ProductGWIntEnum.DIESEL);
+        }
+
+        if(adbueQuantity > 0){
+            pumpPrices.add(Double.parseDouble(sharedpreferences3.getString("adblueKey", "0.00")));
+            quantities.add(adbueQuantity);
+            products.add(ProductGWIntEnum.ADBLUE);
+        }
+
+        if(redQuantity > 0){
+            pumpPrices.add(Double.parseDouble(sharedpreferences3.getString("reddieselKey", "0.00")));
+            quantities.add(redQuantity);
+            products.add(ProductGWIntEnum.RED);
+        }
+
+        if(gasQuantity > 0){
+            pumpPrices.add(Double.parseDouble(sharedpreferences3.getString("gasKey", "0.00")));
+            quantities.add(gasQuantity);
+            products.add(ProductGWIntEnum.GAS);
+        }
+
+        Call<SaleTransactionResponse> saleTransactionRequest = service.saveTransactionSale(card_number, terminal, pumpPrices, quantities, products);
+
+        saleTransactionRequest.enqueue(new Callback<SaleTransactionResponse>() {
+            @Override
+            public void onResponse(Call<SaleTransactionResponse> call, retrofit2.Response<SaleTransactionResponse> response) {
+                SaleTransactionResponse data = response.body();
+                if(data.success){
+                    dismissProgressDialog();
+                    Log.println(Log.DEBUG,"GLOBALWALLET","VENTA FINALIZADA");
+                    Toast.makeText(getBaseContext(), getResources().getString(R.string.transaction_completed), Toast.LENGTH_SHORT).show();
+
+                    PrintTicket printTicket = new PrintTicket(woyouService, callback, sharedpreferences, getResources(), getPackageName());
+
+                    printTicket.printTransactionCompleted(data.data);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SaleTransactionResponse> call, Throwable t) {
+
+            }
+        });
 
     }
 

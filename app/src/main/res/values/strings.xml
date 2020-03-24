@@ -24,6 +24,7 @@
     <string name="btn_pinpad_ok">Ok</string>
     <string name="alert_no_code">You need to input the Code received by the Driver!!</string>
     <string name="spinner_conectando">Contacting Server and Printing, please wait...</string>
+    <string name="progress_dialog_transaction">Completing transaction, please wait...</string>
     <string name="titulo_litros">LITERS</string>
     <string name="entrada_litros">Input the Liters for this Supply</string>
     <string name="texto_qr">Scan QR Code from POS receipt</string>
@@ -125,8 +126,10 @@
     <string name="authorized_products">Authorized products</string>
     <string name="max_quantity">Max quantity</string>
     <string name="transaction_validated">Transaction validated</string>
+    <string name="transaction_completed">Transaction completed</string>
     <string name="refuel">Refuel</string>
     <string name="transaction_pending_ticket">TRANSACTION IN PROGRESS</string>
+    <string name="transaction_completed_ticket">TRANSACTION COMPLETED</string>
     <string name="gas_a">Diesel</string>
     <string name="adblue">Adblue</string>
     <string name="gas_b">Red diesel</string>
