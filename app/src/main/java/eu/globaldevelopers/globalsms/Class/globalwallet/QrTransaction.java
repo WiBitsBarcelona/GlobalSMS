@@ -19,7 +19,7 @@ public class QrTransaction {
     public String due_date;
     public String created_at;
     public String updated_at;
-    public Float max_quantity;
+    public Double max_quantity;
     public String staton;
     public QrCard card;
 }

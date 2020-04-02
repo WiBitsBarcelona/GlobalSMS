@@ -8,7 +8,7 @@ public class QrCard {
     public String card_number;
     public String pin;
     public String plate;
-    public Float balance;
+    public String balance;
     public String expiration_date;
     public QrCardType type;
     public QrCardStatus status;

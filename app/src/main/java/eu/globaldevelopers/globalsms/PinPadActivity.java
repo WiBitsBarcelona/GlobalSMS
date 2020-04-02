@@ -4418,7 +4418,7 @@ public class PinPadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<CardResponse> call, Throwable t) {
-
+                t.getMessage();
             }
         });
 
@@ -4441,7 +4441,7 @@ public class PinPadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<SampleResponse> call, Throwable t) {
-
+                t.getMessage();
             }
         });
     }
@@ -4470,7 +4470,7 @@ public class PinPadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<UnlockRequestResponse> call, Throwable t) {
-
+                t.getMessage();
             }
         });
     }
