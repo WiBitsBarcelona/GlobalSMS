@@ -1912,6 +1912,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         AuthDiesel = c.getDouble("diesel");
                                         AuthAdBlue = c.getDouble("adblue");
                                         AuthRedDiesel = c.getDouble("red");
+                                        AuthGas = c.getDouble("gas");
                                         AuthMoney = c.getDouble("money");
                                     }
                                     KmsRequired = jsonObj.getInt("kms_required");
