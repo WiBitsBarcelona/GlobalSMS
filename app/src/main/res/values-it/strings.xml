@@ -120,6 +120,10 @@
     <string name="entrada_kms">Input Odometer KMs</string>
     <string name="hours">Hours</string>
     <string name="entrada_horas">Input Frigo Hours</string>
+    <string name="verify_code">Verification code</string>
+    <string name="verify_send_code_error">There was an error when the server tried to send the verification code</string>
+    <string name="verify_code_error">Incorrect verify code</string>
+    <string name="verify_code_success">Correct verify code</string>
 
     <!-- Globalwallet -->
     <string name="authorized_products">Authorized products</string>

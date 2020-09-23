@@ -86,6 +86,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import eu.globaldevelopers.globalsms.Class.CustomizationValue;
 import eu.globaldevelopers.globalsms.Class.DataUserCustomization;
+import eu.globaldevelopers.globalsms.Class.GpCallback;
 import eu.globaldevelopers.globalsms.Class.PrintTicket;
 import eu.globaldevelopers.globalsms.Class.Product;
 import eu.globaldevelopers.globalsms.Class.SampleResponse;
@@ -104,6 +105,7 @@ import eu.globaldevelopers.globalsms.Enums.ProductGWIntEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductIntEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductPriceKeyEnum;
 import eu.globaldevelopers.globalsms.Enums.TransactionTypeEnum;
+import eu.globaldevelopers.globalsms.Class.GpCallback;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -229,6 +231,8 @@ public class PinPadActivity extends AppCompatActivity {
     signature mSignature;
     Bitmap bitmap;
 
+    Context pinpadActivity;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -240,6 +244,7 @@ public class PinPadActivity extends AppCompatActivity {
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         ApiCampilloURI = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, null);
         ApiGPayUrl = sharedpreferences.getString(ConfigEnum.apiGenericUrl, null);
+        pinpadActivity = this;
 
         if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();
@@ -2216,8 +2221,8 @@ public class PinPadActivity extends AppCompatActivity {
                                     editor.putInt("reservesCount", Reserves);
                                     editor.apply();
 
-                                    //final String Expedient = jsonObj.getString("expedient");
-
+                                    final JSONArray transactionIds = jsonObj.getJSONArray("transaction_ids");
+                                    final Integer transactionId = transactionIds.getInt(0);//GET FIRST TRASNSACTION ID
                                     final JSONArray AuthProducts = jsonObj.getJSONArray("auth_products");
 
                                     for (int i = 0; i < AuthProducts.length(); i++) {
@@ -2228,8 +2233,10 @@ public class PinPadActivity extends AppCompatActivity {
                                         AuthGas = c.getDouble("gas");
                                         AuthMoney = c.getDouble("money");
                                     }
+
                                     KmsRequired = jsonObj.getInt("kms_required");
                                     HoursRequired = jsonObj.getInt("hours_required");
+                                    final String verifyCode = jsonObj.getString("verify_code");
 
                                     sharedCampillo = getSharedPreferences(LastCampilloAuth, Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editor2 = sharedCampillo.edit();
@@ -2293,7 +2300,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.setAlignment(1, callback);
                                                         woyouService.printTextWithFont(msg, "", 36, callback);
                                                         woyouService.lineWrap(4, callback);
-                                                    } catch (RemoteException e) {
+                                                    } catch (Exception e) {
                                                         // TODO Auto-generated catch block
                                                         e.printStackTrace();
                                                     }
@@ -2304,8 +2311,6 @@ public class PinPadActivity extends AppCompatActivity {
                                                 Thread.sleep(2000);
                                             }
                                         }
-                                    } catch (NullPointerException e) {
-                                        e.printStackTrace();
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -2346,7 +2351,24 @@ public class PinPadActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(View v) {
                                             show.dismiss();
-                                            globalPayReserve(String.valueOf(TransactionTypeEnum.REFUEL));
+                                            if(verifyCode != null){
+                                                showProgressDialog(pinpadActivity, pinpadActivity.getString(R.string.spinner_conectando));
+                                                sendTrxVerifyCode(transactionId, new GpCallback() {
+                                                    @Override
+                                                    public void onSucess() {
+                                                        mProgressDialog.dismiss();
+                                                        showInputVerifyCode(String.valueOf(TransactionTypeEnum.REFUEL), transactionId, verifyCode);
+                                                    }
+
+                                                    @Override
+                                                    public void onError() {
+                                                        mProgressDialog.dismiss();
+                                                        Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_send_code_error), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                            }else{
+                                                globalPayReserve(String.valueOf(TransactionTypeEnum.REFUEL));
+                                            }
                                         }
                                     });
 
@@ -2362,7 +2384,24 @@ public class PinPadActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(View v) {
                                             show.dismiss();
-                                            globalPayReserve(null);
+                                            if(verifyCode != null){
+                                                showProgressDialog(pinpadActivity, pinpadActivity.getString(R.string.spinner_conectando));
+                                                sendTrxVerifyCode(transactionId, new GpCallback() {
+                                                    @Override
+                                                    public void onSucess() {
+                                                        mProgressDialog.dismiss();
+                                                        showInputVerifyCode(null, transactionId, verifyCode);
+                                                    }
+
+                                                    @Override
+                                                    public void onError() {
+                                                        mProgressDialog.dismiss();
+                                                        Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_send_code_error), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                            }else{
+                                                globalPayReserve(null);
+                                            }
                                         }
                                     });
 
@@ -2441,6 +2480,96 @@ public class PinPadActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    void showInputVerifyCode(final String trxType, final Integer transaction_id, final String verifyCode){
+        LayoutInflater inflater = getLayoutInflater();
+        View verifyTrxCodeLayout = inflater.inflate(R.layout.verify_trx_code, null);
+        builder = new AlertDialog.Builder(PinPadActivity.this);
+        builder.setCancelable(false);
+        builder.setView(verifyTrxCodeLayout);
+
+        final AlertDialog show = builder.show();
+
+        final EditText verifyCodeEdit  = (EditText) verifyTrxCodeLayout.findViewById(R.id.verifyCode);
+        Button btnCancel = (Button) verifyTrxCodeLayout.findViewById(R.id.btnCancel);
+        Button btnAccept = (Button) verifyTrxCodeLayout.findViewById(R.id.btnAccept);
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                show.dismiss();
+            }
+        });
+
+        btnAccept.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                verifyTrxCode(transaction_id, verifyCodeEdit.getText().toString(), new GpCallback() {
+                    @Override
+                    public void onSucess() {
+                        show.dismiss();
+                        globalPayReserve(trxType);
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
+            }
+        });
+    }
+
+    void sendTrxVerifyCode(final Integer transaction_id, final GpCallback callback){
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+        FileApi service = RetroClient.getApiService(ApiGPayUrl, BuildConfig.GLOBALPAY_TOKEN);
+        Call<SampleResponse> validateTransaction = service.sendTransactionVerifyCode(transaction_id, terminal);
+
+        validateTransaction.enqueue(new Callback<SampleResponse>() {
+            @Override
+            public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
+                SampleResponse data = response.body();
+                if(data.success){
+                    callback.onSucess();
+                }else{
+                    Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), Toast.LENGTH_SHORT).show();
+                    callback.onError();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SampleResponse> call, Throwable t) {
+                Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), Toast.LENGTH_SHORT).show();
+                callback.onError();
+            }
+        });
+    }
+
+    boolean verifyTrxCode(final Integer transaction_id, final String verifyCode, final GpCallback callback){
+        FileApi service = RetroClient.getApiService(ApiGPayUrl, BuildConfig.GLOBALPAY_TOKEN);
+        Call<SampleResponse> validateTransaction = service.verifyTransactionCode(transaction_id, verifyCode);
+
+        validateTransaction.enqueue(new Callback<SampleResponse>() {
+            @Override
+            public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
+                SampleResponse data = response.body();
+                if(data.success){
+                    Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_success), Toast.LENGTH_SHORT).show();
+                    callback.onSucess();
+                }else{
+                    Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), Toast.LENGTH_SHORT).show();
+                    callback.onError();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SampleResponse> call, Throwable t) {
+                callback.onError();
+            }
+        });
+
+        return true;
     }
 
     void CReserve(String trx_type) {
@@ -2878,7 +3007,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.setAlignment(1, callback);
                                                         woyouService.printTextWithFont(msg, "", 36, callback);
                                                         woyouService.lineWrap(4, callback);
-                                                    } catch (RemoteException e) {
+                                                    } catch (Exception e) {
                                                         // TODO Auto-generated catch block
                                                         e.printStackTrace();
                                                     }

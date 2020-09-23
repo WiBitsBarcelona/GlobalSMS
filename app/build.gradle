@@ -7,7 +7,7 @@ android {
         minSdkVersion 22
         targetSdkVersion 25
         versionCode 8
-        versionName "0.8"
+        versionName "0.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -23,6 +23,8 @@ android {
             buildConfigField "String", "EP_GLOBALPAY_RESERVE", "\"terminals/reserve/\""
             buildConfigField "String", "EP_GLOBALPAY_CHECK", "\"terminals/check\""
             buildConfigField "String", "EP_GLOBALPAY_USER_CUSTOMIZATIONS", "\"terminals/user/customizations\""
+            buildConfigField "String", "EP_GLOBALPAY_SEND_TRX_VERIFY_CODE", "\"terminals/sendTrxVerifyCode\""
+            buildConfigField "String", "EP_GLOBALPAY_VERIFY_TRX_CODE", "\"terminals/verifyTrx\""
             //GLOBALWALLET
             buildConfigField "String", "URL_BASE", "\"https://sandbox.globaltank.app/api/\""
             buildConfigField "String", "URL_GLOBALWALLET", "\"globalwallet/v1/\""
@@ -43,6 +45,8 @@ android {
             buildConfigField "String", "EP_GLOBALPAY_RESERVE", "\"terminals/reserve/\""
             buildConfigField "String", "EP_GLOBALPAY_CHECK", "\"terminals/check\""
             buildConfigField "String", "EP_GLOBALPAY_USER_CUSTOMIZATIONS", "\"terminals/user/customizations\""
+            buildConfigField "String", "EP_GLOBALPAY_SEND_TRX_VERIFY_CODE", "\"terminals/sendTrxVerifyCode\""
+            buildConfigField "String", "EP_GLOBALPAY_VERIFY_TRX_CODE", "\"terminals/verifyTrx\""
             //GLOBALWALLET
             buildConfigField "String", "URL_BASE", "\"https://sandbox.globaltank.app/api/\""
             buildConfigField "String", "URL_GLOBALWALLET", "\"globalwallet/v1/\""

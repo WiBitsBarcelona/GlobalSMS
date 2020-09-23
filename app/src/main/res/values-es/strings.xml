@@ -120,6 +120,10 @@
     <string name="entrada_kms">Introduce los Kilometros</string>
     <string name="hours">Horas</string>
     <string name="entrada_horas">Introduce las horas del frigo</string>
+    <string name="verify_code">Introduzca el código de verificación</string>
+    <string name="verify_send_code_error">Hubo un error cuando el servidor intentó enviar el código de verificación</string>
+    <string name="verify_code_error">Código de verificación incorrecto</string>
+    <string name="verify_code_success">Código de verificación correcto</string>
 
     <!-- Globalwallet -->
     <string name="authorized_products">Productos autorizados</string>
