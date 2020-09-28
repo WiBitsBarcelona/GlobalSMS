@@ -26,9 +26,9 @@ android {
             buildConfigField "String", "EP_GLOBALPAY_SEND_TRX_VERIFY_CODE", "\"terminals/sendTrxVerifyCode\""
             buildConfigField "String", "EP_GLOBALPAY_VERIFY_TRX_CODE", "\"terminals/verifyTrx\""
             //GLOBALWALLET
-            buildConfigField "String", "URL_BASE", "\"https://sandbox.globaltank.app/api/\""
+            buildConfigField "String", "URL_BASE", "\"https://caa1.globaltank.app/api/\""
             buildConfigField "String", "URL_GLOBALWALLET", "\"globalwallet/v1/\""
-            buildConfigField "String", "GLOBALWALLET_TOKEN", "\"Bearer AKUMr490GPtEqFFfJpIyWtqZM7YSCnYe1csxpmgPOiDuntOVDk\""
+            buildConfigField "String", "GLOBALWALLET_TOKEN", "\"Bearer 9hZSSbuaR0RKRnhwOBG7GJQmZ4oWMSEvE7IJdz0G2TuIEEOADa\""
             buildConfigField "String", "EP_GLOBALWALLET_CARD_QUERY", "\"qr/card/query\""
             buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_VALIDATE", "\"qr/transaction/validate\""
             buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_SALE", "\"qr/transaction/sale\""
