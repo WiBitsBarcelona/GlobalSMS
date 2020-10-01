@@ -1943,7 +1943,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                         mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                     }
                                                     try {
-                                                        msg = "CONSULTATION\nNOT VALID FOR\nREFUEL";
+                                                        msg = "NO VALIDA PARA\nREPOSTAJE";
                                                         msg += "\n";
 
                                                         woyouService.lineWrap(2, callback);
@@ -1958,7 +1958,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.setAlignment(0, callback);
                                                         woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
                                                         woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
-                                                        woyouService.printTextWithFont("AUTH PRODUCTS:" + "\n", "", 30, callback);
+                                                        woyouService.printTextWithFont("PRODUCTOS AUTORIZADOS:" + "\n", "", 30, callback);
                                                         if (AuthDiesel != 0) {
                                                             woyouService.printTextWithFont("DIESEL: " + AuthDiesel + " Liters\n", "", 28, callback);
                                                             if (KmsRequired != 0) {
@@ -2258,7 +2258,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                         mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                                                     }
                                                     try {
-                                                        msg = "CONSULTATION\nNOT VALID FOR\nREFUEL";
+                                                        msg = "NO VALIDA PARA\nREPOSTAJE";
                                                         msg += "\n";
 
                                                         woyouService.lineWrap(2, callback);
@@ -2273,7 +2273,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.setAlignment(0, callback);
                                                         woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
                                                         //woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
-                                                        woyouService.printTextWithFont("AUTH PRODUCTS:" + "\n", "", 30, callback);
+                                                        woyouService.printTextWithFont("PRODUCTOS AUTORIZADOS:" + "\n", "", 30, callback);
                                                         if (AuthDiesel != 0) {
                                                             woyouService.printTextWithFont("DIESEL: " + AuthDiesel + " Liters\n", "", 28, callback);
                                                             if (KmsRequired != 0) {
@@ -2351,7 +2351,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(View v) {
                                             show.dismiss();
-                                            if(verifyCode != null){
+                                            if(!verifyCode.isEmpty()){
                                                 showProgressDialog(pinpadActivity, pinpadActivity.getString(R.string.spinner_conectando));
                                                 sendTrxVerifyCode(transactionId, new GpCallback() {
                                                     @Override
@@ -2384,7 +2384,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(View v) {
                                             show.dismiss();
-                                            if(verifyCode != null){
+                                            if(!verifyCode.isEmpty()){
                                                 showProgressDialog(pinpadActivity, pinpadActivity.getString(R.string.spinner_conectando));
                                                 sendTrxVerifyCode(transactionId, new GpCallback() {
                                                     @Override
@@ -2719,7 +2719,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.setAlignment(0, callback);
                                                         woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
                                                         woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
-                                                        woyouService.printTextWithFont("AUTH PRODUCTS:" + "\n", "", 30, callback);
+                                                        woyouService.printTextWithFont("PRODUCTOS AUTORIZADOS:" + "\n", "", 30, callback);
                                                         if (AuthDiesel != 0) {
                                                             woyouService.printTextWithFont("DIESEL: " + AuthDiesel + " Liters\n", "", 28, callback);
                                                             if (KmsRequired != 0) {
@@ -2980,7 +2980,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                         woyouService.setAlignment(0, callback);
                                                         woyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, callback);
                                                         //woyouService.printTextWithFont("Expedient: " + Expedient + "\n\n", "", 30, callback);
-                                                        woyouService.printTextWithFont("AUTH PRODUCTS:" + "\n", "", 30, callback);
+                                                        woyouService.printTextWithFont("PRODUCTOS AUTORIZADOS:" + "\n", "", 30, callback);
                                                         if (AuthDiesel != 0) {
                                                             woyouService.printTextWithFont("DIESEL: " + AuthDiesel + " Liters\n", "", 28, callback);
                                                             if (KmsRequired != 0) {
