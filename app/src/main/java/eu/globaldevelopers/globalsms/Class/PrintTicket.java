@@ -65,7 +65,7 @@ public class PrintTicket {
     public void printFinishTicket(final Double rDiesel, final Double rAdBlue, final Double rRedDiesel,
                                   final Double rGas, final Double AuthMoney, final String codigo,
                                   final Double Dieselprice, final Double Adblueprice, final Double RedDieselprice,
-                                  final Double Gasprice, final Boolean showPrices) {
+                                  final Double Gasprice, final Boolean showPrices, final String plate, final String trailerPlate) {
         try {
             for (int g = 0; g < 2; g++) {
                 ThreadPoolManager.getInstance().executeTask(new Runnable() {
@@ -74,8 +74,8 @@ public class PrintTicket {
                     @Override
                     public void run() {
                         try {
-                            msg = "TRANSACTION SUCCESSFULLY\n";
-                            msg += "COMPLETED";
+                            msg = "TRANSACCION FINALIZADA\n";
+                            msg += "COMPLETADA";
                             msg += "\n";
                             WoyouService.lineWrap(2, Callback);
                             WoyouService.setAlignment(1, Callback);
@@ -87,8 +87,10 @@ public class PrintTicket {
                             WoyouService.printTextWithFont(Fecha + "   " + Hora + "\n", "", 24, Callback);
                             WoyouService.lineWrap(2, Callback);
                             WoyouService.setAlignment(0, Callback);
-                            WoyouService.printTextWithFont("TRX Code: " + codigo + "\n", "", 30, Callback);
+                            WoyouService.printTextWithFont("Codigo TRX: " + codigo + "\n", "", 30, Callback);
                             //WoyouService.printTextWithFont( "Operation Code: " + operation + "\n", "", 30, Callback);
+                            WoyouService.printTextWithFont("Matrícula: " + plate + "\n", "", 30, Callback);
+                            WoyouService.printTextWithFont("Mat remolque: " + trailerPlate + "\n", "", 30, Callback);
                             WoyouService.printTextWithFont("\n", "", 28, Callback);
 
                             int fontSize = 28;

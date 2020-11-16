@@ -4057,6 +4057,12 @@ public class PinPadActivity extends AppCompatActivity {
                                         }
                                     }
                                 } else {
+
+                                    //GET PLATE AND TRAILER_PLATE OF TRANSACTION
+                                    final JSONObject transaction = jsonObj.getJSONObject("transaction");
+                                    final String plate = transaction.getString("Plate");
+                                    final String trailerPlate = transaction.getString("Trailer_plate");
+
                                     Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", Toast.LENGTH_SHORT).show();
 
                                     //USER CUSTOMIZATIONS
@@ -4064,7 +4070,6 @@ public class PinPadActivity extends AppCompatActivity {
 
                                     String customer_code = jsonObj.getString("customer_code");
                                     Call<DataUserCustomization> resultCall = service.getUserCustomizations(customer_code, terminal);
-
 
                                     try {
                                         if (mBitmap == null) {
@@ -4110,7 +4115,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 PrintTicket printTicket = new PrintTicket(woyouService, callback, cabecera, terminal, fecha, hora, mBitmap, getResources(), getPackageName());
 
                                                 //PRINTING TICKET
-                                                printTicket.printFinishTicket(rDiesel, rAdBlue, rRedDiesel, rGas, AuthMoney, codigo, DieselPrice, AdbluePrice, RedPrice, GasPrice, showPrices);
+                                                printTicket.printFinishTicket(rDiesel, rAdBlue, rRedDiesel, rGas, AuthMoney, codigo, DieselPrice, AdbluePrice, RedPrice, GasPrice, showPrices, plate, trailerPlate);
 
                                             }
 

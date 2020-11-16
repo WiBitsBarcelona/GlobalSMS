@@ -339,8 +339,7 @@ public class PreciosActivity extends AppCompatActivity {
                     woyouService.printTextWithFont(msg, "", 36, callback);
 
                     woyouService.lineWrap(4, callback);
-                } catch (RemoteException e) {
-                    // TODO Auto-generated catch block
+                }  catch (Exception e) {
                     e.printStackTrace();
                 }
 
