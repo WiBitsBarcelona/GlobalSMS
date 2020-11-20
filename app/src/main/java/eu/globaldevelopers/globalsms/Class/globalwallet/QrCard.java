@@ -12,4 +12,5 @@ public class QrCard {
     public String expiration_date;
     public QrCardType type;
     public QrCardStatus status;
+    public Double max_quantity;
 }
