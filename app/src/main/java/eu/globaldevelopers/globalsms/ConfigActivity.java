@@ -42,6 +42,7 @@ public class ConfigActivity extends AppCompatActivity {
     public static final String showEuro = "showeuroKey";
     public static final String pos = "posKey";
     public static final String loc = "locKey";
+    public static final String langKey = "langKey";
 
     SharedPreferences sharedpreferences;
 
@@ -216,7 +217,28 @@ public class ConfigActivity extends AppCompatActivity {
         }
 
         editor.putInt(pos, posN);
+
+        String lang;
+        switch (locN) {
+            case 0:
+                lang = "en";
+                break;
+            case 1:
+                lang = "de";
+                break;
+            case 2:
+                lang = "es";
+                break;
+            case 3:
+                lang = "it";
+                break;
+            default:
+                lang = "es";
+                break;
+        }
+
         editor.putInt(loc, locN);
+        editor.putString(langKey, lang);
         editor.apply();
         Toast.makeText(getBaseContext(),"Config Saved",Toast.LENGTH_SHORT).show();
         Intent myIntent = new Intent(ConfigActivity.this,MainActivity.class);

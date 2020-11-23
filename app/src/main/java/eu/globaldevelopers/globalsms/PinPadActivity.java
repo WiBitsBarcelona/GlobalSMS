@@ -10,6 +10,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -70,10 +72,12 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -106,6 +110,7 @@ import eu.globaldevelopers.globalsms.Enums.ProductIntEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductPriceKeyEnum;
 import eu.globaldevelopers.globalsms.Enums.TransactionTypeEnum;
 import eu.globaldevelopers.globalsms.Class.GpCallback;
+import eu.globaldevelopers.globalsms.Helpers.LocaleHelper;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -172,6 +177,7 @@ public class PinPadActivity extends AppCompatActivity {
     public static final String MySUPPLY = "MySupply";
     public static final String MyPRECIOS = "MyPrecios";
     public static final String LastCampilloAuth = "Campillo";
+    public static final String langKey = "langKey";
 
     SharedPreferences sharedpreferences;
     SharedPreferences sharedpreferences2;
@@ -246,6 +252,10 @@ public class PinPadActivity extends AppCompatActivity {
         ApiGPayUrl = sharedpreferences.getString(ConfigEnum.apiGenericUrl, null);
         pinpadActivity = this;
 
+        //SET LANG
+        String lang = sharedpreferences.getString(langKey, null);
+        LocaleHelper.setAppLocale(lang, this);
+
         if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();
             v.setSystemUiVisibility(GONE);
@@ -262,6 +272,14 @@ public class PinPadActivity extends AppCompatActivity {
         if (!file.exists()) {
             file.mkdir();
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        //SET LANG
+        String lang = sharedpreferences.getString(langKey, null);
+        LocaleHelper.setAppLocale(lang, this);
     }
 
     public void PulsadoFunction(View v) {
@@ -1176,6 +1194,10 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+        //SET LANG
+        String lang = sharedpreferences.getString(langKey, null);
+        LocaleHelper.setAppLocale(lang, this);
 
         //retrieve scan result
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
@@ -4376,14 +4398,17 @@ public class PinPadActivity extends AppCompatActivity {
      */
     private void getQrCardQuery(String card_number){
         final String terminal = sharedpreferences.getString("terminalKey", null);
+        String lang = sharedpreferences.getString(langKey, null);
 
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
-        Call<CardQueryResponse> cardQuery = service.getQrCardQuery(card_number, terminal);
+        Call<CardQueryResponse> cardQuery = service.getQrCardQuery(card_number, terminal, lang);
 
+        showProgressDialog(this, getString(R.string.loading));
         cardQuery.enqueue(new Callback<CardQueryResponse>() {
             @Override
             public void onResponse(Call<CardQueryResponse> call, retrofit2.Response<CardQueryResponse> response) {
                 CardQueryResponse data = response.body();
+                dismissProgressDialog();
                 if(data.success){
                     final QrTransaction transaction = data.data;//Declare transaction as final for use in validate onClickListener
 
@@ -4398,9 +4423,12 @@ public class PinPadActivity extends AppCompatActivity {
 
                     Button btnCancel = (Button) qrCardValidate.findViewById(R.id.buttonCancel);
                     Button btnValidate = (Button) qrCardValidate.findViewById(R.id.buttonValidate);
-                    TextView maxQuantity = (TextView) qrCardValidate.findViewById(R.id.maxQuantity);
+                    TextView maxQuantityTxt = (TextView) qrCardValidate.findViewById(R.id.maxQuantity);
 
-                    maxQuantity.setText(transaction.max_quantity.toString());//SET MAX QUANTITY OF PRODUCTS
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    String maxQuantity = df.format(transaction.card.max_quantity);
+
+                    maxQuantityTxt.setText(maxQuantity);//SET MAX QUANTITY OF PRODUCTS
 
                     //CARDS VISIBILITY
                     for(Product product : transaction.card.type.products){
@@ -4422,6 +4450,9 @@ public class PinPadActivity extends AppCompatActivity {
                             validateQrTransaction(transaction, dialog);
                         }
                     });
+                }else{
+                    AlertDialog dialog = showErrorCardQuery(data.message);
+                    dialog.show();
                 }
             }
 
@@ -4667,5 +4698,20 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
+    public AlertDialog showErrorCardQuery(String errorMessage) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(getString(R.string.card_not_allowed))
+                .setMessage(errorMessage)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+        return builder.create();
+    }
 }
 

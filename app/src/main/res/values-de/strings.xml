@@ -125,6 +125,8 @@
     <string name="verify_code_error">Incorrect verify code</string>
     <string name="verify_code_success">Correct verify code</string>
 
+    <string name="loading">Loading...</string>
+
     <!-- Globalwallet -->
     <string name="authorized_products">Authorized products</string>
     <string name="max_quantity">Max quantity</string>
@@ -137,4 +139,5 @@
     <string name="adblue">Adblue</string>
     <string name="gas_b">Red diesel</string>
     <string name="gas">Gas</string>
+    <string name="card_not_allowed">Card not allowed</string>
 </resources>

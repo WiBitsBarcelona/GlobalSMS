@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 28
     defaultConfig {
         applicationId "eu.globaldevelopers.globalsms"
         minSdkVersion 22
-        targetSdkVersion 25
+        targetSdkVersion 28
         versionCode 11
         versionName "0.9.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

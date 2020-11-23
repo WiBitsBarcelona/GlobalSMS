@@ -10,6 +10,7 @@ import eu.globaldevelopers.globalsms.Class.globalwallet.SaleTransactionResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.UnlockRequestResponse;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
+import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.GET;
@@ -65,7 +66,7 @@ public interface FileApi {
      * @return
      */
     @POST(BuildConfig.EP_GLOBALWALLET_CARD_QUERY)
-    Call<CardQueryResponse> getQrCardQuery(@Query("card_number") String card_number, @Query("terminal") String terminal);
+    Call<CardQueryResponse> getQrCardQuery(@Query("card_number") String card_number, @Query("terminal") String terminal, @Header("Lang") String lang);
 
     /**
      *

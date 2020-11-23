@@ -54,6 +54,7 @@ import java.util.Map;
 
 import eu.globaldevelopers.globalsms.Class.Transaction;
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
+import eu.globaldevelopers.globalsms.Helpers.LocaleHelper;
 import woyou.aidlservice.jiuiv5.ICallback;
 import woyou.aidlservice.jiuiv5.IWoyouService;
 
@@ -68,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String tipotrans = "tipoKey";
     public static String lang = "";
     public static final String MyPREFERENCES2 = "MyPrefs";
+    public static final String langKey = "langKey";
+    public static final String locKey = "locKey";
 
     private static final String TAG = "PrinterTestDemo";
 
@@ -115,32 +118,33 @@ public class MainActivity extends AppCompatActivity {
         ApiCampilloURI = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, null);
         ApiGPayUrl = sharedpreferences.getString(ConfigEnum.apiGenericUrl, null);
 
-        int locactual = sharedpreferences.getInt("locKey", 0);
+        //SET LANG
+        String lang = sharedpreferences.getString(langKey, null);
+        if(lang == null){
+            Integer locN = sharedpreferences.getInt(locKey, 0);
+            switch (locN) {
+                case 0:
+                    lang = "en";
+                    break;
+                case 1:
+                    lang = "de";
+                    break;
+                case 2:
+                    lang = "es";
+                    break;
+                case 3:
+                    lang = "it";
+                    break;
+                default:
+                    lang = "es";
+                    break;
+            }
 
-        switch (locactual) {
-            case 0:
-                lang = "en";
-                break;
-            case 1:
-                lang = "de";
-                break;
-            case 2:
-                lang = "es";
-                break;
-            case 3:
-                lang = "it";
-                break;
-            default:
-                lang = "es";
-                break;
+            SharedPreferences.Editor editor = sharedpreferences.edit();
+            editor.putString(langKey, "es");
+            editor.apply();
         }
-
-        Locale locale = new Locale(lang);
-        Locale.setDefault(locale);
-        Configuration config = new Configuration();
-        config.locale = locale;
-        getBaseContext().getResources().updateConfiguration(config,
-                getBaseContext().getResources().getDisplayMetrics());
+        LocaleHelper.setAppLocale(lang, this);
 
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
@@ -198,31 +202,9 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         sharedpreferences = getSharedPreferences(MyCONFIG, Context.MODE_PRIVATE);
-        int locactual = sharedpreferences.getInt("locKey", 0);
+        String lang = sharedpreferences.getString(langKey, null);
 
-        switch (locactual) {
-            case 0:
-                lang = "en";
-                break;
-            case 1:
-                lang = "de";
-                break;
-            case 2:
-                lang = "es";
-                break;
-            case 3:
-                lang = "it";
-                break;
-            default:
-                lang = "es";
-                break;
-        }
-        Locale locale = new Locale(lang);
-        Locale.setDefault(locale);
-        Configuration config = new Configuration();
-        config.locale = locale;
-        getBaseContext().getResources().updateConfiguration(config,
-                getBaseContext().getResources().getDisplayMetrics());
+        LocaleHelper.setAppLocale(lang, this);
 
         if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();
