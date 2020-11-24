@@ -9,6 +9,7 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -269,7 +270,9 @@ public class PrintTicket {
                     WoyouService.printTextWithFont(ContextResources.getString(R.string.max_quantity), "", 28, Callback);
                     WoyouService.printTextWithFont("\n\n", "", 28, Callback);
 
-                    WoyouService.printTextWithFont(transaction.max_quantity.toString(), "", 28, Callback);
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    String maxQuantity = df.format(transaction.card.max_quantity);
+                    WoyouService.printTextWithFont(maxQuantity, "", 28, Callback);//MAX_QUANTITY
 
                     //END OF TICKET (FOOTER)
                     WoyouService.lineWrap(2, Callback);

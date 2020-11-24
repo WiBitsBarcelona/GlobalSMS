@@ -127,6 +127,10 @@
 
     <string name="loading">Cargando...</string>
 
+    <!-- BUTTONS-->
+    <string name="btn_accept">Aceptar</string>
+    <string name="btn_cancel">Cancelar</string>
+
     <!-- Globalwallet -->
     <string name="authorized_products">Productos autorizados</string>
     <string name="max_quantity">Cantidad máxima</string>
@@ -140,4 +144,8 @@
     <string name="gas_b">Gasoleo rojo</string>
     <string name="gas">Gas</string>
     <string name="card_not_allowed">Tarjeta no permitida</string>
+    <string name="card_unlocking_title">Error de escaneo QR</string>
+    <string name="card_unlocking_description">Hubo un error al escanear la tarjeta. Por favor vuelva a pedir de escanear el código QR de la tarjeta.</string>
+    <string name="sure_alert">¿Estas seguro?</string>
+    <string name="max_quantity_exceed_alert">Se va a sobrepasar el limite de la tarjeta.</string>
 </resources>

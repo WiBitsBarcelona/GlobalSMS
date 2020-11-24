@@ -127,6 +127,10 @@
 
     <string name="loading">Loading...</string>
 
+    <!-- BUTTONS-->
+    <string name="btn_accept">Accept</string>
+    <string name="btn_cancel">Cancel</string>
+
     <!-- Globalwallet -->
     <string name="authorized_products">Authorized products</string>
     <string name="max_quantity">Max quantity</string>
@@ -140,4 +144,8 @@
     <string name="gas_b">Red diesel</string>
     <string name="gas">Gas</string>
     <string name="card_not_allowed">Card not allowed</string>
+    <string name="card_unlocking_title">Scanning error</string>
+    <string name="card_unlocking_description">There was an error scanning the card. Please re-scan the QR code on the card.</string>
+    <string name="sure_alert">Are you sure?</string>
+    <string name="max_quantity_exceed_alert">The card limit will be exceeded.</string>
 </resources>

@@ -1,6 +1,6 @@
 package eu.globaldevelopers.globalsms.Class;
 
 public interface GpCallback {
-    void onSucess();
+    void onSuccess();
     void onError();
 }

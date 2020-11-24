@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.app.AlertDialog;
@@ -97,6 +98,7 @@ import eu.globaldevelopers.globalsms.Class.SampleResponse;
 import eu.globaldevelopers.globalsms.Class.UserCustomization;
 import eu.globaldevelopers.globalsms.Class.globalwallet.CardQueryResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.CardResponse;
+import eu.globaldevelopers.globalsms.Class.globalwallet.QrCard;
 import eu.globaldevelopers.globalsms.Class.globalwallet.QrTransaction;
 import eu.globaldevelopers.globalsms.Class.globalwallet.SaleTransactionResponse;
 import eu.globaldevelopers.globalsms.Class.globalwallet.UnlockRequestResponse;
@@ -2377,7 +2379,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 showProgressDialog(pinpadActivity, pinpadActivity.getString(R.string.spinner_conectando));
                                                 sendTrxVerifyCode(transactionId, new GpCallback() {
                                                     @Override
-                                                    public void onSucess() {
+                                                    public void onSuccess() {
                                                         mProgressDialog.dismiss();
                                                         showInputVerifyCode(String.valueOf(TransactionTypeEnum.REFUEL), transactionId, verifyCode);
                                                     }
@@ -2410,7 +2412,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 showProgressDialog(pinpadActivity, pinpadActivity.getString(R.string.spinner_conectando));
                                                 sendTrxVerifyCode(transactionId, new GpCallback() {
                                                     @Override
-                                                    public void onSucess() {
+                                                    public void onSuccess() {
                                                         mProgressDialog.dismiss();
                                                         showInputVerifyCode(null, transactionId, verifyCode);
                                                     }
@@ -2529,7 +2531,7 @@ public class PinPadActivity extends AppCompatActivity {
             public void onClick(View v) {
                 verifyTrxCode(transaction_id, verifyCodeEdit.getText().toString(), new GpCallback() {
                     @Override
-                    public void onSucess() {
+                    public void onSuccess() {
                         show.dismiss();
                         globalPayReserve(trxType);
                     }
@@ -2553,7 +2555,7 @@ public class PinPadActivity extends AppCompatActivity {
             public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
                 SampleResponse data = response.body();
                 if(data.success){
-                    callback.onSucess();
+                    callback.onSuccess();
                 }else{
                     Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), Toast.LENGTH_SHORT).show();
                     callback.onError();
@@ -2578,7 +2580,7 @@ public class PinPadActivity extends AppCompatActivity {
                 SampleResponse data = response.body();
                 if(data.success){
                     Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_success), Toast.LENGTH_SHORT).show();
-                    callback.onSucess();
+                    callback.onSuccess();
                 }else{
                     Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), Toast.LENGTH_SHORT).show();
                     callback.onError();
@@ -4447,7 +4449,23 @@ public class PinPadActivity extends AppCompatActivity {
                     btnValidate.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            validateQrTransaction(transaction, dialog);
+                            showProgressDialog(PinPadActivity.this, getString(R.string.loading));
+                            sendQrCardUnlockRequest(transaction.card.card_number, new GpCallback()
+                            {
+                                @Override
+                                public void onSuccess()
+                                {
+                                    dismissProgressDialog();
+                                    validateQrTransaction(transaction, dialog);
+                                }
+
+                                @Override
+                                public void onError()
+                                {
+                                    dismissProgressDialog();
+                                    dialog.dismiss();
+                                }
+                            });
                         }
                     });
                 }else{
@@ -4525,6 +4543,7 @@ public class PinPadActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<CardResponse> call, retrofit2.Response<CardResponse> response) {
                 CardResponse data = response.body();
+                final QrCard card = data.data;
                 if(data.success){
                     LayoutInflater inflater = getLayoutInflater();
 
@@ -4555,28 +4574,34 @@ public class PinPadActivity extends AppCompatActivity {
                     btnAccept.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            //SEND UNLOCK REQUEST
-                            showProgressDialog(PinPadActivity.this, getResources().getString(R.string.progress_dialog_transaction));
-                            sendQrCardUnlockRequest(card_number, new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    dialog.dismiss();
-                                    Log.println(Log.DEBUG,"GLOBALWALLET","PROCESO DE COMPRA TERMINADO");
-                                    EditText diesel = (EditText) litersDialog.findViewById(R.id.gas_a_quantity);
-                                    EditText adblue = (EditText) litersDialog.findViewById(R.id.adblue_quantity);
-                                    EditText red = (EditText) litersDialog.findViewById(R.id.gas_b_quantity);
-                                    EditText gas = (EditText) litersDialog.findViewById(R.id.gas_quantity);
 
-                                    double dieselQuantity = Double.parseDouble(diesel.getText().toString());
-                                    double adblueQuantity = Double.parseDouble(adblue.getText().toString());
-                                    double redQuantity = Double.parseDouble(red.getText().toString());
-                                    double gasQuantity = Double.parseDouble(gas.getText().toString());
+                            EditText diesel = (EditText) litersDialog.findViewById(R.id.gas_a_quantity);
+                            EditText adblue = (EditText) litersDialog.findViewById(R.id.adblue_quantity);
+                            EditText red = (EditText) litersDialog.findViewById(R.id.gas_b_quantity);
+                            EditText gas = (EditText) litersDialog.findViewById(R.id.gas_quantity);
 
-                                    saveQrTransactionSale(card_number, dieselQuantity, adblueQuantity, redQuantity, gasQuantity);
-                                }
-                            });
+                            final double dieselQuantity = Double.parseDouble(diesel.getText().toString());
+                            final double adblueQuantity = Double.parseDouble(adblue.getText().toString());
+                            final double redQuantity = Double.parseDouble(red.getText().toString());
+                            final double gasQuantity = Double.parseDouble(gas.getText().toString());
+
+                            double totalQuantity = dieselQuantity + adblueQuantity + redQuantity + gasQuantity;
+                            if(totalQuantity > card.max_quantity) {
+                                showAlertMaxQuantity(new GpCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        finishQrTransaction(card_number, dieselQuantity, adblueQuantity, redQuantity, gasQuantity);
+                                    }
+
+                                    @Override
+                                    public void onError() {
+
+                                    }
+                                });
+                            }else{
+                                dialog.dismiss();
+                                finishQrTransaction(card_number, dieselQuantity, adblueQuantity, redQuantity, gasQuantity);
+                            }
                         }
                     });
                 }
@@ -4590,7 +4615,7 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
-    private void sendQrCardUnlockRequest(final String card_number, final Runnable callback){
+    private void sendQrCardUnlockRequest(final String card_number, final GpCallback callback){
         final String terminal = sharedpreferences.getString("terminalKey", null);
 
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
@@ -4601,7 +4626,36 @@ public class PinPadActivity extends AppCompatActivity {
             public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
                 SampleResponse data = response.body();
                 if(data.success){
-                    checkQrCardUnlockedRequest(card_number, callback);
+                    final int maxTries = 5;
+                    final int[] tries = {0};
+                    final long SECOND_IN_MILLI = 2000;//10 seconds
+                    final Handler timerHandler = new Handler();
+                    final Runnable timerRunnable = new Runnable() {
+                        private Runnable context = this;
+                        @Override
+                        public void run() {
+                            tries[0]++;//SUM TRY
+                            checkQrCardUnlockedRequest(card_number, new GpCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    callback.onSuccess();
+                                }
+
+                                @Override
+                                public void onError() {
+                                    if(tries[0] <= maxTries){
+                                        timerHandler.postDelayed(context, SECOND_IN_MILLI);
+                                    }else{
+                                        callback.onError();
+                                        AlertDialog dialog = showErrorUnlockPin();
+                                        dialog.show();
+                                    }
+                                }
+                            });
+
+                        }
+                    };
+                    timerHandler.postDelayed(timerRunnable, SECOND_IN_MILLI);
                 }
             }
 
@@ -4612,7 +4666,7 @@ public class PinPadActivity extends AppCompatActivity {
         });
     }
 
-    private void checkQrCardUnlockedRequest(final String card_number, final Runnable callback){
+    private void checkQrCardUnlockedRequest(final String card_number, final GpCallback callback){
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
         Call<UnlockRequestResponse> unlockRequest = service.getQrCardUnlockRequest(card_number);
 
@@ -4622,12 +4676,11 @@ public class PinPadActivity extends AppCompatActivity {
                 UnlockRequestResponse data = response.body();
                 if(data.success && data.data.unlock_pin == 1){
                     //PROCESO DE COMPRA TERMINADO - EXECUTE CALLBACK FOR FINISH TRANSACTION
-                    callback.run();
+
+                    callback.onSuccess();
                 }else{
                     try{
-                        Thread.sleep(1000);
-                        Log.println(Log.DEBUG,"GLOBALWALLET","VOLVIENDO A LEER UNLOCK REQUEST");
-                        checkQrCardUnlockedRequest(card_number, callback);
+                        callback.onError();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -4641,6 +4694,24 @@ public class PinPadActivity extends AppCompatActivity {
         });
     }
 
+    private void finishQrTransaction(final String card_number, final double dieselQuantity, final double adblueQuantity, final double redQuantity, final double gasQuantity){
+        //SEND UNLOCK REQUEST
+        showProgressDialog(PinPadActivity.this, getResources().getString(R.string.progress_dialog_transaction));
+        sendQrCardUnlockRequest(card_number, new GpCallback()
+        {
+            @Override
+            public void onSuccess()
+            {
+                Log.println(Log.DEBUG,"GLOBALWALLET","PROCESO DE COMPRA TERMINADO");
+                saveQrTransactionSale(card_number, dieselQuantity, adblueQuantity, redQuantity, gasQuantity);
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
+    }
     private void saveQrTransactionSale(String card_number, double dieselQuantity, double adbueQuantity, double redQuantity, double gasQuantity){
         sharedpreferences3 = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
         String terminal = sharedpreferences.getString("terminalKey", null);
@@ -4712,6 +4783,50 @@ public class PinPadActivity extends AppCompatActivity {
                         });
 
         return builder.create();
+    }
+
+    public AlertDialog showErrorUnlockPin() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(getString(R.string.card_unlocking_title))
+                .setMessage(getString(R.string.card_unlocking_description))
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+        return builder.create();
+    }
+
+    public void showAlertMaxQuantity(final GpCallback callback) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(getString(R.string.sure_alert))
+                .setMessage(getString(R.string.max_quantity_exceed_alert))
+                .setPositiveButton(getString(R.string.btn_accept),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                callback.onSuccess();
+                            }
+                        })
+                .setCancelable(true)
+                .setNegativeButton(getString(R.string.btn_cancel),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                callback.onError();
+                            }
+                        });
+
+
+        //builder.create();
+        builder.show();
     }
 }
 
