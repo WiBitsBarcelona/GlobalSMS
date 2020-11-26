@@ -4536,14 +4536,19 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     private void getQrCardInfo(final String card_number){
-        FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
-        Call<CardResponse> cardRequest = service.getQrCard(card_number);
+        final String terminal = sharedpreferences.getString("terminalKey", null);
+        String lang = sharedpreferences.getString(langKey, null);
 
-        cardRequest.enqueue(new Callback<CardResponse>() {
+        FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
+        Call<CardQueryResponse> cardQuery = service.getQrCardQuery(card_number, terminal, lang);
+
+        showProgressDialog(this, getString(R.string.loading));
+        cardQuery.enqueue(new Callback<CardQueryResponse>() {
             @Override
-            public void onResponse(Call<CardResponse> call, retrofit2.Response<CardResponse> response) {
-                CardResponse data = response.body();
-                final QrCard card = data.data;
+            public void onResponse(Call<CardQueryResponse> call, retrofit2.Response<CardQueryResponse> response) {
+                dismissProgressDialog();
+                CardQueryResponse data = response.body();
+                final QrCard card = data.data.card;
                 if(data.success){
                     LayoutInflater inflater = getLayoutInflater();
 
@@ -4558,7 +4563,7 @@ public class PinPadActivity extends AppCompatActivity {
                     Button btnAccept = (Button) litersDialog.findViewById(R.id.btnAccept);
 
                     //CARDS PRODUCT VISIBILITY
-                    for(Product product : data.data.type.products){
+                    for(Product product : card.type.products){
                         int productId = getResources().getIdentifier(product.lang_code, "id", getPackageName());
                         CardView productCard = (CardView) litersDialog.findViewById(productId);
                         productCard.setVisibility(CardView.VISIBLE);
@@ -4608,7 +4613,8 @@ public class PinPadActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<CardResponse> call, Throwable t) {
+            public void onFailure(Call<CardQueryResponse> call, Throwable t) {
+                dismissProgressDialog();
                 t.getMessage();
             }
         });
@@ -4708,7 +4714,7 @@ public class PinPadActivity extends AppCompatActivity {
 
             @Override
             public void onError() {
-
+                dismissProgressDialog();
             }
         });
     }
