@@ -4609,6 +4609,9 @@ public class PinPadActivity extends AppCompatActivity {
                             }
                         }
                     });
+                }else{
+                    AlertDialog dialog = showErrorCardQuery(data.message);
+                    dialog.show();
                 }
             }
 
