@@ -4595,12 +4595,13 @@ public class PinPadActivity extends AppCompatActivity {
                                 showAlertMaxQuantity(new GpCallback() {
                                     @Override
                                     public void onSuccess() {
+                                        dialog.dismiss();
                                         finishQrTransaction(card_number, dieselQuantity, adblueQuantity, redQuantity, gasQuantity);
                                     }
 
                                     @Override
                                     public void onError() {
-
+                                        dialog.dismiss();
                                     }
                                 });
                             }else{
