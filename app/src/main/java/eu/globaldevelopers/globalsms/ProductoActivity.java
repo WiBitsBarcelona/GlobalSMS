@@ -80,7 +80,7 @@ public class ProductoActivity extends AppCompatActivity {
         editor.putString(producto, "1");
         editor.putString(tipotrans, "Nueva");
         editor.apply();
-        Toast.makeText(getBaseContext(),this.getString(R.string.toast_diesel),Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getBaseContext(),this.getString(R.string.toast_diesel),//Toast.LENGTH_SHORT).show();
         ProductoActivity.this.finish();
         Intent Intent = new Intent(this, PinPadActivity.class);
         startActivity(Intent);
@@ -94,7 +94,7 @@ public class ProductoActivity extends AppCompatActivity {
         editor.putString(producto, "13");
         editor.putString(tipotrans, "Nueva");
         editor.apply();
-        Toast.makeText(getBaseContext(),this.getString(R.string.toast_adblue),Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getBaseContext(),this.getString(R.string.toast_adblue),//Toast.LENGTH_SHORT).show();
         ProductoActivity.this.finish();
         Intent Intent = new Intent(this, PinPadActivity.class);
         startActivity(Intent);
@@ -108,7 +108,7 @@ public class ProductoActivity extends AppCompatActivity {
         editor.putString(producto, "15");
         editor.putString(tipotrans, "Nueva");
         editor.apply();
-        Toast.makeText(getBaseContext(),this.getString(R.string.toast_rojo),Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getBaseContext(),this.getString(R.string.toast_rojo),//Toast.LENGTH_SHORT).show();
         ProductoActivity.this.finish();
         Intent Intent = new Intent(this, PinPadActivity.class);
         startActivity(Intent);
@@ -122,7 +122,7 @@ public class ProductoActivity extends AppCompatActivity {
         editor.putString(producto, "14");
         editor.putString(tipotrans, "Nueva");
         editor.apply();
-        Toast.makeText(getBaseContext(),this.getString(R.string.toast_bio),Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getBaseContext(),this.getString(R.string.toast_bio),//Toast.LENGTH_SHORT).show();
         ProductoActivity.this.finish();
         Intent Intent = new Intent(this, PinPadActivity.class);
         startActivity(Intent);

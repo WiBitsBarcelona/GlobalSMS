@@ -46,7 +46,7 @@ public class Splash extends AppCompatActivity {
         String versionName = BuildConfig.VERSION_NAME;
         int y = Calendar.getInstance().get(Calendar.YEAR);
 
-        //Toast.makeText(getBaseContext(), versionName + " " + y, Toast.LENGTH_SHORT).show();
+        ////Toast.makeText(getBaseContext(), versionName + " " + y, //Toast.LENGTH_SHORT).show();
 
         footerText = (TextView) findViewById(R.id.footerText);
         footerText.setText("© GlobalTank " + y + " - GlobalPay ® - v: " + versionName);

@@ -60,6 +60,7 @@
         <activity android:name=".ScanActivity" />
         <activity android:name=".activity_copia_new" />
         <activity android:name=".CheckActivity"></activity>
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
     </application>
 
 </manifest>

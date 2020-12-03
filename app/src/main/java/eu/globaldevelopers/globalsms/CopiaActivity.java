@@ -155,9 +155,9 @@ public class CopiaActivity extends AppCompatActivity {
             String error = fila.getString(14);
 
             if(!mmSocket.isConnected()){
-                Toast.makeText(this, "NO Printer Connected",
+                //Toast.makeText(this, "NO Printer Connected",
 
-                        Toast.LENGTH_SHORT).show();
+                        //Toast.LENGTH_SHORT).show();
             }else {
 
                 //RESET
@@ -471,9 +471,9 @@ public class CopiaActivity extends AppCompatActivity {
 
         } else
 
-            Toast.makeText(this, "No Transactions Data to Show",
+            //Toast.makeText(this, "No Transactions Data to Show",
 
-                    Toast.LENGTH_SHORT).show();
+                    //Toast.LENGTH_SHORT).show();
 
         bd.close();
 

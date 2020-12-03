@@ -240,7 +240,7 @@ public class ConfigActivity extends AppCompatActivity {
         editor.putInt(loc, locN);
         editor.putString(langKey, lang);
         editor.apply();
-        Toast.makeText(getBaseContext(),"Config Saved",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getBaseContext(),"Config Saved",//Toast.LENGTH_SHORT).show();
         Intent myIntent = new Intent(ConfigActivity.this,MainActivity.class);
         ConfigActivity.this.startActivity(myIntent);
     }
@@ -260,14 +260,14 @@ public class ConfigActivity extends AppCompatActivity {
         File backupDB = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "datos");
         File currentDB = getApplicationContext().getDatabasePath("datos");
         if (currentDB.exists()) {
-            Toast.makeText(getBaseContext(),"Database Copied to Downloads",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getBaseContext(),"Database Copied to Downloads",//Toast.LENGTH_SHORT).show();
             FileChannel src = new FileInputStream(currentDB).getChannel();
             FileChannel dst = new FileOutputStream(backupDB).getChannel();
             dst.transferFrom(src, 0, src.size());
             src.close();
             dst.close();
         }else{
-            Toast.makeText(getBaseContext(),"No Database to Copy",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getBaseContext(),"No Database to Copy",//Toast.LENGTH_SHORT).show();
         }
     }
 

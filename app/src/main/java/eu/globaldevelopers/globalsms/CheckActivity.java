@@ -184,7 +184,7 @@ public class CheckActivity extends AppCompatActivity {
                         public void onResponse(final String datareceived) {
                             if (datareceived.equals("nohaydatos")) {
                                 //No esta reservado, vuelvo
-                                Toast.makeText(getBaseContext(), R.string.error_no_encontrado, Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(getBaseContext(), R.string.error_no_encontrado, //Toast.LENGTH_SHORT).show();
                             } else {
                                 final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                                 final String hora = new SimpleDateFormat("HH:mm").format(new Date()) + "\n\n";
@@ -325,7 +325,7 @@ public class CheckActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // error
-                            Toast.makeText(getBaseContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getBaseContext(), error.toString(), //Toast.LENGTH_SHORT).show();
                         }
                     }
             ) {

@@ -392,7 +392,7 @@ public class PinPadActivity extends AppCompatActivity {
                         break;
                     case "Cancela":
                         //cancelaT();
-                        Toast.makeText(getBaseContext(), "OPCION NO HABILITADA PARA CAMPILLO", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), "OPCION NO HABILITADA PARA CAMPILLO", //Toast.LENGTH_SHORT).show();
                         break;
                 }
                 break;
@@ -441,7 +441,7 @@ public class PinPadActivity extends AppCompatActivity {
                         public void onResponse(String response) {
                             if (response.equals("noexiste")) {
                                 //No esta reservado, vuelvo
-                                Toast.makeText(getBaseContext(), R.string.error_no_reservado, Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(getBaseContext(), R.string.error_no_reservado, //Toast.LENGTH_SHORT).show();
                             } else {
                                 //Esta reservado, miro si pido los litros o escaneo.
                                 respuesta = response;
@@ -529,7 +529,7 @@ public class PinPadActivity extends AppCompatActivity {
                                             editor.putInt("reservesCount", Reserves);
                                             editor.apply();
 
-                                            Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY CANCELLED", Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY CANCELLED", //Toast.LENGTH_SHORT).show();
                                             try {
                                                 msg = "TRANSACTION SUCCESSFULLY\n";
                                                 msg += "CANCELLED";
@@ -579,7 +579,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 e.printStackTrace();
                                             }
                                         } else {
-                                            Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", //Toast.LENGTH_SHORT).show();
                                             codigoerror = getValue("error_code", element2);
                                             textoerror = getValue("error_description", element2);
                                             for (int g = 0; g < 2; g++) {
@@ -759,7 +759,7 @@ public class PinPadActivity extends AppCompatActivity {
                                             editor.putInt("reservesCount", Reserves);
                                             editor.apply();
 
-                                            Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", //Toast.LENGTH_SHORT).show();
                                             operation = getValue("transaction_id", element2);
                                             final String litros = getValue("liters", element2);
                                             String producto = getValue("product_code", element2);
@@ -844,7 +844,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 e.printStackTrace();
                                             }
                                         } else {
-                                            Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", //Toast.LENGTH_SHORT).show();
                                             codigoerror = getValue("error_code", element2);
                                             textoerror = getValue("error_description", element2);
                                             for (int g = 0; g < 2; g++) {
@@ -1207,7 +1207,7 @@ public class PinPadActivity extends AppCompatActivity {
         if (scanningResult != null) {
             if (scanningResult.getContents() == null) {
                 //El usuario ha pulaado el boton cancelar en el Scanner.
-                //Toast.makeText(this, "Cancelado", Toast.LENGTH_LONG).show();
+                ////Toast.makeText(this, "Cancelado", //Toast.LENGTH_LONG).show();
             } else {
                 switch (processType) {
                     case INSTANTIC:
@@ -1328,8 +1328,8 @@ public class PinPadActivity extends AppCompatActivity {
                                 getQrCardInfo(scanQrContent);
                                 break;
                             case "Cancela":
-                                Toast toast = Toast.makeText(getApplicationContext(), "Invalid operation", Toast.LENGTH_SHORT);
-                                toast.show();
+                                //Toast toast = Toast.makeText(getApplicationContext(), "Invalid operation", //Toast.LENGTH_SHORT);
+                                //Toast.show();
                                 break;
                         }
 
@@ -1337,8 +1337,8 @@ public class PinPadActivity extends AppCompatActivity {
                 }
             }
         } else {
-            Toast toast = Toast.makeText(getApplicationContext(), "No scan data received!", Toast.LENGTH_SHORT);
-            toast.show();
+           // Toast toast = //Toast.makeText(getApplicationContext(), "No scan data received!", //Toast.LENGTH_SHORT);
+            //Toast.show();
         }
     }
 
@@ -1551,7 +1551,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         Element element2 = (Element) node;
                                         String exito = getValue("success", element2);
                                         if (exito.equals("1")) {
-                                            Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", //Toast.LENGTH_SHORT).show();
 
                                             int ReservesCounter = sharedpreferences.getInt("reservesCount", 0);
                                             int Reserves = ReservesCounter + 1;
@@ -1653,7 +1653,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 e.printStackTrace();
                                             }
                                         } else {
-                                            Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", //Toast.LENGTH_SHORT).show();
                                             codigoerror = getValue("error_code", element2);
                                             textoerror = getValue("error_description", element2);
                                             msg = "TRANSACTION REFUSED";
@@ -1924,7 +1924,7 @@ public class PinPadActivity extends AppCompatActivity {
                                     //Si la transaccion de campillo no se encuentra la buscamos en la API generica
                                     globalPayPreReserve();
                                 } else {
-                                    Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", //Toast.LENGTH_SHORT).show();
 
                                     int ReservesCounter = sharedpreferences.getInt("reservesCount", 0);
                                     int Reserves = ReservesCounter + 1;
@@ -2096,9 +2096,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(getApplicationContext(),
-                                                "Json parsing error: " + e.getMessage(),
-                                                Toast.LENGTH_LONG).show();
+
                                     }
                                 });
                             } catch (InterruptedException e) {
@@ -2187,7 +2185,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 String Success = jsonObj.getString("success");
 
                                 if (Success.equals("false")) {
-                                    Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", //Toast.LENGTH_SHORT).show();
                                     codigoerror = jsonObj.getString("error_code");
                                     textoerror = jsonObj.getString("error_description");
                                     msg = "TRANSACTION REFUSED";
@@ -2237,7 +2235,7 @@ public class PinPadActivity extends AppCompatActivity {
 
 
                                 } else {
-                                    Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(PinPadActivity.this, "TRANSACTION ACCEPTED", //Toast.LENGTH_SHORT).show();
 
                                     int ReservesCounter = sharedpreferences.getInt("reservesCount", 0);
                                     int Reserves = ReservesCounter + 1;
@@ -2387,7 +2385,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onError() {
                                                         mProgressDialog.dismiss();
-                                                        Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_send_code_error), Toast.LENGTH_SHORT).show();
+                                                        //Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_send_code_error), //Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
                                             }else{
@@ -2420,7 +2418,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onError() {
                                                         mProgressDialog.dismiss();
-                                                        Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_send_code_error), Toast.LENGTH_SHORT).show();
+                                                        //Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_send_code_error), //Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
                                             }else{
@@ -2443,9 +2441,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(getApplicationContext(),
-                                                "Json parsing error: " + e.getMessage(),
-                                                Toast.LENGTH_LONG).show();
+
                                     }
                                 });
 
@@ -2557,14 +2553,14 @@ public class PinPadActivity extends AppCompatActivity {
                 if(data.success){
                     callback.onSuccess();
                 }else{
-                    Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), //Toast.LENGTH_SHORT).show();
                     callback.onError();
                 }
             }
 
             @Override
             public void onFailure(Call<SampleResponse> call, Throwable t) {
-                Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), //Toast.LENGTH_SHORT).show();
                 callback.onError();
             }
         });
@@ -2579,10 +2575,10 @@ public class PinPadActivity extends AppCompatActivity {
             public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
                 SampleResponse data = response.body();
                 if(data.success){
-                    Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_success), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_success), //Toast.LENGTH_SHORT).show();
                     callback.onSuccess();
                 }else{
-                    Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getBaseContext(), getResources().getString(R.string.verify_code_error), //Toast.LENGTH_SHORT).show();
                     callback.onError();
                 }
             }
@@ -2635,7 +2631,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 String Success = jsonObj.getString("success");
 
                                 if (Success.equals("false")) {
-                                    Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", //Toast.LENGTH_SHORT).show();
                                     codigoerror = jsonObj.getString("error_code");
                                     textoerror = jsonObj.getString("error_description");
                                     msg = "TRANSACTION REFUSED";
@@ -2685,7 +2681,7 @@ public class PinPadActivity extends AppCompatActivity {
 
 
                                 } else {
-                                    Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", //Toast.LENGTH_SHORT).show();
 
                                     int ReservesCounter = sharedpreferences.getInt("reservesCount", 0);
                                     int Reserves = ReservesCounter + 1;
@@ -2798,9 +2794,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(getApplicationContext(),
-                                                "Json parsing error: " + e.getMessage(),
-                                                Toast.LENGTH_LONG).show();
+
                                     }
                                 });
 
@@ -2896,7 +2890,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 String Success = jsonObj.getString("success");
 
                                 if (Success.equals("false")) {
-                                    Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", //Toast.LENGTH_SHORT).show();
                                     codigoerror = jsonObj.getString("error_code");
                                     textoerror = jsonObj.getString("error_description");
                                     msg = "TRANSACTION REFUSED";
@@ -2946,7 +2940,7 @@ public class PinPadActivity extends AppCompatActivity {
 
 
                                 } else {
-                                    Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), "TRANSACTION ACCEPTED", //Toast.LENGTH_SHORT).show();
 
                                     int ReservesCounter = sharedpreferences.getInt("reservesCount", 0);
                                     int Reserves = ReservesCounter + 1;
@@ -3059,9 +3053,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(getApplicationContext(),
-                                                "Json parsing error: " + e.getMessage(),
-                                                Toast.LENGTH_LONG).show();
+
                                     }
                                 });
 
@@ -3146,7 +3138,7 @@ public class PinPadActivity extends AppCompatActivity {
 
                                 if (Success.equals("false")) {
                                     checkGlobalPayTrx();
-                                    //Toast.makeText(getBaseContext(), R.string.error_no_reservado, Toast.LENGTH_SHORT).show();
+                                    ////Toast.makeText(getBaseContext(), R.string.error_no_reservado, //Toast.LENGTH_SHORT).show();
                                 } else {
                                     final JSONArray AuthProducts = jsonObj.getJSONArray("auth_products");
 
@@ -3191,9 +3183,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(getApplicationContext(),
-                                                "Json parsing error: " + e.getMessage(),
-                                                Toast.LENGTH_LONG).show();
+
                                     }
                                 });
                             }
@@ -3256,7 +3246,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 String Success = jsonObj.getString("success");
 
                                 if (Success.equals("false")) {
-                                    Toast.makeText(getBaseContext(), R.string.error_no_reservado, Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), R.string.error_no_reservado, //Toast.LENGTH_SHORT).show();
                                 } else {
                                     final JSONArray AuthProducts = jsonObj.getJSONArray("auth_products");
 
@@ -3301,9 +3291,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(getApplicationContext(),
-                                                "Json parsing error: " + e.getMessage(),
-                                                Toast.LENGTH_LONG).show();
+
                                     }
                                 });
                             }
@@ -3463,7 +3451,7 @@ public class PinPadActivity extends AppCompatActivity {
                 if (DieselCard.getVisibility() != GONE) {
                     int l = dieselLiters.length();
                     if (l == 0) {
-                        Toast.makeText(getBaseContext(), "Litros de DIESEL A Obligatorios!!!", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), "Litros de DIESEL A Obligatorios!!!", //Toast.LENGTH_SHORT).show();
                         dieselLiters.requestFocus();
                         return;
                     }
@@ -3471,7 +3459,7 @@ public class PinPadActivity extends AppCompatActivity {
                 if (AdblueCard.getVisibility() != GONE) {
                     int l = adblueLiters.length();
                     if (l == 0) {
-                        Toast.makeText(getBaseContext(), "Litros de AD BLUE Obligatorios!!!", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), "Litros de AD BLUE Obligatorios!!!", //Toast.LENGTH_SHORT).show();
                         adblueLiters.requestFocus();
                         return;
                     }
@@ -3479,7 +3467,7 @@ public class PinPadActivity extends AppCompatActivity {
                 if (RedDieselCard.getVisibility() != GONE) {
                     int l = reddieselLiters.length();
                     if (l == 0) {
-                        Toast.makeText(getBaseContext(), "Litros de DIESEL ROJO Obligatorios!!!", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), "Litros de DIESEL ROJO Obligatorios!!!", //Toast.LENGTH_SHORT).show();
                         reddieselLiters.requestFocus();
                         return;
                     }
@@ -3487,7 +3475,7 @@ public class PinPadActivity extends AppCompatActivity {
                 if (GasCard.getVisibility() != GONE) {
                     int l = gasLiters.length();
                     if (l == 0) {
-                        Toast.makeText(getBaseContext(), "Kilos de GAS Obligatorios!!!", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), "Kilos de GAS Obligatorios!!!", //Toast.LENGTH_SHORT).show();
                         gasLiters.requestFocus();
                         return;
                     }
@@ -3495,7 +3483,7 @@ public class PinPadActivity extends AppCompatActivity {
                 if (KilometersCard.getVisibility() != GONE) {
                     int l = kilometers.length();
                     if (l == 0) {
-                        Toast.makeText(getBaseContext(), "Se han de informar los KILÓMETROS!!!", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), "Se han de informar los KILÓMETROS!!!", //Toast.LENGTH_SHORT).show();
                         kilometers.requestFocus();
                         return;
                     }
@@ -3503,7 +3491,7 @@ public class PinPadActivity extends AppCompatActivity {
                 if (HoursCard.getVisibility() != GONE) {
                     int l = hours.length();
                     if (l == 0) {
-                        Toast.makeText(getBaseContext(), "Se han de informar las HORAS del frigo!!!", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), "Se han de informar las HORAS del frigo!!!", //Toast.LENGTH_SHORT).show();
                         hours.requestFocus();
                         return;
                     }
@@ -3593,7 +3581,7 @@ public class PinPadActivity extends AppCompatActivity {
                     view.setDrawingCacheEnabled(true);
                     mSignature.save(view, StoredPath);
                     dialog.dismiss();
-                    //Toast.makeText(getApplicationContext(), "Successfully Saved", Toast.LENGTH_SHORT).show();
+                    ////Toast.makeText(getApplicationContext(), "Successfully Saved", //Toast.LENGTH_SHORT).show();
                     // Calling the same class
                     //recreate();
                     FileApi service = RetroClient.getApiService(ApiCampilloURI, BuildConfig.GLOBALPAY_TOKEN);
@@ -3668,7 +3656,7 @@ public class PinPadActivity extends AppCompatActivity {
                     view.setDrawingCacheEnabled(true);
                     mSignature.save(view, StoredPath);
                     dialog.dismiss();
-                    //Toast.makeText(getApplicationContext(), "Successfully Saved", Toast.LENGTH_SHORT).show();
+                    ////Toast.makeText(getApplicationContext(), "Successfully Saved", //Toast.LENGTH_SHORT).show();
                     // Calling the same class
                     //recreate();
                     FileApi service = RetroClient.getApiService(ApiGPayUrl, BuildConfig.GLOBALPAY_TOKEN);
@@ -3750,7 +3738,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 String Success = jsonObj.getString("success");
 
                                 if (Success.equals("false")) {
-                                    Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", //Toast.LENGTH_SHORT).show();
                                     codigoerror = jsonObj.getString("error_code");
                                     textoerror = jsonObj.getString("error_description");
                                     msg = "TRANSACTION REFUSED";
@@ -3802,7 +3790,7 @@ public class PinPadActivity extends AppCompatActivity {
 
 
                                 } else {
-                                    Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", //Toast.LENGTH_SHORT).show();
 
                                     try {
 
@@ -3922,9 +3910,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(getApplicationContext(),
-                                                "Json parsing error: " + e.getMessage(),
-                                                Toast.LENGTH_LONG).show();
+
                                     }
                                 });
 
@@ -4032,7 +4018,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 String Success = jsonObj.getString("success");
 
                                 if (Success.equals("false")) {
-                                    Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), "TRANSACTION REFUSED", //Toast.LENGTH_SHORT).show();
                                     codigoerror = jsonObj.getString("error_code");
                                     textoerror = jsonObj.getString("error_description");
                                     msg = "TRANSACTION REFUSED";
@@ -4087,7 +4073,7 @@ public class PinPadActivity extends AppCompatActivity {
                                     final String plate = transaction.getString("Plate");
                                     final String trailerPlate = transaction.getString("Trailer_plate");
 
-                                    Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", //Toast.LENGTH_SHORT).show();
 
                                     //USER CUSTOMIZATIONS
                                     FileApi service = RetroClient.getApiService(ApiGPayUrl, BuildConfig.GLOBALPAY_TOKEN);
@@ -4160,9 +4146,7 @@ public class PinPadActivity extends AppCompatActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(getApplicationContext(),
-                                                "Json parsing error: " + e.getMessage(),
-                                                Toast.LENGTH_LONG).show();
+
                                     }
                                 });
 
@@ -4490,7 +4474,7 @@ public class PinPadActivity extends AppCompatActivity {
             public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
                 SampleResponse data = response.body();
                 if(data.success){
-                    Toast.makeText(getBaseContext(), getResources().getString(R.string.transaction_validated), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getBaseContext(), getResources().getString(R.string.transaction_validated), //Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
 
                     //PRINT TICKET
@@ -4763,7 +4747,7 @@ public class PinPadActivity extends AppCompatActivity {
                 if(data.success){
                     dismissProgressDialog();
                     Log.println(Log.DEBUG,"GLOBALWALLET","VENTA FINALIZADA");
-                    Toast.makeText(getBaseContext(), getResources().getString(R.string.transaction_completed), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getBaseContext(), getResources().getString(R.string.transaction_completed), //Toast.LENGTH_SHORT).show();
 
                     PrintTicket printTicket = new PrintTicket(woyouService, callback, sharedpreferences, getResources(), getPackageName());
 

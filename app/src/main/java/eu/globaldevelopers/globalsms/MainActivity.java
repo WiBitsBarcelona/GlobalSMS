@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
         final String terminal = sharedpreferences.getString("terminalKey", null);
         RequestQueue queue = Volley.newRequestQueue(this);  // this = context
         String url = server + "/daily_report.php";
-        //Toast.makeText(getBaseContext(), dateF, Toast.LENGTH_SHORT).show();
+        ////Toast.makeText(getBaseContext(), dateF, //Toast.LENGTH_SHORT).show();
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Response", DataReceived);
                         if (DataReceived.equals("nohaydatos")) {
                             //No esta reservado, vuelvo
-                            Toast.makeText(getBaseContext(), R.string.error_no_data, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getBaseContext(), R.string.error_no_data, //Toast.LENGTH_SHORT).show();
 
 
                         } else {
@@ -559,7 +559,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Toast.makeText(getBaseContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), error.toString(), //Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {
@@ -598,7 +598,7 @@ public class MainActivity extends AppCompatActivity {
                             boolean dataSuccess = jsonObject.getBoolean("success");
                             if (!dataSuccess) {
                                 //Hay operaciones reservadas no se puede cerrar el turno.
-                                Toast.makeText(getBaseContext(), R.string.error_hay_reservas, Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(getBaseContext(), R.string.error_hay_reservas, //Toast.LENGTH_SHORT).show();
                             } else {
 
                                 jsonObject = jsonObject.getJSONObject("data");
@@ -666,7 +666,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Toast.makeText(getBaseContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), error.toString(), //Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {
@@ -710,7 +710,7 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject jsonObject = new JSONObject(DataReceived);
                             boolean dataSuccess = jsonObject.getBoolean("success");
                             if (!dataSuccess) {
-                                //Toast.makeText(getBaseContext(), R.string.error_hay_reservas, Toast.LENGTH_SHORT).show();
+                                ////Toast.makeText(getBaseContext(), R.string.error_hay_reservas, //Toast.LENGTH_SHORT).show();
 
                             } else {
                                 printTotalsWorkShift();
@@ -727,7 +727,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Toast.makeText(getBaseContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), error.toString(), //Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {
@@ -931,7 +931,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Toast.makeText(getBaseContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(), error.toString(), //Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {

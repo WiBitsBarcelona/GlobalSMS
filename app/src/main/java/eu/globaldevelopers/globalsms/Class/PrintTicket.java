@@ -216,6 +216,10 @@ public class PrintTicket {
                         } catch (RemoteException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
+                        } catch (NullPointerException e) {
+                            e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
 
                     }
@@ -281,6 +285,10 @@ public class PrintTicket {
                     WoyouService.lineWrap(4, Callback);
                 } catch (RemoteException e) {
                     // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -376,6 +384,10 @@ public class PrintTicket {
                             WoyouService.lineWrap(4, Callback);
                         } catch (RemoteException e) {
                             // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (NullPointerException e) {
+                            e.printStackTrace();
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
 

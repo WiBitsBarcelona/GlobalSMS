@@ -133,7 +133,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         code = ((TextView)view.findViewById(R.id.codigo)).getText().toString();
 
-        //Toast.makeText(this, code, Toast.LENGTH_SHORT).show();
+        ////Toast.makeText(this, code, //Toast.LENGTH_SHORT).show();
 
         LayoutInflater inflater = getLayoutInflater();
         View dialogoLayout = inflater.inflate(R.layout.dialogo_impresion, null);
@@ -294,7 +294,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
                 }});
         }else{
-            Toast.makeText(this, "No Reserve for this Code", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "No Reserve for this Code", //Toast.LENGTH_SHORT).show();
         }
         bd.close();
 
@@ -385,7 +385,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
                 }});
         }else{
-            Toast.makeText(this, "No Finish Transaction for this Code", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "No Finish Transaction for this Code", //Toast.LENGTH_SHORT).show();
         }
         bd.close();
     }
@@ -451,7 +451,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
                 }});
 
         }else{
-            Toast.makeText(this, "No Cancel Transaction for this Code", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "No Cancel Transaction for this Code", //Toast.LENGTH_SHORT).show();
         }
         bd.close();
     }

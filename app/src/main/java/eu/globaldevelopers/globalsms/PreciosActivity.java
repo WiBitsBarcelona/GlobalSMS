@@ -238,28 +238,28 @@ public class PreciosActivity extends AppCompatActivity {
                 editor.putString("dieselKey", precioAct);
                 editor.apply();
                 dieselactual = precioAct;
-                Toast.makeText(getBaseContext(),"DIESEL PRICE CHANGED SUCCESSFULLY",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getBaseContext(),"DIESEL PRICE CHANGED SUCCESSFULLY",//Toast.LENGTH_SHORT).show();
                 printPriceChange("DIESEL", precioAnt, precioAct);
                 break;
             case "Adblue":
                 editor.putString(adblue, precioAct);
                 editor.apply();
                 adblueactual = precioAct;
-                Toast.makeText(getBaseContext(),"ADBLUE PRICE CHANGED SUCCESSFULLY",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getBaseContext(),"ADBLUE PRICE CHANGED SUCCESSFULLY",//Toast.LENGTH_SHORT).show();
                 printPriceChange("ADBLUE", precioAnt, precioAct);
                 break;
             case "RedDiesel":
                 editor.putString(reddiesel, precioAct);
                 editor.apply();
                 reddieselactual = precioAct;
-                Toast.makeText(getBaseContext(),"RED DIESEL PRICE CHANGED SUCCESSFULLY",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getBaseContext(),"RED DIESEL PRICE CHANGED SUCCESSFULLY",//Toast.LENGTH_SHORT).show();
                 printPriceChange("RED DIESEL", precioAnt, precioAct);
                 break;
             case "BioDiesel":
                 editor.putString(biodiesel, precioAct);
                 editor.apply();
                 biodieselactual = precioAct;
-                Toast.makeText(getBaseContext(),"BIO DIESEL PRICE CHANGED SUCCESSFULLY",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getBaseContext(),"BIO DIESEL PRICE CHANGED SUCCESSFULLY",//Toast.LENGTH_SHORT).show();
                 printPriceChange("BIO DIESEL", precioAnt, precioAct);
                 break;
         }
