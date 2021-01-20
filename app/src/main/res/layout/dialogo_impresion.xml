@@ -18,23 +18,33 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btnreserve"
+            android:id="@+id/btnReserve"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="#68a9ea"
-            android:drawableTop="@drawable/printing100100"
+            android:drawableTop="@drawable/iconprinter100100"
             android:text="PRINT RESERVE"
             android:textColor="#FFFFFF" />
 
         <Button
-            android:id="@+id/btnfinish"
+            android:id="@+id/btnFinish"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:backgroundTint="#68a9ea"
-            android:drawableTop="@drawable/printing100100"
+            android:backgroundTint="#8cbf26"
+            android:drawableTop="@drawable/iconprinter100100"
             android:text="PRINT FINISH"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#e51400"
+            android:drawableTop="@drawable/iconprinter100100"
+            android:text="PRINT CANCEL"
             android:textColor="#FFFFFF" />
     </LinearLayout>
 </LinearLayout>

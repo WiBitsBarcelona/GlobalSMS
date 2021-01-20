@@ -1,5 +1,7 @@
 package eu.globaldevelopers.globalsms;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -8,12 +10,24 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import eu.globaldevelopers.globalsms.Helpers.LocaleHelper;
+
+
 public class ScanActivity extends AppCompatActivity {
+
+    public static final String langKey = "langKey";
+    public static final String MyPREFERENCES = "MyPrefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
+
+        //SET LANG
+        SharedPreferences sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        String lang = sharedpreferences.getString(langKey, null);
+        LocaleHelper.setAppLocale(lang, this);
+
         if(Build.VERSION.SDK_INT < 19){
             View v = this.getWindow().getDecorView();
             v.setSystemUiVisibility(View.GONE);

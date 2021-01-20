@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="false"
+    android:layout_weight="1"
+    android:gravity="center_vertical|center"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/labelcuantos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_weight="1"
+        android:text="@string/titulo_producto"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:padding="15dp">
+
+        <Button
+            android:id="@+id/btnDiesel"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="@color/zxing_viewfinder_mask"
+            android:drawableTop="@drawable/pump"
+            android:fontFamily="@font/assistant_light"
+            android:text="@string/producto_diesel"
+            android:textColor="@color/cardview_light_background"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnAdblue"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#68a9ea"
+            android:drawableTop="@drawable/pump"
+            android:fontFamily="@font/assistant_light"
+            android:text="@string/producto_adblue"
+            android:textColor="@color/cardview_light_background"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnReddiesel"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:drawableTop="@drawable/pump"
+            android:fontFamily="@font/assistant_light"
+            android:onClick="numerodeQRs"
+            android:text="@string/producto_rojo"
+            android:textColor="@color/cardview_light_background"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnBiodiesel"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="@android:color/holo_green_light"
+            android:drawableTop="@drawable/pump"
+            android:fontFamily="@font/assistant_light"
+            android:onClick="numerodeQRs"
+            android:text="@string/producto_bio"
+            android:textColor="@color/cardview_light_background"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

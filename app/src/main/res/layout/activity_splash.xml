@@ -4,33 +4,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#68a9ea"
+    android:background="@drawable/gradient_splash"
     tools:context="eu.globaldevelopers.globalsms.Splash">
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="200dp"
+        android:layout_width="250dp"
         android:layout_height="200dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="161dp"
         android:scaleType="fitXY"
-        app:srcCompat="@drawable/logo"
-        tools:ignore="ContentDescription"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        app:srcCompat="@drawable/logo_v4_tr"
+        tools:ignore="ContentDescription" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/imageView"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="87dp"
         android:indeterminate="false"
         android:max="100"
         android:progress="1"
-        android:progressTint="#ffffff"
-        android:layout_below="@+id/imageView"
-        android:layout_centerHorizontal="true" />
+        android:progressTint="#ffffff" />
+
+    <TextView
+        android:id="@+id/footerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/progressBar"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/progressBar"
+        android:fontFamily="@font/assistant_light"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
 
 </RelativeLayout>

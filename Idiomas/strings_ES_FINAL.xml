@@ -1,0 +1,82 @@
+<resources>
+    <!-- Strings related to Main -->
+    <string name="btn_reserva">Pedir Autorización</string>
+    <string name="btn_finaliza">Finalizar Repostaje</string>
+    <string name="btn_cancela">Cancelar Repostaje</string>
+    <string name="btn_precios">Cambiar Precios</string>
+    <string name="btn_imprimir">Imprimir Copia</string>
+    <string name="btn_config">Configuración</string>
+
+    <!-- Strings related to Producto-->
+    <string name="titulo_producto">Selecciona Producto</string>
+    <string name="producto_diesel">DIESEL</string>
+    <string name="producto_adblue">AD BLUE</string>
+    <string name="producto_rojo">DIESEL ROJO</string>
+    <string name="producto_cancela">CANCELA</string>
+    <string name="toast_diesel">Diesel Seleccionado</string>
+    <string name="toast_adblue">Ad Blue Seleccionado</string>
+    <string name="toast_rojo">Diesel Rojo Seleccionado</string>
+
+    <!-- String related to PinPad -->
+    <string name="titulo_pinpad">Informa el Código recibido por el Conductor</string>
+    <string name="btn_pinpad_cancel">Cancelar</string>
+    <string name="btn_pinpad_ok">Ok</string>
+    <string name="alert_no_code">Tienes que informar el Código recibido por el Conductor!!</string>
+    <string name="spinner_conectando">Conectando con el Servidor e Imprimiendo, espera...</string>
+    <string name="titulo_litros">LITROS</string>
+    <string name="entrada_litros">Introduce los litros para este repostaje</string>
+    <string name="texto_qr">Escanea el Código QR del Ticket</string>
+
+    <!-- Strings related to Cambiar Precios -->
+    <string name="titulo_precios">Selecciona el Producto para cambiar su precio</string>
+    <string name="precio_diesel">DIESEL</string>
+    <string name="precio_adblue">AD BLUE</string>
+    <string name="precio_rojo">DIESEL ROJO</string>
+    <string name="precio_cancela">CANCELA</string>
+    <string name="texto_precio_diesel">Informa el nuevo precio para Diesel</string>
+    <string name="texto_precio_adblue">Informa el nuevo precio para AdBlue</string>
+    <string name="texto_precio_rojo">Informa el nuevo precio para Diesel Rojo</string>
+    <string name="btn_precio_cancelar">CANCELA</string>
+    <string name="btn_precio_aceptar">OK</string>
+
+    <string name="error_no_reservado">Código erroneo o no reservado!!</string>
+    <string name="titulo_error_producto">ATENCION!!</string>
+    <string name="error_tipo_producto">Este QR no es del tipo Correcto</string>
+    <string name="titulo_error_nored">ATENCION!!</string>
+    <string name="titulo_error_timeout">ATENCION!!</string>
+    <string name="error_nored">No hay conexión a Internet, vuelve a intentarlo</string>
+    <string name="error_timeout">No hay repuesta del servidor, vuelve a intentarlo o contacta con el Servicio Técnico</string>
+    <string name="btn_contacto">Contactar Servicio Técnico</string>
+    <string name="titulo_contacto">GlobalTank</string>
+    <string name="text_contacto">\tContactos:\n\n\t- sat@globaldevelopers.eu\n\t- 0034672688659\n\t- 0034972525421</string>
+
+    <string name="dialogo_qr_diesel">Cuantos QR del Producto DIESEL tiene el Ticket?</string>
+    <string name="dialogo_qr_adblue">Cuantos QR del Producto AD BLUE tiene el Ticket?</string>
+    <string name="dialogo_qr_diesel_rojo">Cuantos QR del Producto DIESEL ROJO tiene el Ticket?</string>
+    <string name="mensaje_qr_repetido">Este QR ya ha sido Escaneado!!</string>
+
+    <string name="titulo_imprimir_copia">GlobalSMS - Imprimir Copia</string>
+
+    <string name="app_name">GlobalSMS</string>
+    <string name="title_activity_login">GlobalSMS - Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="Proveedores">
+        <item>Alvic</item>
+        <item>EfiData</item>
+    </string-array>
+
+</resources>

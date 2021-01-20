@@ -1,0 +1,151 @@
+<resources>
+    <!-- Strings related to Main -->
+    <string name="btn_reserva">Pedir Autorización</string>
+    <string name="btn_finaliza">Finalizar Repostaje</string>
+    <string name="btn_cancela">Cancelar Repostaje</string>
+    <string name="btn_precios">Cambiar Precios</string>
+    <string name="btn_imprimir">Imprimir Copia</string>
+    <string name="btn_config">Configuración</string>
+
+    <!-- Strings related to Producto-->
+    <string name="titulo_producto">Selecciona Producto</string>
+    <string name="producto_diesel">DIESEL</string>
+    <string name="producto_adblue">AD BLUE</string>
+    <string name="producto_rojo">DIESEL ROJO</string>
+    <string name="producto_cancela">CANCELA</string>
+    <string name="toast_diesel">Diesel Seleccionado</string>
+    <string name="toast_adblue">Ad Blue Seleccionado</string>
+    <string name="toast_rojo">Diesel Rojo Seleccionado</string>
+
+    <!-- String related to PinPad -->
+    <string name="titulo_pinpad">Informa el Código recibido por el Conductor\nCampillo: Documento de identidad remplazando las letras por ceros.</string>
+    <string name="btn_pinpad_cancel">Cancelar</string>
+    <string name="btn_pinpad_ok">Ok</string>
+    <string name="alert_no_code">Tienes que informar el Código recibido por el Conductor!!</string>
+    <string name="spinner_conectando">Conectando con el Servidor e Imprimiendo, espera...</string>
+    <string name="progress_dialog_transaction">Completando transacción, por favor espere...</string>
+    <string name="titulo_litros">LITROS</string>
+    <string name="entrada_litros">Introduce los litros para este repostaje</string>
+    <string name="texto_qr">Escanea el Código QR del Ticket</string>
+
+    <!-- Strings related to Cambiar Precios -->
+    <string name="titulo_precios">Selecciona el Producto para cambiar su precio</string>
+    <string name="precio_diesel">DIESEL</string>
+    <string name="precio_adblue">AD BLUE</string>
+    <string name="precio_rojo">DIESEL ROJO</string>
+    <string name="precio_cancela">CANCELA</string>
+    <string name="texto_precio_diesel">Informa el nuevo precio para Diesel</string>
+    <string name="texto_precio_adblue">Informa el nuevo precio para AdBlue</string>
+    <string name="texto_precio_rojo">Informa el nuevo precio para Diesel Rojo</string>
+    <string name="btn_precio_cancelar">CANCELA</string>
+    <string name="btn_precio_aceptar">OK</string>
+
+    <string name="error_no_reservado">Código Erroneo o no Reservado!!</string>
+
+    <string name="titulo_imprimir_copia">GlobalSMS - Imprimir Copia</string>
+
+
+    <string name="app_name">GlobalSMS</string>
+    <string name="title_activity_login">GlobalSMS - Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="device_settings">Configuración Dispositivo</string>
+
+    <string-array name="Proveedores">
+        <item>Alvic</item>
+        <item>EfiData</item>
+    </string-array>
+
+    <string-array name="locale">
+        <item>EN</item>
+        <item>DE</item>
+        <item>ES</item>
+        <item>IT</item>
+    </string-array>
+
+    <string name="titulo_error_producto">ATENCIÓN!!</string>
+    <string name="error_tipo_producto">Tipo de QR incorrecto</string>
+    <string name="titulo_error_nored">ATENCIÓN!!</string>
+    <string name="titulo_error_timeout">ATENCIÓN!!</string>
+    <string name="error_nored">No hay conexión a Internet, intentalo de nuevo.</string>
+    <string name="error_timeout">No hay respuesta del servidor, intentalo de nuevo o contacta con el servicio de atención al cliente</string>
+    <string name="btn_contacto">Contactar con el servicio de atención al cliente</string>
+    <string name="titulo_contacto">GlobalTank</string>
+    <string name="text_contacto">\tContactos:  \t- sat@globaldevelopers.eu \t- 0034672688659 \t- 0034972525421</string>
+    <string name="dialogo_qr_diesel">Cuantos QRs del producto DIESEL tiene el Ticket?</string>
+    <string name="dialogo_qr_adblue">Cuantos QRs del producto AD BLUE tiene el Ticket?</string>
+    <string name="dialogo_qr_diesel_rojo">Cuantos QRs del producto DIESEL ROJO tiene el Ticket?</string>
+    <string name="dialogo_qr_gas">Cuantos QRs del producto GAS tiene el Ticket?</string>
+    <string name="mensaje_qr_repetido">Este QR ya ha sido escaneado!!</string>
+    <string name="btn_turno">Cerrar Turno</string>
+    <string name="btn_operacion">Comprobar Operación</string>
+    <string name="btn_dia">Informe Diario</string>
+    <string name="titulo_cierre_turno">ATENCIÓN!!</string>
+    <string name="alert_cierre_turno">Este proceso cerrará el turno actual y abrirá un nuevo turno. Esta acción no se puede deshacer</string>
+    <string name="closing_workshift">Cerrando turno...</string>
+    <string name="btn_cierre_cancel">CANCELAR</string>
+    <string name="btn_cierre_aceptar">ACEPTAR</string>
+    <string name="titulo_check">Informa el Código que quieres comprobar</string>
+    <string name="error_no_encontrado">Operación NO ENCONTRADA!!</string>
+    <string name="error_no_data">No hay datos de operaciones para este día</string>
+    <string name="error_hay_reservas">No podemos cerrar el turno mientras existan operaciones reservadas.</string>
+    <string name="error_no_hay_operaciones">No hay operaciones en este turno, no podemos cerrarlo.</string>
+    <string name="toast_bio">Bio Diesel Seleccionado</string>
+    <string name="producto_bio">BIO DIESEL</string>
+    <string name="precio_bio">BIO DIESEL</string>
+    <string name="action_exit">Salir App</string>
+    <string name="action_return">Volver a la App</string>
+    <string name="action_save">Salvar y volver a la App</string>
+    <string name="action_backup">Backup de Datos Locales</string>
+    <string name="action_erase">Borrar Datos Locales</string>
+    <string name="action_reset">Resetear Contador Pendientes</string>
+    <string name="producto_gas">GAS</string>
+    <string name="entrada_kilos">Introduce los kilos para este repostaje</string>
+    <string name="sig_dialog_title">FIRMA CHÓFER</string>
+    <string name="sig_hint_cancel">Cancelar</string>
+    <string name="sig_hint_clear">Limpiar</string>
+    <string name="sig_hint_save">Guardar</string>
+    <string name="kilometers">Kilometros</string>
+    <string name="entrada_kms">Introduce los Kilometros</string>
+    <string name="hours">Horas</string>
+    <string name="entrada_horas">Introduce las horas del frigo</string>
+    <string name="verify_code">Introduzca el código de verificación</string>
+    <string name="verify_send_code_error">Hubo un error cuando el servidor intentó enviar el código de verificación</string>
+    <string name="verify_code_error">Código de verificación incorrecto</string>
+    <string name="verify_code_success">Código de verificación correcto</string>
+
+    <string name="loading">Cargando...</string>
+
+    <!-- BUTTONS-->
+    <string name="btn_accept">Aceptar</string>
+    <string name="btn_cancel">Cancelar</string>
+
+    <!-- Globalwallet -->
+    <string name="authorized_products">Productos autorizados</string>
+    <string name="max_quantity">Cantidad máxima</string>
+    <string name="transaction_validated">Transacción validada</string>
+    <string name="transaction_completed">Transacción completada</string>
+    <string name="refuel">Repostar</string>
+    <string name="transaction_pending_ticket">TRANSACCIÓN EN CURSO</string>
+    <string name="transaction_completed_ticket">TRANSACCIÓN COMPLETADA</string>
+    <string name="gas_a">Diesel</string>
+    <string name="adblue">Adblue</string>
+    <string name="gas_b">Gasoleo rojo</string>
+    <string name="gas">Gas</string>
+    <string name="card_not_allowed">Tarjeta no permitida</string>
+    <string name="card_unlocking_title">Error de escaneo QR</string>
+    <string name="card_unlocking_description">Hubo un error al escanear la tarjeta. Por favor vuelva a pedir de escanear el código QR de la tarjeta.</string>
+    <string name="sure_alert">¿Estas seguro?</string>
+    <string name="max_quantity_exceed_alert">Se va a sobrepasar el limite de la tarjeta.</string>
+</resources>

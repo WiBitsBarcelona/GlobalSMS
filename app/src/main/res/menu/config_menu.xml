@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group >
+        <item
+            android:id="@+id/action_settings"
+            android:title="@string/device_settings"
+            app:showAsAction="never" />
+        <group >
+            <item
+                android:id="@+id/action_backup"
+                android:title="@string/action_backup"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_erase"
+                android:title="@string/action_erase"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_reset"
+                android:title="@string/action_reset"
+                app:showAsAction="never" />
+        </group>
+    </group>
+    <group >
+        <item
+            android:id="@+id/action_save"
+            android:title="@string/action_save"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_return"
+            android:title="@string/action_return"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_exit"
+            android:title="@string/action_exit"
+            app:showAsAction="never" />
+    </group>
+</menu>

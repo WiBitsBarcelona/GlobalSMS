@@ -3,40 +3,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:keepScreenOn="true">
+    android:background="@android:color/black"
+    android:keepScreenOn="true"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:fontFamily="@font/assistant_light"
         android:paddingTop="25dp"
         android:text="@string/titulo_producto"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Display2"
-        android:textColor="#68a9ea"
-        android:textSize="30sp"
+        android:textColor="#ffffff"
+        android:textSize="36sp"
         android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:orientation="horizontal"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <Button
+            android:id="@+id/btnDiesel"
             android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:backgroundTint="#000000"
+            android:backgroundTint="#99FFFFFF"
             android:drawableLeft="@drawable/pump"
+            android:fontFamily="@font/assistant_light"
             android:onClick="DieselFunction"
-            android:paddingLeft="20dp"
-            android:paddingTop="30dp"
+            android:paddingLeft="50dp"
+            android:paddingTop="20dp"
             android:text="@string/producto_diesel"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2"
             android:textColor="@android:color/white"
+            android:textSize="50dp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -47,46 +52,73 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/btnAdblue"
             android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:backgroundTint="#68a9ea"
             android:drawableLeft="@drawable/pump"
+            android:fontFamily="@font/assistant_light"
             android:onClick="AdblueFunction"
-            android:paddingLeft="20dp"
-            android:paddingTop="30dp"
+            android:paddingLeft="50dp"
+            android:paddingTop="20dp"
             android:text="@string/producto_adblue"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2"
             android:textColor="@android:color/white"
-            android:textStyle="bold" />
+            android:textSize="50dp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:orientation="horizontal"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/btnReddiesel"
             android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:backgroundTint="#e51400"
             android:drawableLeft="@drawable/pump"
+            android:fontFamily="@font/assistant_light"
             android:onClick="RedFunction"
-            android:paddingLeft="20dp"
-            android:paddingTop="30dp"
+            android:paddingLeft="50dp"
+            android:paddingTop="20dp"
             android:text="@string/producto_rojo"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:visibility="visible" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:orientation="horizontal"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnBiodiesel"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:backgroundTint="@android:color/holo_green_light"
+            android:drawableLeft="@drawable/pump"
+            android:fontFamily="@font/assistant_light"
+            android:onClick="BioFunction"
+            android:paddingLeft="50dp"
+            android:paddingTop="20dp"
+            android:text="@string/producto_bio"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:visibility="visible" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/button3"
@@ -95,11 +127,13 @@
             android:layout_weight="2"
             android:backgroundTint="#e55f00"
             android:drawableLeft="@drawable/cancelar"
+            android:fontFamily="@font/assistant_light"
             android:onClick="CancelFunction"
-            android:paddingLeft="20dp"
-            android:paddingTop="30dp"
+            android:paddingLeft="50dp"
+            android:paddingTop="20dp"
             android:text="@string/producto_cancela"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:textSize="50dp" />
     </LinearLayout>
 </LinearLayout>

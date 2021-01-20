@@ -15,6 +15,7 @@ public class Splash extends AppCompatActivity {
     //------------------DECLARANDO VARIALBES---------------------------//
     private Timer timer;
     private ProgressBar progressBar;
+    private TextView footerText;
     private int i = 0;
     //---------------------FIN-----------------------------//
 
@@ -41,6 +42,15 @@ public class Splash extends AppCompatActivity {
         getSupportActionBar().hide();
 
         setContentView(R.layout.activity_splash);
+
+        String versionName = BuildConfig.VERSION_NAME;
+        int y = Calendar.getInstance().get(Calendar.YEAR);
+
+        ////Toast.makeText(getBaseContext(), versionName + " " + y, //Toast.LENGTH_SHORT).show();
+
+        footerText = (TextView) findViewById(R.id.footerText);
+        footerText.setText("© GlobalTank " + y + " - GlobalPay ® - v: " + versionName);
+
 //---------------------------------------SPLASH CON BARRA DE PROGRESO ------------------------------------------------//
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setProgress(0);

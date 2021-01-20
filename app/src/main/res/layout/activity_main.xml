@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:keepScreenOn="true">
+    android:background="@android:color/black"
+    android:backgroundTint="@android:color/black"
+    android:keepScreenOn="true"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,21 +15,45 @@
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <Button
-            android:layout_width="0dip"
+        <RelativeLayout
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:backgroundTint="#68a9ea"
-            android:drawableTop="@drawable/nuevo"
-            android:onClick="NuevoFunction"
-            android:paddingTop="50dp"
-            android:text="@string/btn_reserva"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/textcount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="17dp"
+                android:background="@drawable/badge"
+                android:elevation="20dp"
+                android:gravity="right"
+                android:padding="10dp"
+                android:text="01"
+                android:textColor="#fff"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:visibility="invisible" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:backgroundTint="#68a9ea"
+                android:drawableTop="@drawable/nuevo"
+                android:onClick="NuevoV2Function"
+                android:paddingTop="50dp"
+                android:text="@string/btn_reserva"
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:textColor="@android:color/white"
+                android:textSize="24sp" />
+        </RelativeLayout>
 
         <Button
-            android:layout_width="0dip"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:backgroundTint="#8cbf26"
@@ -37,6 +64,8 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="@android:color/white"
             android:textSize="24sp" />
+
+
     </LinearLayout>
 
     <LinearLayout
@@ -75,8 +104,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:orientation="horizontal"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <Button
             android:layout_width="0dp"
@@ -91,18 +120,80 @@
             android:textColor="@android:color/white"
             android:textSize="24sp" />
 
-        <Button
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:backgroundTint="#1ba1e2"
-            android:drawableTop="@drawable/config"
-            android:onClick="ConfigFunction"
-            android:paddingTop="50dp"
-            android:text="@string/btn_config"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="@android:color/white"
-            android:textSize="24sp" />
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:backgroundTint="#34495e"
+                    android:drawableTop="@drawable/turno"
+                    android:onClick="CierreFunction"
+                    android:paddingTop="25dp"
+                    android:text="@string/btn_turno"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:backgroundTint="#da532c"
+                    android:drawableTop="@drawable/turno"
+                    android:onClick="ReportDayFunction"
+                    android:paddingTop="25dp"
+                    android:text="@string/btn_dia"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:backgroundTint="#9f00a7"
+                    android:drawableTop="@drawable/check"
+                    android:onClick="CheckFunction"
+                    android:paddingTop="25dp"
+                    android:text="@string/btn_operacion"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:backgroundTint="#1ba1e2"
+                    android:drawableTop="@drawable/config"
+                    android:onClick="ConfigFunction"
+                    android:paddingTop="25dp"
+                    android:text="@string/btn_config"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 </LinearLayout>

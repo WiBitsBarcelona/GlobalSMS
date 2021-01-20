@@ -1,20 +1,61 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 28
     defaultConfig {
         applicationId "eu.globaldevelopers.globalsms"
         minSdkVersion 22
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 28
+        versionCode 13
+        versionName "0.9.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "GLOBALPAY_TOKEN", "\"Bearer zjeqytn8bQbpOo9xdzjsrHUYe4amAlReIpWoGA0nqSQADQNLLA\""
+            buildConfigField "String", "EP_TERMINALS_CHECK_WORKSHIFT", "\"terminals/check/workshift\""
+            buildConfigField "String", "EP_TERMINALS_CLOSE_WORKSHIFT", "\"terminals/close/workshift\""
+            buildConfigField "String", "EP_TERMINALS_SUMMARY_WORKSHIFT", "\"terminals/summary/workshift\""
+            buildConfigField "String", "EP_GLOBALPAY_FINISH", "\"terminals/finish/\""
+            buildConfigField "String", "EP_GLOBALPAY_PRERESERVE", "\"terminals/check/reserve\""
+            buildConfigField "String", "EP_GLOBALPAY_RESERVE", "\"terminals/reserve/\""
+            buildConfigField "String", "EP_GLOBALPAY_CHECK", "\"terminals/check\""
+            buildConfigField "String", "EP_GLOBALPAY_USER_CUSTOMIZATIONS", "\"terminals/user/customizations\""
+            buildConfigField "String", "EP_GLOBALPAY_SEND_TRX_VERIFY_CODE", "\"terminals/sendTrxVerifyCode\""
+            buildConfigField "String", "EP_GLOBALPAY_VERIFY_TRX_CODE", "\"terminals/verifyTrx\""
+            //GLOBALWALLET
+            buildConfigField "String", "URL_BASE", "\"https://caa1.globaltank.app/api/\""
+            buildConfigField "String", "URL_GLOBALWALLET", "\"globalwallet/v1/\""
+            buildConfigField "String", "GLOBALWALLET_TOKEN", "\"Bearer 9hZSSbuaR0RKRnhwOBG7GJQmZ4oWMSEvE7IJdz0G2TuIEEOADa\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD_QUERY", "\"qr/card/query\""
+            buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_VALIDATE", "\"qr/transaction/validate\""
+            buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_SALE", "\"qr/transaction/sale\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD", "\"qr/card\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD_UNLOCK_REQUEST", "\"qr/card/unlock/request\""
+        }
+        debug{
+            buildConfigField "String", "GLOBALPAY_TOKEN", "\"Bearer zjeqytn8bQbpOo9xdzjsrHUYe4amAlReIpWoGA0nqSQADQNLLA\""
+            buildConfigField "String", "EP_TERMINALS_CHECK_WORKSHIFT", "\"terminals/check/workshift\""
+            buildConfigField "String", "EP_TERMINALS_CLOSE_WORKSHIFT", "\"terminals/close/workshift\""
+            buildConfigField "String", "EP_TERMINALS_SUMMARY_WORKSHIFT", "\"terminals/summary/workshift\""
+            buildConfigField "String", "EP_GLOBALPAY_FINISH", "\"terminals/finish/\""
+            buildConfigField "String", "EP_GLOBALPAY_PRERESERVE", "\"terminals/check/reserve\""
+            buildConfigField "String", "EP_GLOBALPAY_RESERVE", "\"terminals/reserve/\""
+            buildConfigField "String", "EP_GLOBALPAY_CHECK", "\"terminals/check\""
+            buildConfigField "String", "EP_GLOBALPAY_USER_CUSTOMIZATIONS", "\"terminals/user/customizations\""
+            buildConfigField "String", "EP_GLOBALPAY_SEND_TRX_VERIFY_CODE", "\"terminals/sendTrxVerifyCode\""
+            buildConfigField "String", "EP_GLOBALPAY_VERIFY_TRX_CODE", "\"terminals/verifyTrx\""
+            //GLOBALWALLET
+            buildConfigField "String", "URL_BASE", "\"https://sandbox.globaltank.app/api/\""
+            buildConfigField "String", "URL_GLOBALWALLET", "\"globalwallet/v1/\""
+            buildConfigField "String", "GLOBALWALLET_TOKEN", "\"Bearer AKUMr490GPtEqFFfJpIyWtqZM7YSCnYe1csxpmgPOiDuntOVDk\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD_QUERY", "\"qr/card/query\""
+            buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_VALIDATE", "\"qr/transaction/validate\""
+            buildConfigField "String", "EP_GLOBALWALLET_TRANSACTION_SALE", "\"qr/transaction/sale\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD", "\"qr/card\""
+            buildConfigField "String", "EP_GLOBALWALLET_CARD_UNLOCK_REQUEST", "\"qr/card/unlock/request\""
         }
     }
     aaptOptions {
@@ -23,17 +64,20 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.mcxiaoke.volley:library:1.0.19'
-    compile 'com.android.support:cardview-v7:25.0.+'
-    testCompile 'junit:junit:4.12'
+    //noinspection GradleCompatible
+    implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'com.android.support:design:25.4.0'
+    implementation 'com.mcxiaoke.volley:library:1.0.19'
+    implementation 'com.android.support:cardview-v7:25.4.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.4.0'
 }
 
 // Added by raj
@@ -47,32 +91,35 @@ repositories {
 // Added by Artur
 
 dependencies {
-    compile 'com.android.support.constraint:constraint-layout:+'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 }
 dependencies {
-    compile 'com.android.support.constraint:constraint-layout:+'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 }
 dependencies {
-    compile 'com.android.support.constraint:constraint-layout:+'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 }
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+}
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:25.4.0'
 
     // Supports Android 4.0.3 and later (API level 15)
 
-    compile 'com.journeyapps:zxing-android-embedded:2.2.0'
+    implementation 'com.journeyapps:zxing-android-embedded:2.2.0'
 
     // Supports Android 2.1 and later (API level 7), but not optimal for later Android versions.
     // If you only plan on supporting Android 4.0.3 and up, you don't need to include this.
 
-    compile 'com.journeyapps:zxing-android-legacy:2.2.0'
+    implementation 'com.journeyapps:zxing-android-legacy:2.2.0'
 
     // Convenience library to launch the scanning and encoding Activities.
     // It automatically picks the best scanning library from the above two, depending on the
     // Android version and what is available.
 
-    compile 'com.journeyapps:zxing-android-integration:2.2.0'
+    implementation 'com.journeyapps:zxing-android-integration:2.2.0'
 
     // Version 3.0.x of zxing core contains some code that is not
 
@@ -80,6 +127,17 @@ dependencies {
     // This mostly affects encoding, but you should test if you plan to support these versions.
     // Older versions e.g. 2.2 may also work if you need support for older Android versions.
 
-    compile 'com.google.zxing:core:3.0.1'
+    implementation 'com.google.zxing:core:3.2.1'
+
+    android {
+        lintOptions {
+            checkReleaseBuilds false
+            // Or, if you prefer, you can continue to check for errors in release builds,
+            // but continue the build even when errors are found:
+            abortOnError false
+        }
+    }
+
     // Added by Artur ends
+    implementation 'com.android.support:support-annotations:28.0.0'
 }
