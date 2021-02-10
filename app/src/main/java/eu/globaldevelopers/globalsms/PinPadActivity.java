@@ -2138,7 +2138,7 @@ public class PinPadActivity extends AppCompatActivity {
                 public Map getHeaders() throws AuthFailureError {
                     HashMap headers = new HashMap();
                     //headers.put("Content-Type", "application/json");
-                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
                     return headers;
                 }
             };
@@ -2487,7 +2487,7 @@ public class PinPadActivity extends AppCompatActivity {
                 public Map getHeaders() throws AuthFailureError {
                     HashMap headers = new HashMap();
                     //headers.put("Content-Type", "application/json");
-                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
                     return headers;
                 }
             };
@@ -2844,7 +2844,7 @@ public class PinPadActivity extends AppCompatActivity {
                 public Map getHeaders() throws AuthFailureError {
                     HashMap headers = new HashMap();
                     //headers.put("Content-Type", "application/json");
-                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
                     return headers;
                 }
             };
@@ -3103,7 +3103,7 @@ public class PinPadActivity extends AppCompatActivity {
                 public Map getHeaders() throws AuthFailureError {
                     HashMap headers = new HashMap();
                     //headers.put("Content-Type", "application/json");
-                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
                     return headers;
                 }
             };
@@ -3209,7 +3209,7 @@ public class PinPadActivity extends AppCompatActivity {
                 public Map getHeaders() throws AuthFailureError {
                     HashMap headers = new HashMap();
                     //headers.put("Content-Type", "application/json");
-                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
                     return headers;
                 }
             };
@@ -3317,7 +3317,7 @@ public class PinPadActivity extends AppCompatActivity {
                 public Map getHeaders() throws AuthFailureError {
                     HashMap headers = new HashMap();
                     //headers.put("Content-Type", "application/json");
-                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
                     return headers;
                 }
             };
@@ -3967,7 +3967,7 @@ public class PinPadActivity extends AppCompatActivity {
                 public Map getHeaders() throws AuthFailureError {
                     HashMap headers = new HashMap();
                     //headers.put("Content-Type", "application/json");
-                    headers.put("Authorization", "Bearer 0AsV1EHYVU97TJt1DjVpghStsGz7y2O75z2afUcg3AxpO3JRIk");
+                    headers.put("Authorization", BuildConfig.GLOBALPAY_TOKEN);
                     return headers;
                 }
             };
