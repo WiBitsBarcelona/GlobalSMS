@@ -130,6 +130,7 @@ import static android.view.View.GONE;
 public class PinPadActivity extends AppCompatActivity {
 
     ProcessTypeEnum processType;
+    boolean gwScanLiters;
     ProductEnum productType;
     String codigo = "";
     String asteriscos = "";
@@ -160,6 +161,7 @@ public class PinPadActivity extends AppCompatActivity {
     Double AuthGas, GasPrice = 0.00;
     Double AuthMoney = 0.00;
     View CampilloLitersLayout;
+    View GlobalWalletLitersLayout;
 
     Integer KmsRequired;
     Integer HoursRequired;
@@ -1182,6 +1184,7 @@ public class PinPadActivity extends AppCompatActivity {
     //SCAN QR FROM PINPAN DIRECTLY, PROCESSTYPE = GLOBALWALLET
     public void scanQR(View v) {
         processType = ProcessTypeEnum.GLOBALWALLET;//SET PROCESS GLOBALWALLET
+        gwScanLiters = false;
 
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
@@ -1315,24 +1318,62 @@ public class PinPadActivity extends AppCompatActivity {
                         }
                         break;
                     case GLOBALWALLET:
-                        sharedpreferences2 = getSharedPreferences(MySUPPLY, Context.MODE_PRIVATE);
-                        final String methodType = sharedpreferences2.getString("tipoKey", null);
+                        if(!gwScanLiters){
+                            sharedpreferences2 = getSharedPreferences(MySUPPLY, Context.MODE_PRIVATE);
+                            final String methodType = sharedpreferences2.getString("tipoKey", null);
 
-                        switch (methodType) {
-                            case "Nueva":
-                                scanQrContent = scanningResult.getContents();
-                                getQrCardQuery(scanQrContent);
-                                break;
-                            case "Cierre":
-                                scanQrContent = scanningResult.getContents();
-                                getQrCardInfo(scanQrContent);
-                                break;
-                            case "Cancela":
-                                //Toast toast = Toast.makeText(getApplicationContext(), "Invalid operation", //Toast.LENGTH_SHORT);
-                                //Toast.show();
-                                break;
+                            switch (methodType) {
+                                case "Nueva":
+                                    scanQrContent = scanningResult.getContents();
+                                    getQrCardQuery(scanQrContent);
+                                    break;
+                                case "Cierre":
+                                    scanQrContent = scanningResult.getContents();
+                                    getQrCardInfo(scanQrContent);
+                                    break;
+                                case "Cancela":
+                                    //Toast toast = Toast.makeText(getApplicationContext(), "Invalid operation", //Toast.LENGTH_SHORT);
+                                    //Toast.show();
+                                    break;
+                            }
+                        }else{
+                            scanQrContent = scanningResult.getContents();
+                            String dataLiters[] = scanQrContent.split("\\|");
+                            if(dataLiters.length > 1) {
+                                tipo = dataLiters[0];
+                                liters = dataLiters[1];
+                                liters = liters.replace(",", ".").trim();
+                                totalLiters += Float.valueOf(liters);
+                                if (counter < cuantosQR) {
+                                    counter++;
+                                    scanQR();
+                                } else {
+                                    //View campilloLitersLayout = this.findViewById(R.id.litersDialog);
+                                    //Obtenemos la vista de litros y le asginamos el valor al textView de la layout dependiendo del producto en el que estemos
+                                    switch (productType) {
+                                        case DIESEL:
+                                            final EditText dieselLiters = (EditText) GlobalWalletLitersLayout.findViewById(R.id.gas_a_quantity);
+                                            dieselLiters.setText(String.valueOf(totalLiters));
+                                            break;
+                                        case ADBLUE:
+                                            final TextView adblueLiters = (TextView) GlobalWalletLitersLayout.findViewById(R.id.adblue_quantity);
+                                            adblueLiters.setText(String.valueOf(totalLiters));
+                                            break;
+                                        case RED:
+                                            final TextView reddieselLiters = (TextView) GlobalWalletLitersLayout.findViewById(R.id.gas_b_quantity);
+                                            reddieselLiters.setText(String.valueOf(totalLiters));
+                                            break;
+                                        case GAS:
+                                            final TextView gasLiters = (TextView) GlobalWalletLitersLayout.findViewById(R.id.gas_quantity);
+                                            gasLiters.setText(String.valueOf(totalLiters));
+                                            break;
+                                    }
+                                }
+                            }else{
+                                AlertDialog dialog = showAlertError(getString(R.string.error_tipo_producto));
+                                dialog.show();
+                            }
                         }
-
                         break;
                 }
             }
@@ -4385,6 +4426,7 @@ public class PinPadActivity extends AppCompatActivity {
     private void getQrCardQuery(String card_number){
         final String terminal = sharedpreferences.getString("terminalKey", null);
         String lang = sharedpreferences.getString(langKey, null);
+        final boolean qr = sharedpreferences.getBoolean("qrKey", false);
 
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
         Call<CardQueryResponse> cardQuery = service.getQrCardQuery(card_number, terminal, lang);
@@ -4522,6 +4564,7 @@ public class PinPadActivity extends AppCompatActivity {
     private void getQrCardInfo(final String card_number){
         final String terminal = sharedpreferences.getString("terminalKey", null);
         String lang = sharedpreferences.getString(langKey, null);
+        final boolean qr = sharedpreferences.getBoolean("qrKey", false);
 
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
         Call<CardQueryResponse> cardQuery = service.getQrCardQuery(card_number, terminal, lang);
@@ -4532,25 +4575,74 @@ public class PinPadActivity extends AppCompatActivity {
             public void onResponse(Call<CardQueryResponse> call, retrofit2.Response<CardQueryResponse> response) {
                 dismissProgressDialog();
                 CardQueryResponse data = response.body();
-                final QrCard card = data.data.card;
                 if(data.success){
+                    final QrCard card = data.data.card;
                     LayoutInflater inflater = getLayoutInflater();
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(PinPadActivity.this);
 
-                    final View litersDialog = inflater.inflate(R.layout.liters_dialog_hidden_products, null);
-                    builder.setView(litersDialog);//SHOW ALERT DIALOG
+                    GlobalWalletLitersLayout = inflater.inflate(R.layout.liters_dialog_hidden_products, null);
+                    builder.setView(GlobalWalletLitersLayout);//SHOW ALERT DIALOG
                     builder.setCancelable(false);
                     final AlertDialog dialog = builder.show();
 
-                    Button btnCancel = (Button) litersDialog.findViewById(R.id.btnCancel);
-                    Button btnAccept = (Button) litersDialog.findViewById(R.id.btnAccept);
+                    Button btnCancel = (Button) GlobalWalletLitersLayout.findViewById(R.id.btnCancel);
+                    Button btnAccept = (Button) GlobalWalletLitersLayout.findViewById(R.id.btnAccept);
 
                     //CARDS PRODUCT VISIBILITY
                     for(Product product : card.type.products){
                         int productId = getResources().getIdentifier(product.lang_code, "id", getPackageName());
-                        CardView productCard = (CardView) litersDialog.findViewById(productId);
+                        CardView productCard = (CardView) GlobalWalletLitersLayout.findViewById(productId);
                         productCard.setVisibility(CardView.VISIBLE);
+                    }
+
+                    final EditText diesel = (EditText) GlobalWalletLitersLayout.findViewById(R.id.gas_a_quantity);
+                    final EditText adblue = (EditText) GlobalWalletLitersLayout.findViewById(R.id.adblue_quantity);
+                    final EditText red = (EditText) GlobalWalletLitersLayout.findViewById(R.id.gas_b_quantity);
+                    final EditText gas = (EditText) GlobalWalletLitersLayout.findViewById(R.id.gas_quantity);
+
+                    if (qr) {
+                        gwScanLiters = true;
+                        diesel.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                            @Override
+                            public void onFocusChange(View view, boolean hasFocus) {
+                                if (hasFocus) {
+                                    productType = ProductEnum.DIESEL;
+                                    totalLiters = 0;
+                                    dialogQR();
+                                }
+                            }
+                        });
+                        adblue.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                            @Override
+                            public void onFocusChange(View view, boolean hasFocus) {
+                                if (hasFocus) {
+                                    productType = ProductEnum.ADBLUE;
+                                    totalLiters = 0;
+                                    dialogQR();
+                                }
+                            }
+                        });
+                        red.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                            @Override
+                            public void onFocusChange(View view, boolean hasFocus) {
+                                if (hasFocus) {
+                                    productType = ProductEnum.RED;
+                                    totalLiters = 0;
+                                    dialogQR();
+                                }
+                            }
+                        });
+                        gas.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                            @Override
+                            public void onFocusChange(View view, boolean hasFocus) {
+                                if (hasFocus) {
+                                    productType = ProductEnum.GAS;
+                                    totalLiters = 0;
+                                    dialogQR();
+                                }
+                            }
+                        });
                     }
 
                     btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -4563,12 +4655,6 @@ public class PinPadActivity extends AppCompatActivity {
                     btnAccept.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-
-                            EditText diesel = (EditText) litersDialog.findViewById(R.id.gas_a_quantity);
-                            EditText adblue = (EditText) litersDialog.findViewById(R.id.adblue_quantity);
-                            EditText red = (EditText) litersDialog.findViewById(R.id.gas_b_quantity);
-                            EditText gas = (EditText) litersDialog.findViewById(R.id.gas_quantity);
-
                             final double dieselQuantity = Double.parseDouble(diesel.getText().toString());
                             final double adblueQuantity = Double.parseDouble(adblue.getText().toString());
                             final double redQuantity = Double.parseDouble(red.getText().toString());
@@ -4821,6 +4907,22 @@ public class PinPadActivity extends AppCompatActivity {
 
         //builder.create();
         builder.show();
+    }
+
+    public AlertDialog showAlertError(String errorMessage) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("ERROR")
+                .setMessage(errorMessage)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+        return builder.create();
     }
 }
 
