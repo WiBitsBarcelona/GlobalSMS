@@ -297,7 +297,7 @@ public class PrintTicket {
     }
 
     public void printTransactionCompleted(final QrTransaction[] transactions) {
-        final String header = Sharedpreferences.getString("cabeceraKey", null) + "\n";
+        final String header = "GLOBALWALLET\n" + Sharedpreferences.getString("cabeceraKey", null) + "\n";
         final String terminal = Sharedpreferences.getString("terminalKey", null);
         final String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
         final String time = new SimpleDateFormat("HH:mm").format(new Date());

@@ -4532,7 +4532,7 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     private void printTransactionValidated(QrTransaction transaction){
-        final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
+        final String cabecera = "GLOBALWALLET\n" + sharedpreferences.getString("cabeceraKey", null) + "\n";
         final String terminal = sharedpreferences.getString("terminalKey", null);
         final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
         final String hora = new SimpleDateFormat("HH:mm").format(new Date());
