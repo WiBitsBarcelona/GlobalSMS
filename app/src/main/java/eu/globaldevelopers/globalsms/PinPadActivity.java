@@ -4216,7 +4216,7 @@ public class PinPadActivity extends AppCompatActivity {
 
                                                 //PRINTING TICKET
                                                 printTicket.printFinishTicket(rDiesel, rAdBlue, rRedDiesel, rGas, AuthMoney, codigo, DieselPrice, AdbluePrice, RedPrice, GasPrice, showPrices, plate, trailerPlate);
-                                                saveTrxToMemory(ServiceTypeEnum.GLOBALPAY, ProcessTransactionTypeEnum.finish, cabecera, terminal, fecha, hora, null, codigo, null, codigo, null,rDiesel, rAdBlue, rRedDiesel, rGas,null);
+                                                //saveTrxToMemory(ServiceTypeEnum.GLOBALPAY, ProcessTransactionTypeEnum.finish, cabecera, terminal, fecha, hora, null, codigo, null, codigo, null,rDiesel, rAdBlue, rRedDiesel, rGas,null);
 
                                             }
 
