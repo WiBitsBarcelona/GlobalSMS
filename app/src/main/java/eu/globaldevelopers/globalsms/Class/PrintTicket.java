@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 import eu.globaldevelopers.globalsms.Class.globalwallet.QrTransaction;
+import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductGWIntEnum;
 import eu.globaldevelopers.globalsms.R;
 import eu.globaldevelopers.globalsms.ThreadPoolManager;
@@ -23,7 +24,7 @@ import woyou.aidlservice.jiuiv5.ICallback;
 import woyou.aidlservice.jiuiv5.IWoyouService;
 
 public class PrintTicket {
-    public static final String MyPREFERENCES = "MyPrefs";
+    public static final String MyPREFERENCES = ConfigEnum.MyPREFERENCES;
 
     private Bitmap HeaderImage;
 
@@ -297,8 +298,8 @@ public class PrintTicket {
     }
 
     public void printTransactionCompleted(final QrTransaction[] transactions) {
-        final String header = "GLOBALWALLET\n" + Sharedpreferences.getString("cabeceraKey", null) + "\n";
-        final String terminal = Sharedpreferences.getString("terminalKey", null);
+        final String header = "GLOBALWALLET\n" + Sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+        final String terminal = Sharedpreferences.getString(ConfigEnum.terminal, "99999");
         final String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
         final String time = new SimpleDateFormat("HH:mm").format(new Date());
         final Bitmap mBitmap = BitmapFactory.decodeResource(ContextResources, R.drawable.globalsms);

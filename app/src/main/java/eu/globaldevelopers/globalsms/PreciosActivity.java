@@ -25,11 +25,12 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import woyou.aidlservice.jiuiv5.ICallback;
 import woyou.aidlservice.jiuiv5.IWoyouService;
 
 public class PreciosActivity extends AppCompatActivity {
-    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String MyPREFERENCES = ConfigEnum.MyPREFERENCES;
     public static final String MyPRECIOS = "MyPrecios" ;
     public static final String diesel = "dieselKey";
     public static final String adblue = "adblueKey";
@@ -315,8 +316,8 @@ public class PreciosActivity extends AppCompatActivity {
                     final String hora = new SimpleDateFormat("HH:mm").format(new Date());
 
                     sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                    final String cabecera = sharedpreferences2.getString("cabeceraKey", null) + "\n";
-                    final String terminal = sharedpreferences2.getString("terminalKey", null);
+                    final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                    final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
 
                     String msg = producto + "\nPRICE CHANGED\n";
                     msg += " SUCCESSFULLY";

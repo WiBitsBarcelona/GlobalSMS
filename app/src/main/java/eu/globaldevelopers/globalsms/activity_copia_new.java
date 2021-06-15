@@ -29,11 +29,12 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import woyou.aidlservice.jiuiv5.ICallback;
 import woyou.aidlservice.jiuiv5.IWoyouService;
 
 public class activity_copia_new extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String MyPREFERENCES = ConfigEnum.MyPREFERENCES;
     SharedPreferences sharedpreferences2;
 
     private GridView gridView;
@@ -79,9 +80,6 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
         adapter = new AdaptadorDeOperaciones(this, operacionList);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(this);
-
-
-
 
 
         if(Build.VERSION.SDK_INT < 19){
@@ -258,8 +256,8 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
                     }
                     try {
                         sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                        final String cabecera = sharedpreferences2.getString("cabeceraKey", null) + "\n";
-                        final String terminal = sharedpreferences2.getString("terminalKey", null);
+                        final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                        final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
 
 
                         woyouService.lineWrap(2, callback);
@@ -332,8 +330,8 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
                     }
                     try {
                         sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                        final String cabecera = sharedpreferences2.getString("cabeceraKey", null) + "\n";
-                        final String terminal = sharedpreferences2.getString("terminalKey", null);
+                        final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                        final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
 
 
                         woyouService.lineWrap(2, callback);
@@ -418,8 +416,8 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
                     }
                     try {
                         sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                        final String cabecera = sharedpreferences2.getString("cabeceraKey", null) + "\n";
-                        final String terminal = sharedpreferences2.getString("terminalKey", null);
+                        final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                        final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
 
 
                         woyouService.lineWrap(2, callback);

@@ -65,12 +65,12 @@ public class MainActivity extends AppCompatActivity {
     TextView bagde;
 
     public static final String MyPREFERENCES = "MySupply";
-    public static final String MyCONFIG = "MyPrefs";
+    public static final String MyCONFIG = ConfigEnum.MyPREFERENCES;
     public static final String tipotrans = "tipoKey";
     public static String lang = "";
-    public static final String MyPREFERENCES2 = "MyPrefs";
-    public static final String langKey = "langKey";
-    public static final String locKey = "locKey";
+    public static final String MyPREFERENCES2 = MyCONFIG;
+    public static final String langKey = ConfigEnum.langKey;
+    public static final String loc = ConfigEnum.loc;
 
     private static final String TAG = "PrinterTestDemo";
 
@@ -115,13 +115,13 @@ public class MainActivity extends AppCompatActivity {
 
         sharedpreferences = getSharedPreferences(MyCONFIG, Context.MODE_PRIVATE);
 
-        ApiCampilloURI = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, null);
-        ApiGPayUrl = sharedpreferences.getString(ConfigEnum.apiGenericUrl, null);
+        ApiCampilloURI = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, BuildConfig.EP_URL_API_BASE_CAMPILLO);
+        ApiGPayUrl = sharedpreferences.getString(ConfigEnum.apiGenericUrl, BuildConfig.EP_URL_API_BASE_GLOBALPAY);
 
         //SET LANG
-        String lang = sharedpreferences.getString(langKey, null);
+        String lang = sharedpreferences.getString(ConfigEnum.langKey, "en");
         if(lang == null){
-            Integer locN = sharedpreferences.getInt(locKey, 0);
+            Integer locN = sharedpreferences.getInt(ConfigEnum.loc, 0);
             switch (locN) {
                 case 0:
                     lang = "en";
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             SharedPreferences.Editor editor = sharedpreferences.edit();
-            editor.putString(langKey, "es");
+            editor.putString(ConfigEnum.langKey, "en");
             editor.apply();
         }
         LocaleHelper.setAppLocale(lang, this);
@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         sharedpreferences = getSharedPreferences(MyCONFIG, Context.MODE_PRIVATE);
-        String lang = sharedpreferences.getString(langKey, null);
+        String lang = sharedpreferences.getString(ConfigEnum.langKey, "en");
 
         LocaleHelper.setAppLocale(lang, this);
 
@@ -279,7 +279,6 @@ public class MainActivity extends AppCompatActivity {
         Intent Intent = new Intent(this, activity_copia_new.class);
         startActivity(Intent);
         finish();
-
     }
 
     public void CierreFunction(View view) {
@@ -342,9 +341,9 @@ public class MainActivity extends AppCompatActivity {
         progress.show();
 
         sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
-        final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-        final String server = sharedpreferences.getString("serverKey", null);
-        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+        final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
         RequestQueue queue = Volley.newRequestQueue(this);  // this = context
         String url = server + "/daily_report.php";
         ////Toast.makeText(getBaseContext(), dateF, //Toast.LENGTH_SHORT).show();
@@ -532,7 +531,7 @@ public class MainActivity extends AppCompatActivity {
     public void CheckWorkShift() {
         //FUNCION PARA MIRAR SI EXITE UN TURNO ABIERTO SI NO EXISTE LO ABRIMOS.
         sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
-        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
         RequestQueue queue = Volley.newRequestQueue(this);  // this = context
         String url = ApiGPayUrl + BuildConfig.EP_TERMINALS_CHECK_WORKSHIFT + "?terminal=" + terminal;
         StringRequest postRequest = new StringRequest(Request.Method.GET, url,
@@ -582,9 +581,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void summaryWorkShift() {
         sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
-        final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-        final String terminal = sharedpreferences.getString("terminalKey", null);
-        final String server = sharedpreferences.getString("serverKey", null);
+        final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+        final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
         final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
 
         RequestQueue queue = Volley.newRequestQueue(this);  // this = context
@@ -695,8 +694,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void closeWorkShift() {
         sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
-        final String terminal = sharedpreferences.getString("terminalKey", null);
-        final String secret = sharedpreferences.getString("secretKey", null);
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+        final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
 
 
         RequestQueue queue = Volley.newRequestQueue(this);  // this = context
@@ -756,8 +755,8 @@ public class MainActivity extends AppCompatActivity {
     public void printTotalsWorkShift() {
 
 
-        final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
         final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
         final String turnoDateOpen = sharedpreferences.getString(ConfigEnum.workShiftOpenDateKey, null);
 
@@ -895,8 +894,8 @@ public class MainActivity extends AppCompatActivity {
     public void reservesCounter() {
         //FUNCION PARA MIRAR SI EXITEN RESERVAVAS ACTIVAS.
         sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
-        final String server = sharedpreferences.getString("serverKey", null);
-        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
         RequestQueue queue = Volley.newRequestQueue(this);  // this = context
         String url = server + "/check_reserves.php";
         StringRequest postRequest = new StringRequest(Request.Method.POST, url,

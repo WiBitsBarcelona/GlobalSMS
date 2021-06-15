@@ -6,14 +6,18 @@ android {
         applicationId "eu.globaldevelopers.globalsms"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 14
-        versionName "0.9.4"
+        versionCode 15
+        versionName "0.9.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "EP_URL_API_BASE_GLOBALPAY", "\"https://caa1.globaltank.app/api/globalpay/v1/\""
+            buildConfigField "String", "EP_URL_API_BASE_CAMPILLO", "\"https://caa1.globaltank.app/api/campillo/v1/\""
+            buildConfigField "String", "EP_URL_API_BASE_SMS", "\"http://sms.globaltank.eu\""
+            buildConfigField "String", "EP_SECRET_WORD", "\"gtankPwd841b\""
             buildConfigField "String", "GLOBALPAY_TOKEN", "\"Bearer zjeqytn8bQbpOo9xdzjsrHUYe4amAlReIpWoGA0nqSQADQNLLA\""
             buildConfigField "String", "EP_TERMINALS_CHECK_WORKSHIFT", "\"terminals/check/workshift\""
             buildConfigField "String", "EP_TERMINALS_CLOSE_WORKSHIFT", "\"terminals/close/workshift\""
@@ -36,6 +40,10 @@ android {
             buildConfigField "String", "EP_GLOBALWALLET_CARD_UNLOCK_REQUEST", "\"qr/card/unlock/request\""
         }
         debug{
+            buildConfigField "String", "EP_URL_API_BASE_GLOBALPAY", "\"https://sandbox.globaltank.app/api/globalpay/v1/\""
+            buildConfigField "String", "EP_URL_API_BASE_CAMPILLO", "\"https://sandbox.globaltank.app/api/campillo/v1/\""
+            buildConfigField "String", "EP_URL_API_BASE_SMS", "\"http://sms.globaltank.eu\""
+            buildConfigField "String", "EP_SECRET_WORD", "\"gtankPwd841b\""
             buildConfigField "String", "GLOBALPAY_TOKEN", "\"Bearer zjeqytn8bQbpOo9xdzjsrHUYe4amAlReIpWoGA0nqSQADQNLLA\""
             buildConfigField "String", "EP_TERMINALS_CHECK_WORKSHIFT", "\"terminals/check/workshift\""
             buildConfigField "String", "EP_TERMINALS_CLOSE_WORKSHIFT", "\"terminals/close/workshift\""

@@ -105,11 +105,13 @@ import eu.globaldevelopers.globalsms.Class.globalwallet.UnlockRequestResponse;
 import eu.globaldevelopers.globalsms.Enums.ApiTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import eu.globaldevelopers.globalsms.Enums.CustomizationsEnum;
+import eu.globaldevelopers.globalsms.Enums.ProcessTransactionTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ProcessTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductGWIntEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductIntEnum;
 import eu.globaldevelopers.globalsms.Enums.ProductPriceKeyEnum;
+import eu.globaldevelopers.globalsms.Enums.ServiceTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.TransactionTypeEnum;
 import eu.globaldevelopers.globalsms.Class.GpCallback;
 import eu.globaldevelopers.globalsms.Helpers.LocaleHelper;
@@ -177,11 +179,11 @@ public class PinPadActivity extends AppCompatActivity {
     String hours = "";
 
 
-    public static final String MyPREFERENCES = "MyPrefs";
+    public static final String MyPREFERENCES = ConfigEnum.MyPREFERENCES;
     public static final String MySUPPLY = "MySupply";
     public static final String MyPRECIOS = "MyPrecios";
     public static final String LastCampilloAuth = "Campillo";
-    public static final String langKey = "langKey";
+    public static final String langKey = ConfigEnum.langKey;
 
     SharedPreferences sharedpreferences;
     SharedPreferences sharedpreferences2;
@@ -252,12 +254,12 @@ public class PinPadActivity extends AppCompatActivity {
 
         //OBTENEMOS LA URL DE LA API DE LA CONFIGURACION DEL TERMINAL
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        ApiCampilloURI = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, null);
-        ApiGPayUrl = sharedpreferences.getString(ConfigEnum.apiGenericUrl, null);
+        ApiCampilloURI = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, BuildConfig.EP_URL_API_BASE_CAMPILLO);
+        ApiGPayUrl = sharedpreferences.getString(ConfigEnum.apiGenericUrl, BuildConfig.EP_URL_API_BASE_GLOBALPAY);
         pinpadActivity = this;
 
         //SET LANG
-        String lang = sharedpreferences.getString(langKey, null);
+        String lang = sharedpreferences.getString(ConfigEnum.langKey, "en");
         LocaleHelper.setAppLocale(lang, this);
 
         if (Build.VERSION.SDK_INT < 19) {
@@ -282,7 +284,7 @@ public class PinPadActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         //SET LANG
-        String lang = sharedpreferences.getString(langKey, null);
+        String lang = sharedpreferences.getString(ConfigEnum.langKey, "en");
         LocaleHelper.setAppLocale(lang, this);
     }
 
@@ -432,9 +434,9 @@ public class PinPadActivity extends AppCompatActivity {
         } else {
             //Primero, miro si el código esta reservado.
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String server = sharedpreferences.getString("serverKey", null);
-            final boolean qr = sharedpreferences.getBoolean("qrKey", false);
-            final int pos = sharedpreferences.getInt("posKey", 0);
+            final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
+            final boolean qr = sharedpreferences.getBoolean(ConfigEnum.qr, false);
+            final int pos = sharedpreferences.getInt(ConfigEnum.pos, 0);
             RequestQueue queue = Volley.newRequestQueue(this);  // this = context
             String url = server + "/consultapin.php";
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
@@ -493,10 +495,10 @@ public class PinPadActivity extends AppCompatActivity {
             progress.setProgress(0);
             progress.show();
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String terminal = sharedpreferences.getString("terminalKey", null);
-            final String secret = sharedpreferences.getString("secretKey", null);
-            final String server = sharedpreferences.getString("serverKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
+            final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
             sharedpreferences2 = getSharedPreferences(MySUPPLY, Context.MODE_PRIVATE);
 
             final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
@@ -714,10 +716,10 @@ public class PinPadActivity extends AppCompatActivity {
             progress.show();
 
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String terminal = sharedpreferences.getString("terminalKey", null);
-            final String secret = sharedpreferences.getString("secretKey", null);
-            final String server = sharedpreferences.getString("serverKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
+            final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
 
             sharedpreferences2 = getSharedPreferences(MySUPPLY, Context.MODE_PRIVATE);
             final String producto = sharedpreferences2.getString("productoKey", null);
@@ -990,6 +992,53 @@ public class PinPadActivity extends AppCompatActivity {
 
     }
 
+    void saveTrxToMemory(int service, String tipoS, String cabecera, String terminal, String fecha, String hora, String resultado, String codigo, String txtproducto, String operacion, String litros_aceptados, Double diesel_liters, Double adblue_liters, Double red_liters, Double gas_kilos, String litros) {
+        if (resultado == null) {
+            resultado = " ";
+        }
+        if (operacion == null) {
+            operacion = "0";
+        }
+        if (txtproducto == null) {
+            txtproducto = " ";
+        }
+        if (litros == null) {
+            litros = "0";
+        }
+
+        AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
+
+                "datos", null, 2);
+
+        SQLiteDatabase bd = admin.getWritableDatabase();
+
+
+        ContentValues registro = new ContentValues();
+
+        registro.put("service_type", service);
+        registro.put("tipo", tipoS);
+        registro.put("cabecera", cabecera);
+        registro.put("terminal", terminal);
+        registro.put("fecha", fecha);
+        registro.put("hora", hora);
+        registro.put("resultado", resultado);
+        registro.put("codigo", codigo);
+        registro.put("producto", txtproducto);
+        registro.put("operacion", operacion);
+        registro.put("litros_aceptados", litros_aceptados);
+        registro.put("litros", litros);
+        registro.put("diesel_liters", diesel_liters);
+        registro.put("adblue_liters", adblue_liters);
+        registro.put("red_liters", red_liters);
+        registro.put("gas_kilos", gas_kilos);
+
+        // los inserto en la base de datos
+        bd.insert("operaciones", null, registro);
+
+        bd.close();
+
+    }
+
     void salvarrespuesta(String respuestaS) {
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
@@ -1201,7 +1250,7 @@ public class PinPadActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
         //SET LANG
-        String lang = sharedpreferences.getString(langKey, null);
+        String lang = sharedpreferences.getString(ConfigEnum.langKey, "en");
         LocaleHelper.setAppLocale(lang, this);
 
         //retrieve scan result
@@ -1565,10 +1614,10 @@ public class PinPadActivity extends AppCompatActivity {
             progress.setProgress(0);
             progress.show();
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String terminal = sharedpreferences.getString("terminalKey", null);
-            final String secret = sharedpreferences.getString("secretKey", null);
-            final String server = sharedpreferences.getString("serverKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
+            final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
             final String turno = sharedpreferences.getString("turnoKey", null);
             RequestQueue queue = Volley.newRequestQueue(this);  // this = context
             String url = server + "/reserva_v2.php";
@@ -1615,7 +1664,7 @@ public class PinPadActivity extends AppCompatActivity {
                                             }
 
                                             //Comprobamos si esta activada la opcion de mostrar los euros en la configuracion del temrinal
-                                            final boolean showEuros = sharedpreferences.getBoolean("showeuroKey", false);
+                                            final boolean showEuros = sharedpreferences.getBoolean(ConfigEnum.showEuro, false);
                                             TextEuros = "";
                                             switch (prod) {
                                                 case ProductIntEnum.DIESEL:
@@ -1942,9 +1991,9 @@ public class PinPadActivity extends AppCompatActivity {
             progress.setProgress(0);
             progress.show();
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String terminal = sharedpreferences.getString("terminalKey", null);
-            final String secret = sharedpreferences.getString("secretKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
             RequestQueue queue = Volley.newRequestQueue(this);
             String url = ApiCampilloURI + BuildConfig.EP_GLOBALPAY_PRERESERVE;
             Log.e(TAG, "Uri: " + url);
@@ -2207,9 +2256,9 @@ public class PinPadActivity extends AppCompatActivity {
             progress.setProgress(0);
             progress.show();
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String terminal = sharedpreferences.getString("terminalKey", null);
-            final String secret = sharedpreferences.getString("secretKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
             final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
             RequestQueue queue = Volley.newRequestQueue(this);
             String url = ApiGPayUrl + BuildConfig.EP_GLOBALPAY_PRERESERVE;
@@ -2583,7 +2632,7 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     void sendTrxVerifyCode(final Integer transaction_id, final GpCallback callback){
-        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
         FileApi service = RetroClient.getApiService(ApiGPayUrl, BuildConfig.GLOBALPAY_TOKEN);
         Call<SampleResponse> validateTransaction = service.sendTransactionVerifyCode(transaction_id, terminal);
 
@@ -2652,10 +2701,10 @@ public class PinPadActivity extends AppCompatActivity {
             progress.setProgress(0);
             progress.show();
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String terminal = sharedpreferences.getString("terminalKey", null);
-            final String secret = sharedpreferences.getString("secretKey", null);
-            final String server = sharedpreferences.getString("serverKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
+            final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
             final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
@@ -2912,9 +2961,9 @@ public class PinPadActivity extends AppCompatActivity {
             progress.setProgress(0);
             progress.show();
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String terminal = sharedpreferences.getString("terminalKey", null);
-            final String secret = sharedpreferences.getString("secretKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
             final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
             RequestQueue queue = Volley.newRequestQueue(this);
             final String Checksum = md5(terminal + secret + codigo);
@@ -3164,7 +3213,7 @@ public class PinPadActivity extends AppCompatActivity {
             mensajered();
         } else {
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String terminal = sharedpreferences.getString("terminalKey", null);
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
             RequestQueue queue = Volley.newRequestQueue(this);
 
             String url = ApiCampilloURI + BuildConfig.EP_GLOBALPAY_CHECK;
@@ -3269,10 +3318,10 @@ public class PinPadActivity extends AppCompatActivity {
             mensajered();
         } else {
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String terminal = sharedpreferences.getString("terminalKey", null);
-            final String secret = sharedpreferences.getString("secretKey", null);
-            final String server = sharedpreferences.getString("serverKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
+            final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
             final String turno = sharedpreferences.getString("turnoKey", null);
             RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -3403,7 +3452,7 @@ public class PinPadActivity extends AppCompatActivity {
         Button btnAccept = (Button) CampilloLitersLayout.findViewById(R.id.btnAccept);
 
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        final boolean qr = sharedpreferences.getBoolean("qrKey", false);
+        final boolean qr = sharedpreferences.getBoolean(ConfigEnum.qr, false);
 
         if (AuthDiesel == 0) {
             DieselCard.setVisibility(GONE);
@@ -3752,10 +3801,10 @@ public class PinPadActivity extends AppCompatActivity {
             progress.setProgress(0);
             progress.show();
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String terminal = sharedpreferences.getString("terminalKey", null);
-            final String secret = sharedpreferences.getString("secretKey", null);
-            final String server = sharedpreferences.getString("serverKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
+            final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
             final String turno = sharedpreferences.getString("turnoKey", null);
 
             sharedpreferences3 = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
@@ -4034,9 +4083,9 @@ public class PinPadActivity extends AppCompatActivity {
             progress.setProgress(0);
             progress.show();
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String terminal = sharedpreferences.getString("terminalKey", null);
-            final String secret = sharedpreferences.getString("secretKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
 
             sharedpreferences3 = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
             DieselPrice = Double.parseDouble(sharedpreferences3.getString("dieselKey", "0.00"));
@@ -4167,6 +4216,7 @@ public class PinPadActivity extends AppCompatActivity {
 
                                                 //PRINTING TICKET
                                                 printTicket.printFinishTicket(rDiesel, rAdBlue, rRedDiesel, rGas, AuthMoney, codigo, DieselPrice, AdbluePrice, RedPrice, GasPrice, showPrices, plate, trailerPlate);
+                                                saveTrxToMemory(ServiceTypeEnum.GLOBALPAY, ProcessTransactionTypeEnum.finish, cabecera, terminal, fecha, hora, null, codigo, null, codigo, null,rDiesel, rAdBlue, rRedDiesel, rGas,null);
 
                                             }
 
@@ -4424,9 +4474,9 @@ public class PinPadActivity extends AppCompatActivity {
     GLOBALWALLET
      */
     private void getQrCardQuery(String card_number){
-        final String terminal = sharedpreferences.getString("terminalKey", null);
-        String lang = sharedpreferences.getString(langKey, null);
-        final boolean qr = sharedpreferences.getBoolean("qrKey", false);
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+        String lang = sharedpreferences.getString(ConfigEnum.langKey, "en");
+        final boolean qr = sharedpreferences.getBoolean(ConfigEnum.qr, false);
 
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
         Call<CardQueryResponse> cardQuery = service.getQrCardQuery(card_number, terminal, lang);
@@ -4532,8 +4582,8 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     private void printTransactionValidated(QrTransaction transaction){
-        final String cabecera = "GLOBALWALLET\n" + sharedpreferences.getString("cabeceraKey", null) + "\n";
-        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String cabecera = "GLOBALWALLET\n" + sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
         final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
         final String hora = new SimpleDateFormat("HH:mm").format(new Date());
 
@@ -4547,8 +4597,8 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     private void printTransactionCompleted(QrTransaction transaction){
-        final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
         final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
         final String hora = new SimpleDateFormat("HH:mm").format(new Date());
 
@@ -4562,9 +4612,9 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     private void getQrCardInfo(final String card_number){
-        final String terminal = sharedpreferences.getString("terminalKey", null);
-        String lang = sharedpreferences.getString(langKey, null);
-        final boolean qr = sharedpreferences.getBoolean("qrKey", false);
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+        String lang = sharedpreferences.getString(ConfigEnum.langKey, "en");
+        final boolean qr = sharedpreferences.getBoolean(ConfigEnum.qr, false);
 
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
         Call<CardQueryResponse> cardQuery = service.getQrCardQuery(card_number, terminal, lang);
@@ -4696,7 +4746,7 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     private void sendQrCardUnlockRequest(final String card_number, final GpCallback callback){
-        final String terminal = sharedpreferences.getString("terminalKey", null);
+        final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
 
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
         Call<SampleResponse> unlockRequest = service.sendQrCardUnlockRequest(card_number, terminal);
@@ -4794,7 +4844,7 @@ public class PinPadActivity extends AppCompatActivity {
     }
     private void saveQrTransactionSale(String card_number, double dieselQuantity, double adbueQuantity, double redQuantity, double gasQuantity){
         sharedpreferences3 = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
-        String terminal = sharedpreferences.getString("terminalKey", null);
+        String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
         FileApi service = RetroClient.getApiService(BuildConfig.URL_BASE + BuildConfig.URL_GLOBALWALLET, BuildConfig.GLOBALWALLET_TOKEN);
         ArrayList<Double> pumpPrices = new ArrayList<>();
         ArrayList<Double> quantities = new ArrayList<>();

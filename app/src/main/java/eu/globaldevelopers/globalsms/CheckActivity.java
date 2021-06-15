@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import woyou.aidlservice.jiuiv5.ICallback;
 import woyou.aidlservice.jiuiv5.IWoyouService;
 
@@ -44,7 +45,7 @@ public class CheckActivity extends AppCompatActivity {
 
     String codigo = "";
     String asteriscos = "";
-    public static final String MyPREFERENCES2 = "MyPrefs" ;
+    public static final String MyPREFERENCES2 = ConfigEnum.MyPREFERENCES;
 
     SharedPreferences sharedpreferences;
 
@@ -173,9 +174,9 @@ public class CheckActivity extends AppCompatActivity {
             progress.show();
 
             sharedpreferences = getSharedPreferences(MyPREFERENCES2, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString("cabeceraKey", null) + "\n";
-            final String server = sharedpreferences.getString("serverKey", null);
-            final String terminal = sharedpreferences.getString("terminalKey", null);
+            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
+            final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
+            final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
             RequestQueue queue = Volley.newRequestQueue(this);  // this = context
             String url = server + "/check_tr.php";
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,

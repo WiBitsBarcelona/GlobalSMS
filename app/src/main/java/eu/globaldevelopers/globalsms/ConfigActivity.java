@@ -32,18 +32,6 @@ public class ConfigActivity extends AppCompatActivity {
     EditText ed1,ed2,ed3, ed4, ed5, ed6;
     Spinner PosList, locList;
     ToggleButton QrSiNo, EurSiNo;
-
-    public static final String MyPREFERENCES = "MyPrefs" ;
-    public static final String cab = "cabeceraKey";
-    public static final String ter = "terminalKey";
-    public static final String sec = "secretKey";
-    public static final String ser = "serverKey";
-    public static final String qr = "qrKey";
-    public static final String showEuro = "showeuroKey";
-    public static final String pos = "posKey";
-    public static final String loc = "locKey";
-    public static final String langKey = "langKey";
-
     SharedPreferences sharedpreferences;
 
     @Override
@@ -65,18 +53,18 @@ public class ConfigActivity extends AppCompatActivity {
         PosList=(Spinner)findViewById(R.id.PosList);
         locList=(Spinner)findViewById(R.id.locList);
 
-        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        sharedpreferences = getSharedPreferences(ConfigEnum.MyPREFERENCES, Context.MODE_PRIVATE);
 
-        String cabactual = sharedpreferences.getString("cabeceraKey", null);
-        String teractual = sharedpreferences.getString("terminalKey", null);
-        String secactual = sharedpreferences.getString("secretKey", null);
-        String serveractual = sharedpreferences.getString("serverKey", null);
-        String apiUrlCampilloGpay = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, null);
-        String apiUrlGpay = sharedpreferences.getString(ConfigEnum.apiGenericUrl, null);
-        boolean qractual = sharedpreferences.getBoolean("qrKey", false);
-        boolean showeuroActual = sharedpreferences.getBoolean(showEuro, false);
-        int posactual = sharedpreferences.getInt("posKey", 0);
-        int locactual = sharedpreferences.getInt("locKey", 0);
+        String cabactual = sharedpreferences.getString(ConfigEnum.ticketHeader, null);
+        String teractual = sharedpreferences.getString(ConfigEnum.terminal, "99999");
+        String secactual = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
+        String serveractual = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
+        String apiUrlCampilloGpay = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, BuildConfig.EP_URL_API_BASE_CAMPILLO);
+        String apiUrlGpay = sharedpreferences.getString(ConfigEnum.apiGenericUrl, BuildConfig.EP_URL_API_BASE_GLOBALPAY);
+        boolean qractual = sharedpreferences.getBoolean(ConfigEnum.qr, false);
+        boolean showeuroActual = sharedpreferences.getBoolean(ConfigEnum.showEuro, false);
+        int posactual = sharedpreferences.getInt(ConfigEnum.pos, 0);
+        int locactual = sharedpreferences.getInt(ConfigEnum.loc, 0);
 
         ed1.setText(cabactual);
         ed2.setText(teractual);
@@ -197,26 +185,26 @@ public class ConfigActivity extends AppCompatActivity {
 
         SharedPreferences.Editor editor = sharedpreferences.edit();
 
-        editor.putString(cab, cabN);
-        editor.putString(ter, terN);
-        editor.putString(sec, secN);
-        editor.putString(ser, serN);
+        editor.putString(ConfigEnum.ticketHeader, cabN);
+        editor.putString(ConfigEnum.terminal, terN);
+        editor.putString(ConfigEnum.secretWordTerminal, secN);
+        editor.putString(ConfigEnum.serverUrlSMS, serN);
         editor.putString(ConfigEnum.apiCampilloUrl, apiUrlCampilloGpay);
         editor.putString(ConfigEnum.apiGenericUrl, apiUrlGpay);
 
         if(QrSiNo.isChecked()){
-            editor.putBoolean(qr,true);
+            editor.putBoolean(ConfigEnum.qr,true);
         }else{
-            editor.putBoolean(qr,false);
+            editor.putBoolean(ConfigEnum.qr,false);
         }
 
         if(EurSiNo.isChecked()){
-            editor.putBoolean(showEuro,true);
+            editor.putBoolean(ConfigEnum.showEuro,true);
         }else{
-            editor.putBoolean(showEuro,false);
+            editor.putBoolean(ConfigEnum.showEuro,false);
         }
 
-        editor.putInt(pos, posN);
+        editor.putInt(ConfigEnum.pos, posN);
 
         String lang;
         switch (locN) {
@@ -237,8 +225,8 @@ public class ConfigActivity extends AppCompatActivity {
                 break;
         }
 
-        editor.putInt(loc, locN);
-        editor.putString(langKey, lang);
+        editor.putInt(ConfigEnum.loc, locN);
+        editor.putString(ConfigEnum.langKey, lang);
         editor.apply();
         //Toast.makeText(getBaseContext(),"Config Saved",//Toast.LENGTH_SHORT).show();
         Intent myIntent = new Intent(ConfigActivity.this,MainActivity.class);
@@ -272,7 +260,7 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     public void ResetDatosFunction(){
-        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        sharedpreferences = getSharedPreferences(ConfigEnum.MyPREFERENCES, Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putInt("reservesCount", 0);

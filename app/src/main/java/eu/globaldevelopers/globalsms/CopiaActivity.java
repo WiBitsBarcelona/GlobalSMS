@@ -34,11 +34,12 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import woyou.aidlservice.jiuiv5.ICallback;
 import woyou.aidlservice.jiuiv5.IWoyouService;
 
 public class CopiaActivity extends AppCompatActivity {
-    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String MyPREFERENCES = ConfigEnum.MyPREFERENCES;
     SharedPreferences sharedpreferences2;
 
     BluetoothAdapter mBluetoothAdapter;
@@ -323,8 +324,8 @@ public class CopiaActivity extends AppCompatActivity {
                         final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                         final String hora = new SimpleDateFormat("HH:mm").format(new Date());
                         sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                        final String cabecera = sharedpreferences2.getString("cabeceraKey", null) + "\n";
-                        final String terminal = sharedpreferences2.getString("terminalKey", null);
+                        final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                        final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
 
 
                         woyouService.lineWrap(2, callback);

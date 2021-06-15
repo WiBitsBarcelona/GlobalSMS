@@ -10,13 +10,14 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import eu.globaldevelopers.globalsms.Helpers.LocaleHelper;
 
 
 public class ScanActivity extends AppCompatActivity {
 
-    public static final String langKey = "langKey";
-    public static final String MyPREFERENCES = "MyPrefs";
+    public static final String langKey = ConfigEnum.langKey;
+    public static final String MyPREFERENCES = ConfigEnum.MyPREFERENCES;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +26,7 @@ public class ScanActivity extends AppCompatActivity {
 
         //SET LANG
         SharedPreferences sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        String lang = sharedpreferences.getString(langKey, null);
+        String lang = sharedpreferences.getString(ConfigEnum.langKey, "en");
         LocaleHelper.setAppLocale(lang, this);
 
         if(Build.VERSION.SDK_INT < 19){
