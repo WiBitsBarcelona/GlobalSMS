@@ -278,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
     public void CopiaFunction(View view) {
         Intent Intent = new Intent(this, activity_copia_new.class);
         startActivity(Intent);
-        finish();
+        //finish();
     }
 
     public void CierreFunction(View view) {

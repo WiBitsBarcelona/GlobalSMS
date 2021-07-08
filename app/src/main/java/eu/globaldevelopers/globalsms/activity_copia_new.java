@@ -30,6 +30,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
+import eu.globaldevelopers.globalsms.Enums.ServiceTypeEnum;
+import eu.globaldevelopers.globalsms.Enums.TransactionTypeEnum;
 import woyou.aidlservice.jiuiv5.ICallback;
 import woyou.aidlservice.jiuiv5.IWoyouService;
 
@@ -73,7 +75,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         gridView = (GridView) findViewById(R.id.grid);
 
-        AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(this,"datos", null, 2);
+        AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(this, "datos", null, 2);
         operacionList = new ArrayList<operacion>();
 
         operacionList = databaseHelper.getAllOperaciones();
@@ -82,7 +84,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
         gridView.setOnItemClickListener(this);
 
 
-        if(Build.VERSION.SDK_INT < 19){
+        if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();
             v.setSystemUiVisibility(View.GONE);
         } else {
@@ -115,7 +117,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
     @Override
     protected void onResume() {
         super.onResume();
-        if(Build.VERSION.SDK_INT < 19){
+        if (Build.VERSION.SDK_INT < 19) {
             View v = this.getWindow().getDecorView();
             v.setSystemUiVisibility(View.GONE);
         } else {
@@ -129,7 +131,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        code = ((TextView)view.findViewById(R.id.codigo)).getText().toString();
+        code = ((TextView) view.findViewById(R.id.codigo)).getText().toString();
 
         ////Toast.makeText(this, code, //Toast.LENGTH_SHORT).show();
 
@@ -158,7 +160,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         Cursor fila = bd.rawQuery(
 
-                "select * from operaciones where codigo='" + code + "' and tipo='Reserve'", null);
+                "select * from operaciones where codigo='" + code + "' and tipo='" + TransactionTypeEnum.RESERVE + "'", null);
 
         if (fila.moveToFirst()) {
             alertButton1.setOnClickListener(new View.OnClickListener() {
@@ -169,7 +171,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
                 }
             });
-        }else{
+        } else {
             alertButton1.setVisibility(view.INVISIBLE);
         }
         bd.close();
@@ -182,7 +184,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         Cursor fila2 = bd2.rawQuery(
 
-                "select * from operaciones where codigo='" + code + "' and tipo='Finish'", null);
+                "select * from operaciones where codigo='" + code + "' and tipo='" + TransactionTypeEnum.FINISH + "'", null);
 
         if (fila2.moveToFirst()) {
             alertButton2.setOnClickListener(new View.OnClickListener() {
@@ -193,7 +195,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
                 }
             });
-        }else{
+        } else {
             alertButton2.setVisibility(view.INVISIBLE);
         }
         bd2.close();
@@ -206,7 +208,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         Cursor fila3 = bd3.rawQuery(
 
-                "select * from operaciones where codigo='" + code + "' and tipo='Cancellation'", null);
+                "select * from operaciones where codigo='" + code + "' and tipo='" + TransactionTypeEnum.CANCEL + "'", null);
 
         if (fila3.moveToFirst()) {
             alertButton3.setOnClickListener(new View.OnClickListener() {
@@ -217,7 +219,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
                 }
             });
-        }else{
+        } else {
             alertButton3.setVisibility(view.INVISIBLE);
         }
         bd2.close();
@@ -225,7 +227,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
     Bitmap mBitmap;
 
-    public void copyOfReserve(){
+    public void copyOfReserve() {
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
                 "datos", null, 2);
@@ -234,7 +236,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         Cursor fila = bd.rawQuery(
 
-                "select * from operaciones where codigo='" + code + "' and tipo='Reserve'", null);
+                "select * from operaciones where codigo='" + code + "' and tipo='" + TransactionTypeEnum.RESERVE + "'", null);
 
         if (fila.moveToFirst()) {
             final String fecha = fila.getString(4);
@@ -246,59 +248,65 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
             final String litros = fila.getString(11);
             final String codigo_error = fila.getString(13);
             final String error = fila.getString(14);
+            //final int serviceType = fila.getType(14);
+            try {
+                ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
-            ThreadPoolManager.getInstance().executeTask(new Runnable(){
-
-                @Override
-                public void run() {
-                    if( mBitmap == null ){
-                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
-                    }
-                    try {
-                        sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                        final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
-                        final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
-
-
-                        woyouService.lineWrap(2, callback);
-                        woyouService.setAlignment(1, callback);
-                        woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
-                        woyouService.printBitmap(mBitmap, callback);
-                        woyouService.setFontSize(24, callback);
-                        woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
-                        String pterminal = "Terminal: " + terminal + "\n\n";
-                        woyouService.printTextWithFont(pterminal, "", 24, callback);
-                        woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
-                        woyouService.lineWrap(2, callback);
-                        woyouService.setAlignment(0, callback);
-                        woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                       if (resultado.equals("TRANSACTION ACCEPTED\n")) {
-                            woyouService.printTextWithFont( producto + "\n", "", 28, callback);
-                            woyouService.printTextWithFont(litros, "", 28, callback);
+                    @Override
+                    public void run() {
+                        if (mBitmap == null) {
+                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                         }
-                        if (resultado.equals("TRANSACTION REFUSED\n")) {
-                            woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
-                            woyouService.printTextWithFont(error + "\n", "", 28, callback);
+                        try {
+                            sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                            final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                            final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
+
+
+                            woyouService.lineWrap(2, callback);
+                            woyouService.setAlignment(1, callback);
+                            woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
+                            woyouService.printBitmap(mBitmap, callback);
+                            woyouService.setFontSize(24, callback);
+                            woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                            String pterminal = "Terminal: " + terminal + "\n\n";
+                            woyouService.printTextWithFont(pterminal, "", 24, callback);
+                            woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                            woyouService.lineWrap(2, callback);
+                            woyouService.setAlignment(0, callback);
+                            woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
+                            if (resultado.equals("TRANSACTION ACCEPTED\n")) {
+                                woyouService.printTextWithFont(producto + "\n", "", 28, callback);
+                                woyouService.printTextWithFont(litros, "", 28, callback);
+                            }
+                            if (resultado.equals("TRANSACTION REFUSED\n")) {
+                                woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
+                                woyouService.printTextWithFont(error + "\n", "", 28, callback);
+                            }
+                            woyouService.printTextWithFont("\n\n", "", 24, callback);
+                            woyouService.setAlignment(1, callback);
+                            woyouService.printTextWithFont(resultado, "", 36, callback);
+
+                            woyouService.lineWrap(4, callback);
+                        } catch (RemoteException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch(Exception ex){
+
                         }
-                        woyouService.printTextWithFont("\n\n", "", 24, callback);
-                        woyouService.setAlignment(1, callback);
-                        woyouService.printTextWithFont(resultado, "", 36, callback);
-
-                        woyouService.lineWrap(4, callback);
-                    } catch (RemoteException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
                     }
+                });
+            } catch (Exception ex) {
 
-                }});
-        }else{
+            }
+        } else {
             //Toast.makeText(this, "No Reserve for this Code", //Toast.LENGTH_SHORT).show();
         }
         bd.close();
 
     }
 
-    public void copyOfFinish(){
+    public void copyOfFinish() {
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
                 "datos", null, 2);
@@ -307,88 +315,92 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         Cursor fila = bd.rawQuery(
 
-                "select * from operaciones where codigo='" + code + "' and tipo='Finish'", null);
+                "select * from operaciones where codigo='" + code + "' and tipo='" + TransactionTypeEnum.FINISH + "'", null);
 
         if (fila.moveToFirst()) {
             final String fecha = fila.getString(4);
             final String hora = fila.getString(5);
             final String resultado = fila.getString(6);
             final String codigo = fila.getString(7);
-            final String operacion=fila.getString(8);;
+            final String operacion = fila.getString(8);
+            ;
             final String producto = fila.getString(9);
             final String litros = fila.getString(11);
             final String total = fila.getString(12);
             final String codigo_error = fila.getString(13);
             final String error = fila.getString(14);
+            try {
+                ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
-            ThreadPoolManager.getInstance().executeTask(new Runnable(){
-
-                @Override
-                public void run() {
-                    if( mBitmap == null ){
-                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
-                    }
-                    try {
-                        sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                        final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
-                        final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
-
-
-                        woyouService.lineWrap(2, callback);
-                        woyouService.setAlignment(1, callback);
-                        woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
-                        woyouService.printBitmap(mBitmap, callback);
-                        woyouService.setFontSize(24, callback);
-                        woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
-                        String pterminal = "Terminal: " + terminal + "\n\n";
-                        woyouService.printTextWithFont(pterminal, "", 24, callback);
-                        woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
-                        woyouService.lineWrap(2, callback);
-                        woyouService.setAlignment(0, callback);
-                        woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                        if (resultado.equals("TRANSACTION REFUSED\n")) {
-                            woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
-                            woyouService.printTextWithFont(error + "\n", "", 28, callback);
+                    @Override
+                    public void run() {
+                        if (mBitmap == null) {
+                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                         }
-                        if (resultado.equals("TRANSACTION SUCCESSFULLY\nCOMPLETED\n")) {
-                            woyouService.printTextWithFont("Operation Code: " + operacion + "\n\n", "", 30, callback);
+                        try {
+                            sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                            final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                            final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
+
+
+                            woyouService.lineWrap(2, callback);
+                            woyouService.setAlignment(1, callback);
+                            woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
+                            woyouService.printBitmap(mBitmap, callback);
+                            woyouService.setFontSize(24, callback);
+                            woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                            String pterminal = "Terminal: " + terminal + "\n\n";
+                            woyouService.printTextWithFont(pterminal, "", 24, callback);
+                            woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                            woyouService.lineWrap(2, callback);
                             woyouService.setAlignment(0, callback);
-                            woyouService.sendRAWData(new byte[]{0x1B, 0x21, 0x08}, callback);
-                            woyouService.setFontSize(28, callback);
-                            String[] text = new String[3];
-                            int[] width = new int[] { 10, 8, 8 };
-                            int[] align = new int[] { 0, 2, 2 };
-                            text[0] = "Product";
-                            text[1] = "Liters";
-                            text[2] = "Total";
-                            woyouService.printColumnsText(text, width, new int[] { 0, 2, 2 }, callback);
+                            woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
+                            if (resultado.equals("TRANSACTION REFUSED\n")) {
+                                woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
+                                woyouService.printTextWithFont(error + "\n", "", 28, callback);
+                            }
+                            if (resultado.equals("TRANSACTION SUCCESSFULLY\nCOMPLETED\n")) {
+                                woyouService.printTextWithFont("Operation Code: " + operacion + "\n\n", "", 30, callback);
+                                woyouService.setAlignment(0, callback);
+                                woyouService.sendRAWData(new byte[]{0x1B, 0x21, 0x08}, callback);
+                                woyouService.setFontSize(28, callback);
+                                String[] text = new String[3];
+                                int[] width = new int[]{10, 8, 8};
+                                int[] align = new int[]{0, 2, 2};
+                                text[0] = "Product";
+                                text[1] = "Liters";
+                                text[2] = "Total";
+                                woyouService.printColumnsText(text, width, new int[]{0, 2, 2}, callback);
 
-                            text[0] = producto;
-                            text[1] = litros;
-                            text[2] = total;
-                            woyouService.printColumnsText(text, width, align, callback);
+                                text[0] = producto;
+                                text[1] = litros;
+                                text[2] = total;
+                                woyouService.printColumnsText(text, width, align, callback);
 
-                            woyouService.sendRAWData(new byte[]{0x1B, 0x21, 0x00}, callback);
+                                woyouService.sendRAWData(new byte[]{0x1B, 0x21, 0x00}, callback);
+                            }
+
+                            woyouService.printTextWithFont("\n\n", "", 24, callback);
+                            woyouService.setAlignment(1, callback);
+                            woyouService.printTextWithFont(resultado, "", 32, callback);
+
+                            woyouService.lineWrap(4, callback);
+                        } catch (RemoteException e) {
+                        } catch(Exception ex){
+
                         }
-
-                        woyouService.printTextWithFont("\n\n", "", 24, callback);
-                        woyouService.setAlignment(1, callback);
-                        woyouService.printTextWithFont(resultado, "", 32, callback);
-
-                        woyouService.lineWrap(4, callback);
-                    } catch (RemoteException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
                     }
-
-                }});
-        }else{
+                });
+            } catch (Exception ex) {
+                Log.d(TAG, ex.getMessage());
+            }
+        } else {
             //Toast.makeText(this, "No Finish Transaction for this Code", //Toast.LENGTH_SHORT).show();
         }
         bd.close();
     }
 
-    public void copyOfCancel(){
+    public void copyOfCancel() {
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
                 "datos", null, 2);
@@ -397,7 +409,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         Cursor fila = bd.rawQuery(
 
-                "select * from operaciones where codigo='" + code + "' and tipo='Cancellation'", null);
+                "select * from operaciones where codigo='" + code + "' and tipo='" + TransactionTypeEnum.CANCEL + "'", null);
 
         if (fila.moveToFirst()) {
             final String fecha = fila.getString(4);
@@ -406,49 +418,53 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
             final String codigo = fila.getString(7);
             final String codigo_error = fila.getString(13);
             final String error = fila.getString(14);
+            try {
+                ThreadPoolManager.getInstance().executeTask(new Runnable() {
 
-            ThreadPoolManager.getInstance().executeTask(new Runnable(){
-
-                @Override
-                public void run() {
-                    if( mBitmap == null ){
-                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
-                    }
-                    try {
-                        sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                        final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
-                        final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
-
-
-                        woyouService.lineWrap(2, callback);
-                        woyouService.setAlignment(1, callback);
-                        woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
-                        woyouService.printBitmap(mBitmap, callback);
-                        woyouService.setFontSize(24, callback);
-                        woyouService.printTextWithFont("\n"+ cabecera + "\n", "", 28, callback);
-                        String pterminal = "Terminal: " + terminal + "\n\n";
-                        woyouService.printTextWithFont(pterminal, "", 24, callback);
-                        woyouService.printTextWithFont(fecha +  "   " + hora + "\n", "", 24, callback);
-                        woyouService.lineWrap(2, callback);
-                        woyouService.setAlignment(0, callback);
-                        woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                        if (resultado.equals("TRANSACTION REFUSED\n")) {
-                            woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
-                            woyouService.printTextWithFont(error + "\n", "", 28, callback);
+                    @Override
+                    public void run() {
+                        if (mBitmap == null) {
+                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                         }
-                        woyouService.printTextWithFont("\n\n", "", 24, callback);
-                        woyouService.setAlignment(1, callback);
-                        woyouService.printTextWithFont(resultado, "", 32, callback);
+                        try {
+                            sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                            final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                            final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
 
-                        woyouService.lineWrap(4, callback);
-                    } catch (RemoteException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+
+                            woyouService.lineWrap(2, callback);
+                            woyouService.setAlignment(1, callback);
+                            woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
+                            woyouService.printBitmap(mBitmap, callback);
+                            woyouService.setFontSize(24, callback);
+                            woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                            String pterminal = "Terminal: " + terminal + "\n\n";
+                            woyouService.printTextWithFont(pterminal, "", 24, callback);
+                            woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                            woyouService.lineWrap(2, callback);
+                            woyouService.setAlignment(0, callback);
+                            woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
+                            if (resultado.equals("TRANSACTION REFUSED\n")) {
+                                woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
+                                woyouService.printTextWithFont(error + "\n", "", 28, callback);
+                            }
+                            woyouService.printTextWithFont("\n\n", "", 24, callback);
+                            woyouService.setAlignment(1, callback);
+                            woyouService.printTextWithFont(resultado, "", 32, callback);
+
+                            woyouService.lineWrap(4, callback);
+                        } catch (RemoteException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch(Exception ex){
+
+                        }
                     }
+                });
+            } catch (Exception ex) {
 
-                }});
-
-        }else{
+            }
+        } else {
             //Toast.makeText(this, "No Cancel Transaction for this Code", //Toast.LENGTH_SHORT).show();
         }
         bd.close();
@@ -467,22 +483,23 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
             @Override
             public void onReturnString(final String value) throws RemoteException {
-                Log.i(TAG,"printlength:" + value + "\n");
+                Log.i(TAG, "printlength:" + value + "\n");
             }
 
             @Override
             public void onRaiseException(int code, final String msg) throws RemoteException {
-                Log.i(TAG,"onRaiseException: " + msg);
-                runOnUiThread(new Runnable(){
+                Log.i(TAG, "onRaiseException: " + msg);
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
 
-                    }});
+                    }
+                });
 
             }
         };
 
-        Intent intent=new Intent();
+        Intent intent = new Intent();
         intent.setPackage("woyou.aidlservice.jiuiv5");
         intent.setAction("woyou.aidlservice.jiuiv5.IWoyouService");
         startService(intent);

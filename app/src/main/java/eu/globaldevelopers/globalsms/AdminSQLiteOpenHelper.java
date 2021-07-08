@@ -36,7 +36,7 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper {
         db.execSQL("drop table if exists operaciones");
         db.execSQL("drop table if exists respuestas");
 
-        db.execSQL("create table operaciones(id integer primary key AUTOINCREMENT, service_type text, tipo text, cabecera text, terminal text, fecha text, hora text, resultado text, codigo text, operacion text, producto text, litros_aceptados text, litros text, diesel_liters numeric, adblue_liters numeric, red_liters numeric, gas_kilos numeric, total text, codigo_error text, error text)");
+        db.execSQL("create table operaciones(id integer primary key AUTOINCREMENT, service_type int, tipo text, cabecera text, terminal text, fecha text, hora text, resultado text, codigo text, operacion text, producto text, litros_aceptados text, litros text, diesel_liters numeric, adblue_liters numeric, red_liters numeric, gas_kilos numeric, total text, codigo_error text, error text)");
         db.execSQL("create table respuestas(id integer primary key AUTOINCREMENT, respuesta text)");
     }
 
@@ -51,6 +51,7 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper {
                 String titulo = c.getString(c.getColumnIndex("id"));
                 String fechahora = c.getString(c.getColumnIndex("fecha")) + " " + c.getString(c.getColumnIndex("hora"));
                 String codigo = c.getString(c.getColumnIndex("codigo"));
+                int service = c.getInt(c.getColumnIndex("service_type"));
                 //String producto = c.getString(c.getColumnIndex("producto"));
                 //String litros = c.getString(c.getColumnIndex("litros"));
                 //String estado = c.getString(c.getColumnIndex("resultado"));
@@ -63,6 +64,7 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper {
                 //op.setProducto(producto);
                 //op.setLitros(litros);
                 //op.setEstado(estado);
+                op.setServiceType(service);
 
                 operaciones.add(op);
             }

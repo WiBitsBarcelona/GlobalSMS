@@ -8,8 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.util.ArrayList;
+
+import eu.globaldevelopers.globalsms.Enums.ServiceTypeEnum;
 
 public class AdaptadorDeOperaciones extends BaseAdapter {
     private Context context;
@@ -55,6 +59,20 @@ public class AdaptadorDeOperaciones extends BaseAdapter {
         //tituloTextView.setText(e.getTitulo());
         fechahoraTextView.setText(e.getFechahora());
         codigoTextView.setText(e.getCodigo());
+        switch (e.getServiceType()){
+            case ServiceTypeEnum.INSTANTIC:
+                LinearLayout instanticImg = (LinearLayout) convertView.findViewById(R.id.instantic_icon);
+                instanticImg.setVisibility(View.VISIBLE);
+                break;
+            case ServiceTypeEnum.GLOBALPAY:
+                LinearLayout globalpayImg = (LinearLayout) convertView.findViewById(R.id.globalpay_icon);
+                globalpayImg.setVisibility(View.VISIBLE);
+                break;
+            case ServiceTypeEnum.GLOBALWALLET:
+                LinearLayout globalwalletImg = (LinearLayout) convertView.findViewById(R.id.globalwallet_icon);
+                globalwalletImg.setVisibility(View.VISIBLE);
+                break;
+        }
         //productoTextView.setText(e.getProducto());
         //litrosTextView.setText(e.getLitros());
         //estadoTextView.setText(e.getEstado());

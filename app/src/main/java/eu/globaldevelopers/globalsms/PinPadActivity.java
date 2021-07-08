@@ -632,7 +632,7 @@ public class PinPadActivity extends AppCompatActivity {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            salvaroperacion("Cancellation", cabecera, terminal, fecha, hora, msg, codigo, textoproducto, "0", "0", litros, "0", codigoerror, textoerror);
+                            salvaroperacion(TransactionTypeEnum.CANCEL, cabecera, terminal, fecha, hora, msg, codigo, textoproducto, "0", "0", litros, "0", codigoerror, textoerror);
                             final Thread t = new Thread() {
                                 @Override
                                 public void run() {
@@ -892,7 +892,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 }
                                             }
                                         }
-                                        salvaroperacion("Finish", cabecera, terminal, fecha, hora, msg, codigo, detalle, operation, "0", litros, totalTxt, codigoerror, textoerror);
+                                        salvaroperacion(TransactionTypeEnum.FINISH, cabecera, terminal, fecha, hora, msg, codigo, detalle, operation, "0", litros, totalTxt, codigoerror, textoerror);
                                     }
                                 }
                             } catch (Exception e) {
@@ -1618,7 +1618,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
             final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
             final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
-            final String turno = sharedpreferences.getString("turnoKey", null);
+            final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
             RequestQueue queue = Volley.newRequestQueue(this);  // this = context
             String url = server + "/reserva_v2.php";
             StringRequest postRequest = new StringRequest(Request.Method.POST, url,
@@ -1791,7 +1791,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 }
                                             }
                                         }
-                                        salvaroperacion("Reserve", cabecera, terminal, fecha, hora, msg, codigo, textoproducto, "0", "0", litros, "0", codigoerror, textoerror);
+                                        salvaroperacion(TransactionTypeEnum.RESERVE, cabecera, terminal, fecha, hora, msg, codigo, textoproducto, "0", "0", litros, "0", codigoerror, textoerror);
                                     }
                                 }
                             } catch (Exception e) {
@@ -3318,11 +3318,7 @@ public class PinPadActivity extends AppCompatActivity {
             mensajered();
         } else {
             sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-            final String cabecera = sharedpreferences.getString(ConfigEnum.ticketHeader, null) + "\n";
             final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
-            final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
-            final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
-            final String turno = sharedpreferences.getString("turnoKey", null);
             RequestQueue queue = Volley.newRequestQueue(this);
 
             String url = ApiGPayUrl + BuildConfig.EP_GLOBALPAY_CHECK;
@@ -3805,7 +3801,7 @@ public class PinPadActivity extends AppCompatActivity {
             final String terminal = sharedpreferences.getString(ConfigEnum.terminal, "99999");
             final String secret = sharedpreferences.getString(ConfigEnum.secretWordTerminal, BuildConfig.EP_SECRET_WORD);
             final String server = sharedpreferences.getString(ConfigEnum.serverUrlSMS, BuildConfig.EP_URL_API_BASE_SMS);
-            final String turno = sharedpreferences.getString("turnoKey", null);
+            final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
 
             sharedpreferences3 = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
             final String Dieselprice = sharedpreferences3.getString("dieselKey", "0.00");
@@ -4216,7 +4212,7 @@ public class PinPadActivity extends AppCompatActivity {
 
                                                 //PRINTING TICKET
                                                 printTicket.printFinishTicket(rDiesel, rAdBlue, rRedDiesel, rGas, AuthMoney, codigo, DieselPrice, AdbluePrice, RedPrice, GasPrice, showPrices, plate, trailerPlate);
-                                                //saveTrxToMemory(ServiceTypeEnum.GLOBALPAY, ProcessTransactionTypeEnum.finish, cabecera, terminal, fecha, hora, null, codigo, null, codigo, null,rDiesel, rAdBlue, rRedDiesel, rGas,null);
+                                                saveTrxToMemory(ServiceTypeEnum.GLOBALPAY, TransactionTypeEnum.FINISH, cabecera, terminal, fecha, hora, null, codigo, null, codigo, null,rDiesel, rAdBlue, rRedDiesel, rGas,null);
 
                                             }
 
