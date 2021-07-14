@@ -24,7 +24,7 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db) {
 
-        db.execSQL("create table operaciones(id integer primary key AUTOINCREMENT, service_type int, tipo text, cabecera text, terminal text, fecha text, hora text, resultado text, codigo text, operacion text, producto text, litros_aceptados text, litros text, diesel_liters numeric, adblue_liters numeric, red_liters numeric, gas_kilos numeric, total text, codigo_error text, error text)");
+        db.execSQL("create table operaciones(id integer primary key AUTOINCREMENT, service_type int, tipo text, cabecera text, terminal text, fecha text, hora text, resultado text, codigo text, operacion text, producto text, litros_aceptados text, litros text, diesel_liters numeric, adblue_liters numeric, red_liters numeric, gas_kilos numeric, plate text, trailer_plate text, show_prices numeric, total text, codigo_error text, error text)");
         db.execSQL("create table respuestas(id integer primary key AUTOINCREMENT, respuesta text)");
 
     }
@@ -36,7 +36,7 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper {
         db.execSQL("drop table if exists operaciones");
         db.execSQL("drop table if exists respuestas");
 
-        db.execSQL("create table operaciones(id integer primary key AUTOINCREMENT, service_type int, tipo text, cabecera text, terminal text, fecha text, hora text, resultado text, codigo text, operacion text, producto text, litros_aceptados text, litros text, diesel_liters numeric, adblue_liters numeric, red_liters numeric, gas_kilos numeric, total text, codigo_error text, error text)");
+        db.execSQL("create table operaciones(id integer primary key AUTOINCREMENT, service_type int, tipo text, cabecera text, terminal text, fecha text, hora text, resultado text, codigo text, operacion text, producto text, litros_aceptados text, litros text, diesel_liters numeric, adblue_liters numeric, red_liters numeric, gas_kilos numeric, plate text, trailer_plate text, show_prices numeric, total text, codigo_error text, error text)");
         db.execSQL("create table respuestas(id integer primary key AUTOINCREMENT, respuesta text)");
     }
 

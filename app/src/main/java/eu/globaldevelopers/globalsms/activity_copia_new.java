@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import eu.globaldevelopers.globalsms.Class.PrintTicket;
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
 import eu.globaldevelopers.globalsms.Enums.ServiceTypeEnum;
 import eu.globaldevelopers.globalsms.Enums.TransactionTypeEnum;
@@ -37,7 +38,9 @@ import woyou.aidlservice.jiuiv5.IWoyouService;
 
 public class activity_copia_new extends AppCompatActivity implements AdapterView.OnItemClickListener {
     public static final String MyPREFERENCES = ConfigEnum.MyPREFERENCES;
-    SharedPreferences sharedpreferences2;
+
+    public static final String MyPRECIOS = "MyPrecios";
+    SharedPreferences sharedpreferences2, sharedpreferences3;
 
     private GridView gridView;
     ArrayList<operacion> operacionList;
@@ -53,6 +56,8 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
     private ICallback callback = null;
 
+    Double dieselPrice, adbluePrice, redPrice, gasPrice;
+
     private ServiceConnection connService = new ServiceConnection() {
 
         @Override
@@ -66,6 +71,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
             woyouService = IWoyouService.Stub.asInterface(service);
         }
     };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +105,13 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         innitView();
+
+        //PRICES
+        sharedpreferences3 = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
+        dieselPrice = Double.parseDouble(sharedpreferences3.getString("dieselKey", "0.00"));
+        adbluePrice = Double.parseDouble(sharedpreferences3.getString("adblueKey", "0.00"));
+        redPrice = Double.parseDouble(sharedpreferences3.getString("reddieselKey", "0.00"));
+        gasPrice = Double.parseDouble(sharedpreferences3.getString("gasKey", "0.00"));
 
     }
 
@@ -248,54 +261,77 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
             final String litros = fila.getString(11);
             final String codigo_error = fila.getString(13);
             final String error = fila.getString(14);
-            //final int serviceType = fila.getType(14);
+            Double dieselLiters = fila.getDouble(fila.getColumnIndex("diesel_liters"));
+            Double adblueLiters = fila.getDouble(fila.getColumnIndex("adblue_liters"));
+            Double redLiters = fila.getDouble(fila.getColumnIndex("red_liters"));
+            Double gasKilos = fila.getDouble(fila.getColumnIndex("gas_kilos"));
+            String plate = fila.getString(fila.getColumnIndex("plate"));
+            String trailerPlate = fila.getString(fila.getColumnIndex("trailer_plate"));
+            int showPrices = fila.getInt(fila.getColumnIndex("show_prices"));
+            int service = fila.getInt(fila.getColumnIndex("service_type"));
             try {
-                ThreadPoolManager.getInstance().executeTask(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        if (mBitmap == null) {
-                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
-                        }
-                        try {
-                            sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                            final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
-                            final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
-
-
-                            woyouService.lineWrap(2, callback);
-                            woyouService.setAlignment(1, callback);
-                            woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
-                            woyouService.printBitmap(mBitmap, callback);
-                            woyouService.setFontSize(24, callback);
-                            woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
-                            String pterminal = "Terminal: " + terminal + "\n\n";
-                            woyouService.printTextWithFont(pterminal, "", 24, callback);
-                            woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
-                            woyouService.lineWrap(2, callback);
-                            woyouService.setAlignment(0, callback);
-                            woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                            if (resultado.equals("TRANSACTION ACCEPTED\n")) {
-                                woyouService.printTextWithFont(producto + "\n", "", 28, callback);
-                                woyouService.printTextWithFont(litros, "", 28, callback);
-                            }
-                            if (resultado.equals("TRANSACTION REFUSED\n")) {
-                                woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
-                                woyouService.printTextWithFont(error + "\n", "", 28, callback);
-                            }
-                            woyouService.printTextWithFont("\n\n", "", 24, callback);
-                            woyouService.setAlignment(1, callback);
-                            woyouService.printTextWithFont(resultado, "", 36, callback);
-
-                            woyouService.lineWrap(4, callback);
-                        } catch (RemoteException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch(Exception ex){
-
-                        }
+                if (service == ServiceTypeEnum.GLOBALPAY) {
+                    if (mBitmap == null) {
+                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                     }
-                });
+                    sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                    final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                    final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
+
+                    //PRINT TICKET
+                    PrintTicket printTicket = new PrintTicket(woyouService, callback, cabecera, terminal, fecha, hora, mBitmap, getResources(), getPackageName());
+
+                    //PRINTING TICKET
+                    printTicket.printFinishTicketOnce(dieselLiters, adblueLiters, redLiters, gasKilos, 0.0, codigo, dieselPrice, adbluePrice, redPrice, gasPrice, showPrices == 1, plate, trailerPlate);
+
+                } else {
+                    ThreadPoolManager.getInstance().executeTask(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            if (mBitmap == null) {
+                                mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                            }
+                            try {
+                                sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                                final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                                final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
+
+
+                                woyouService.lineWrap(2, callback);
+                                woyouService.setAlignment(1, callback);
+                                woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
+                                woyouService.printBitmap(mBitmap, callback);
+                                woyouService.setFontSize(24, callback);
+                                woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                                String pterminal = "Terminal: " + terminal + "\n\n";
+                                woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                                woyouService.lineWrap(2, callback);
+                                woyouService.setAlignment(0, callback);
+                                woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
+                                if (resultado.equals("TRANSACTION ACCEPTED\n")) {
+                                    woyouService.printTextWithFont(producto + "\n", "", 28, callback);
+                                    woyouService.printTextWithFont(litros, "", 28, callback);
+                                }
+                                if (resultado.equals("TRANSACTION REFUSED\n")) {
+                                    woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
+                                    woyouService.printTextWithFont(error + "\n", "", 28, callback);
+                                }
+                                woyouService.printTextWithFont("\n\n", "", 24, callback);
+                                woyouService.setAlignment(1, callback);
+                                woyouService.printTextWithFont(resultado, "", 36, callback);
+
+                                woyouService.lineWrap(4, callback);
+                            } catch (RemoteException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            } catch (Exception ex) {
+
+                            }
+                        }
+                    });
+                }
             } catch (Exception ex) {
 
             }
@@ -321,76 +357,99 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
             final String fecha = fila.getString(4);
             final String hora = fila.getString(5);
             final String resultado = fila.getString(6);
-            final String codigo = fila.getString(7);
+            final String codigo  = fila.getString(fila.getColumnIndex("codigo"));
             final String operacion = fila.getString(8);
-            ;
             final String producto = fila.getString(9);
             final String litros = fila.getString(11);
             final String total = fila.getString(12);
             final String codigo_error = fila.getString(13);
             final String error = fila.getString(14);
+            Double dieselLiters = fila.getDouble(fila.getColumnIndex("diesel_liters"));
+            Double adblueLiters = fila.getDouble(fila.getColumnIndex("adblue_liters"));
+            Double redLiters = fila.getDouble(fila.getColumnIndex("red_liters"));
+            Double gasKilos = fila.getDouble(fila.getColumnIndex("gas_kilos"));
+            String plate = fila.getString(fila.getColumnIndex("plate"));
+            String trailerPlate = fila.getString(fila.getColumnIndex("trailer_plate"));
+            int showPrices = fila.getInt(fila.getColumnIndex("show_prices"));
+            int service = fila.getInt(fila.getColumnIndex("service_type"));
             try {
-                ThreadPoolManager.getInstance().executeTask(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        if (mBitmap == null) {
-                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
-                        }
-                        try {
-                            sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                            final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
-                            final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
-
-
-                            woyouService.lineWrap(2, callback);
-                            woyouService.setAlignment(1, callback);
-                            woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
-                            woyouService.printBitmap(mBitmap, callback);
-                            woyouService.setFontSize(24, callback);
-                            woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
-                            String pterminal = "Terminal: " + terminal + "\n\n";
-                            woyouService.printTextWithFont(pterminal, "", 24, callback);
-                            woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
-                            woyouService.lineWrap(2, callback);
-                            woyouService.setAlignment(0, callback);
-                            woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                            if (resultado.equals("TRANSACTION REFUSED\n")) {
-                                woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
-                                woyouService.printTextWithFont(error + "\n", "", 28, callback);
-                            }
-                            if (resultado.equals("TRANSACTION SUCCESSFULLY\nCOMPLETED\n")) {
-                                woyouService.printTextWithFont("Operation Code: " + operacion + "\n\n", "", 30, callback);
-                                woyouService.setAlignment(0, callback);
-                                woyouService.sendRAWData(new byte[]{0x1B, 0x21, 0x08}, callback);
-                                woyouService.setFontSize(28, callback);
-                                String[] text = new String[3];
-                                int[] width = new int[]{10, 8, 8};
-                                int[] align = new int[]{0, 2, 2};
-                                text[0] = "Product";
-                                text[1] = "Liters";
-                                text[2] = "Total";
-                                woyouService.printColumnsText(text, width, new int[]{0, 2, 2}, callback);
-
-                                text[0] = producto;
-                                text[1] = litros;
-                                text[2] = total;
-                                woyouService.printColumnsText(text, width, align, callback);
-
-                                woyouService.sendRAWData(new byte[]{0x1B, 0x21, 0x00}, callback);
-                            }
-
-                            woyouService.printTextWithFont("\n\n", "", 24, callback);
-                            woyouService.setAlignment(1, callback);
-                            woyouService.printTextWithFont(resultado, "", 32, callback);
-
-                            woyouService.lineWrap(4, callback);
-                        } catch (RemoteException e) {
-                        } catch(Exception ex){
-
-                        }
+                if (service == ServiceTypeEnum.GLOBALPAY || service == ServiceTypeEnum.GLOBALWALLET) {
+                    if (mBitmap == null) {
+                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                     }
-                });
+                    sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                    final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                    final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
+
+                    //PRINT TICKET
+                    PrintTicket printTicket = new PrintTicket(woyouService, callback, cabecera, terminal, fecha, hora, mBitmap, getResources(), getPackageName());
+
+                    //PRINTING TICKET
+                    printTicket.printFinishTicketOnce(dieselLiters, adblueLiters, redLiters, gasKilos, 0.0, codigo, dieselPrice, adbluePrice, redPrice, gasPrice, showPrices == 1, plate, trailerPlate);
+
+                } else {
+                    ThreadPoolManager.getInstance().executeTask(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            if (mBitmap == null) {
+                                mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                            }
+                            try {
+                                sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                                final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                                final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
+
+
+                                woyouService.lineWrap(2, callback);
+                                woyouService.setAlignment(1, callback);
+                                woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
+                                woyouService.printBitmap(mBitmap, callback);
+                                woyouService.setFontSize(24, callback);
+                                woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                                String pterminal = "Terminal: " + terminal + "\n\n";
+                                woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                                woyouService.lineWrap(2, callback);
+                                woyouService.setAlignment(0, callback);
+                                woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
+                                if (resultado.equals("TRANSACTION REFUSED\n")) {
+                                    woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
+                                    woyouService.printTextWithFont(error + "\n", "", 28, callback);
+                                }
+                                if (resultado.equals("TRANSACTION SUCCESSFULLY\nCOMPLETED\n")) {
+                                    woyouService.printTextWithFont("Operation Code: " + operacion + "\n\n", "", 30, callback);
+                                    woyouService.setAlignment(0, callback);
+                                    woyouService.sendRAWData(new byte[]{0x1B, 0x21, 0x08}, callback);
+                                    woyouService.setFontSize(28, callback);
+                                    String[] text = new String[3];
+                                    int[] width = new int[]{10, 8, 8};
+                                    int[] align = new int[]{0, 2, 2};
+                                    text[0] = "Product";
+                                    text[1] = "Liters";
+                                    text[2] = "Total";
+                                    woyouService.printColumnsText(text, width, new int[]{0, 2, 2}, callback);
+
+                                    text[0] = producto;
+                                    text[1] = litros;
+                                    text[2] = total;
+                                    woyouService.printColumnsText(text, width, align, callback);
+
+                                    woyouService.sendRAWData(new byte[]{0x1B, 0x21, 0x00}, callback);
+                                }
+
+                                woyouService.printTextWithFont("\n\n", "", 24, callback);
+                                woyouService.setAlignment(1, callback);
+                                woyouService.printTextWithFont(resultado, "", 32, callback);
+
+                                woyouService.lineWrap(4, callback);
+                            } catch (RemoteException e) {
+                            } catch (Exception ex) {
+
+                            }
+                        }
+                    });
+                }
             } catch (Exception ex) {
                 Log.d(TAG, ex.getMessage());
             }
@@ -418,49 +477,73 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
             final String codigo = fila.getString(7);
             final String codigo_error = fila.getString(13);
             final String error = fila.getString(14);
+            Double dieselLiters = fila.getDouble(fila.getColumnIndex("diesel_liters"));
+            Double adblueLiters = fila.getDouble(fila.getColumnIndex("adblue_liters"));
+            Double redLiters = fila.getDouble(fila.getColumnIndex("red_liters"));
+            Double gasKilos = fila.getDouble(fila.getColumnIndex("gas_kilos"));
+            String plate = fila.getString(fila.getColumnIndex("plate"));
+            String trailerPlate = fila.getString(fila.getColumnIndex("trailer_plate"));
+            int showPrices = fila.getInt(fila.getColumnIndex("show_prices"));
+            int service = fila.getInt(fila.getColumnIndex("service_type"));
             try {
-                ThreadPoolManager.getInstance().executeTask(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        if (mBitmap == null) {
-                            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
-                        }
-                        try {
-                            sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-                            final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
-                            final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
-
-
-                            woyouService.lineWrap(2, callback);
-                            woyouService.setAlignment(1, callback);
-                            woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
-                            woyouService.printBitmap(mBitmap, callback);
-                            woyouService.setFontSize(24, callback);
-                            woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
-                            String pterminal = "Terminal: " + terminal + "\n\n";
-                            woyouService.printTextWithFont(pterminal, "", 24, callback);
-                            woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
-                            woyouService.lineWrap(2, callback);
-                            woyouService.setAlignment(0, callback);
-                            woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
-                            if (resultado.equals("TRANSACTION REFUSED\n")) {
-                                woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
-                                woyouService.printTextWithFont(error + "\n", "", 28, callback);
-                            }
-                            woyouService.printTextWithFont("\n\n", "", 24, callback);
-                            woyouService.setAlignment(1, callback);
-                            woyouService.printTextWithFont(resultado, "", 32, callback);
-
-                            woyouService.lineWrap(4, callback);
-                        } catch (RemoteException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch(Exception ex){
-
-                        }
+                if (service == ServiceTypeEnum.GLOBALPAY) {
+                    if (mBitmap == null) {
+                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
                     }
-                });
+                    sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                    final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                    final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
+
+                    //PRINT TICKET
+                    PrintTicket printTicket = new PrintTicket(woyouService, callback, cabecera, terminal, fecha, hora, mBitmap, getResources(), getPackageName());
+
+                    //PRINTING TICKET
+                    printTicket.printFinishTicketOnce(dieselLiters, adblueLiters, redLiters, gasKilos, 0.0, codigo, dieselPrice, adbluePrice, redPrice, gasPrice, showPrices == 1, plate, trailerPlate);
+
+                } else {
+                    ThreadPoolManager.getInstance().executeTask(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            if (mBitmap == null) {
+                                mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.globalsms);
+                            }
+                            try {
+                                sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                                final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
+                                final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
+
+
+                                woyouService.lineWrap(2, callback);
+                                woyouService.setAlignment(1, callback);
+                                woyouService.printTextWithFont("*** COPY ***\n", "", 36, callback);
+                                woyouService.printBitmap(mBitmap, callback);
+                                woyouService.setFontSize(24, callback);
+                                woyouService.printTextWithFont("\n" + cabecera + "\n", "", 28, callback);
+                                String pterminal = "Terminal: " + terminal + "\n\n";
+                                woyouService.printTextWithFont(pterminal, "", 24, callback);
+                                woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
+                                woyouService.lineWrap(2, callback);
+                                woyouService.setAlignment(0, callback);
+                                woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
+                                if (resultado.equals("TRANSACTION REFUSED\n")) {
+                                    woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);
+                                    woyouService.printTextWithFont(error + "\n", "", 28, callback);
+                                }
+                                woyouService.printTextWithFont("\n\n", "", 24, callback);
+                                woyouService.setAlignment(1, callback);
+                                woyouService.printTextWithFont(resultado, "", 32, callback);
+
+                                woyouService.lineWrap(4, callback);
+                            } catch (RemoteException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            } catch (Exception ex) {
+
+                            }
+                        }
+                    });
+                }
             } catch (Exception ex) {
 
             }
