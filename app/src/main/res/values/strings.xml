@@ -28,6 +28,7 @@
     <string name="titulo_litros">LITERS</string>
     <string name="entrada_litros">Input the Liters for this Supply</string>
     <string name="texto_qr">Scan QR Code from POS receipt</string>
+    <string name="pin_code">PIN CODE</string>
 
 
     <!-- Strings related to Cambiar Precios -->
@@ -72,6 +73,7 @@
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="pinpad_incorrect">This pinpad is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."

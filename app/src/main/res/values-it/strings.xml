@@ -27,6 +27,7 @@
     <string  istxt="1" name="titulo_litros">LITRI</string>
     <string  istxt="1" name="entrada_litros">Inserisci i litri per questo rifornimento</string>
     <string  istxt="1" name="texto_qr">Scansiona il Codice QR del biglietto</string>
+    <string name="pin_code">PIN CODE</string>
 
     <!-- Strings related to Cambiar Precios -->
     <string  istxt="1" name="titulo_precios">Seleziona il Prodotto per cambiarne il prezzo</string>
@@ -56,6 +57,7 @@
     <string  istxt="1" name="error_invalid_email">This email address is invalid</string>
     <string  istxt="1" name="error_invalid_password">This password is too short</string>
     <string  istxt="1" name="error_incorrect_password">This password is incorrect</string>
+    <string name="pinpad_incorrect">This pinpad is incorrect</string>
     <string  istxt="1" name="error_field_required">This field is required</string>
     <string  istxt="1" name="permission_rationale">"Contacts permissions are needed for providing email completions."
     </string>

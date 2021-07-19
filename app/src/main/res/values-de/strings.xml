@@ -27,6 +27,7 @@
     <string name="titulo_litros">LITER</string>
     <string name="entrada_litros">Liter der Betankung eingeben.</string>
     <string name="texto_qr">QR Code Scannen</string>
+    <string name="pin_code">PIN CODE</string>
 
     <!-- Strings related to Cambiar Precios -->
     <string name="titulo_precios">Produkt auswählen für Preisänderung</string>
@@ -71,6 +72,7 @@
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="pinpad_incorrect">This pinpad is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."

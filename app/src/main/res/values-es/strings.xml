@@ -27,6 +27,7 @@
     <string name="titulo_litros">LITROS</string>
     <string name="entrada_litros">Introduce los litros para este repostaje</string>
     <string name="texto_qr">Escanea el Código QR del Ticket</string>
+    <string name="pin_code">CODIGO PIN</string>
 
     <!-- Strings related to Cambiar Precios -->
     <string name="titulo_precios">Selecciona el Producto para cambiar su precio</string>
@@ -56,6 +57,7 @@
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="pinpad_incorrect">Código pin incorrecto</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
