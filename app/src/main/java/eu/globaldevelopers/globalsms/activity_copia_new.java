@@ -252,15 +252,15 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
                 "select * from operaciones where codigo='" + code + "' and tipo='" + TransactionTypeEnum.RESERVE + "'", null);
 
         if (fila.moveToFirst()) {
-            final String fecha = fila.getString(4);
-            final String hora = fila.getString(5);
-            final String resultado = fila.getString(6);
-            final String codigo = fila.getString(7);
+            final String fecha = fila.getString(fila.getColumnIndex("fecha"));
+            final String hora = fila.getString(fila.getColumnIndex("hora"));
+            final String resultado = fila.getString(fila.getColumnIndex("resultado"));
+            final String codigo = fila.getString(fila.getColumnIndex("codigo"));
 
-            final String producto = fila.getString(9);
-            final String litros = fila.getString(11);
-            final String codigo_error = fila.getString(13);
-            final String error = fila.getString(14);
+            final String producto = fila.getString(fila.getColumnIndex("operacion"));
+            final String litros = fila.getString(fila.getColumnIndex("litros"));
+            final String codigo_error = fila.getString(fila.getColumnIndex("codigo_error"));
+            final String error = fila.getString(fila.getColumnIndex("error"));
             Double dieselLiters = fila.getDouble(fila.getColumnIndex("diesel_liters"));
             Double adblueLiters = fila.getDouble(fila.getColumnIndex("adblue_liters"));
             Double redLiters = fila.getDouble(fila.getColumnIndex("red_liters"));
@@ -354,16 +354,16 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
                 "select * from operaciones where codigo='" + code + "' and tipo='" + TransactionTypeEnum.FINISH + "'", null);
 
         if (fila.moveToFirst()) {
-            final String fecha = fila.getString(4);
-            final String hora = fila.getString(5);
-            final String resultado = fila.getString(6);
+            final String fecha = fila.getString(fila.getColumnIndex("fecha"));
+            final String hora = fila.getString(fila.getColumnIndex("hora"));
+            final String resultado = fila.getString(fila.getColumnIndex("resultado"));
             final String codigo  = fila.getString(fila.getColumnIndex("codigo"));
-            final String operacion = fila.getString(8);
-            final String producto = fila.getString(9);
-            final String litros = fila.getString(11);
-            final String total = fila.getString(12);
-            final String codigo_error = fila.getString(13);
-            final String error = fila.getString(14);
+            final String operacion = fila.getString(fila.getColumnIndex("operacion"));
+            final String producto = fila.getString(fila.getColumnIndex("operacion"));
+            final String litros = fila.getString(fila.getColumnIndex("litros"));
+            final String total = fila.getString(fila.getColumnIndex("total"));
+            final String codigo_error = fila.getString(fila.getColumnIndex("codigo_error"));
+            final String error = fila.getString(fila.getColumnIndex("error"));
             Double dieselLiters = fila.getDouble(fila.getColumnIndex("diesel_liters"));
             Double adblueLiters = fila.getDouble(fila.getColumnIndex("adblue_liters"));
             Double redLiters = fila.getDouble(fila.getColumnIndex("red_liters"));
@@ -471,12 +471,12 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
                 "select * from operaciones where codigo='" + code + "' and tipo='" + TransactionTypeEnum.CANCEL + "'", null);
 
         if (fila.moveToFirst()) {
-            final String fecha = fila.getString(4);
-            final String hora = fila.getString(5);
-            final String resultado = fila.getString(6);
-            final String codigo = fila.getString(7);
-            final String codigo_error = fila.getString(13);
-            final String error = fila.getString(14);
+            final String fecha = fila.getString(fila.getColumnIndex("fecha"));
+            final String hora = fila.getString(fila.getColumnIndex("hora"));
+            final String resultado = fila.getString(fila.getColumnIndex("resultado"));
+            final String codigo = fila.getString(fila.getColumnIndex("codigo"));
+            final String codigo_error = fila.getString(fila.getColumnIndex("codigo_error"));
+            final String error = fila.getString(fila.getColumnIndex("error"));
             Double dieselLiters = fila.getDouble(fila.getColumnIndex("diesel_liters"));
             Double adblueLiters = fila.getDouble(fila.getColumnIndex("adblue_liters"));
             Double redLiters = fila.getDouble(fila.getColumnIndex("red_liters"));
