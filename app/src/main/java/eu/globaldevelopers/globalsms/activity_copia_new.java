@@ -81,7 +81,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         gridView = (GridView) findViewById(R.id.grid);
 
-        AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(this, "datos", null, 2);
+        AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(this, "datos", null, BuildConfig.VERSION_CODE);
         operacionList = new ArrayList<operacion>();
 
         operacionList = databaseHelper.getAllOperaciones();
@@ -167,7 +167,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 
@@ -191,7 +191,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         AdminSQLiteOpenHelper admin2 = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd2 = admin2.getWritableDatabase();
 
@@ -215,7 +215,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
 
         AdminSQLiteOpenHelper admin3 = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd3 = admin3.getWritableDatabase();
 
@@ -243,7 +243,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
     public void copyOfReserve() {
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 
@@ -345,7 +345,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
     public void copyOfFinish() {
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 
@@ -462,7 +462,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
     public void copyOfCancel() {
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 

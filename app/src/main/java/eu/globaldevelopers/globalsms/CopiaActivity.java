@@ -127,7 +127,7 @@ public class CopiaActivity extends AppCompatActivity {
 
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 
@@ -288,7 +288,7 @@ public class CopiaActivity extends AppCompatActivity {
     public void printCopy(String codigoT){
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 
@@ -432,7 +432,7 @@ public class CopiaActivity extends AppCompatActivity {
 
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 

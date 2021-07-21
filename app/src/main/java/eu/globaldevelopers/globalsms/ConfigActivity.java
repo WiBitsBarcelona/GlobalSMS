@@ -159,7 +159,7 @@ public class ConfigActivity extends AppCompatActivity {
     void borra(){
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2 );
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 

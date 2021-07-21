@@ -963,7 +963,7 @@ public class PinPadActivity extends AppCompatActivity {
 
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 
@@ -1008,7 +1008,7 @@ public class PinPadActivity extends AppCompatActivity {
 
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 
@@ -1045,7 +1045,7 @@ public class PinPadActivity extends AppCompatActivity {
     void salvarrespuesta(String respuestaS) {
         AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this,
 
-                "datos", null, 2);
+                "datos", null, BuildConfig.VERSION_CODE);
 
         SQLiteDatabase bd = admin.getWritableDatabase();
 
@@ -4181,7 +4181,7 @@ public class PinPadActivity extends AppCompatActivity {
                                         resultCall.enqueue(new Callback<DataUserCustomization>() {
                                             @Override
                                             public void onResponse(Call<DataUserCustomization> call, retrofit2.Response<DataUserCustomization> response) {
-                                                Boolean showPrices = false;
+                                                boolean showPrices = false;
                                                 if (response.body() != null) {
                                                     DataUserCustomization data = response.body();
                                                     if (data.success) {
@@ -4217,7 +4217,7 @@ public class PinPadActivity extends AppCompatActivity {
 
                                                 //PRINTING TICKET
                                                 printTicket.printFinishTicket(rDiesel, rAdBlue, rRedDiesel, rGas, AuthMoney, codigo, DieselPrice, AdbluePrice, RedPrice, GasPrice, showPrices, plate, trailerPlate);
-                                                saveTrxToMemory(ServiceTypeEnum.GLOBALPAY, TransactionTypeEnum.FINISH, cabecera, terminal, fecha, hora, null, codigo, null, codigo, null, rDiesel, rAdBlue, rRedDiesel, rGas, null, plate, trailerPlate, showPrices);
+                                                //saveTrxToMemory(ServiceTypeEnum.GLOBALPAY, TransactionTypeEnum.FINISH, cabecera, terminal, fecha, hora, null, codigo, null, codigo, null, rDiesel, rAdBlue, rRedDiesel, rGas, null, plate, trailerPlate, showPrices);
 
                                             }
 
