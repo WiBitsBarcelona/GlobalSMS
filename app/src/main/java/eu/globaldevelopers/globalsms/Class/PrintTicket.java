@@ -91,11 +91,11 @@ public class PrintTicket {
                             WoyouService.setAlignment(0, Callback);
                             WoyouService.printTextWithFont("Codigo TRX: " + codigo + "\n", "", 30, Callback);
                             //WoyouService.printTextWithFont( "Operation Code: " + operation + "\n", "", 30, Callback);
-                            if (!"".equals(plate)) {
+                            if (plate != null && !"".equals(plate)) {
                                 WoyouService.printTextWithFont("Matrícula: " + plate + "\n", "", 30, Callback);
                             }
 
-                            if (!"".equals(trailerPlate)) {
+                            if (trailerPlate != null && !"".equals(trailerPlate)) {
                                 WoyouService.printTextWithFont("Mat remolque: " + trailerPlate + "\n", "", 30, Callback);
                             }
                             WoyouService.printTextWithFont("\n", "", 28, Callback);
