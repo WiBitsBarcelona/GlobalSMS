@@ -4506,6 +4506,7 @@ public class PinPadActivity extends AppCompatActivity {
             public void onResponse(Call<CardQueryResponse> call, retrofit2.Response<CardQueryResponse> response) {
                 CardQueryResponse data = response.body();
                 dismissProgressDialog();
+                Log.w("card query", String.valueOf(data.success));
                 if (data.success) {
                     final QrTransaction transaction = data.data;//Declare transaction as final for use in validate onClickListener
 

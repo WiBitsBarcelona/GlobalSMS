@@ -4,5 +4,5 @@ public class QrCardStatus {
     public Integer id;
     public String name;
     public String lang_code;
-    public Boolean blocked;
+    public boolean blocked;
 }
