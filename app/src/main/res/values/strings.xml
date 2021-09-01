@@ -8,6 +8,9 @@
     <string name="btn_imprimir">Print Copy</string>
     <string name="btn_config">System Config</string>
 
+    <!-- Strings related to Ticket-->
+    <string name="plate">Plate</string>
+
     <!-- Strings related to Producto-->
     <string name="titulo_producto">Select Product</string>
     <string name="producto_diesel">DIESEL</string>

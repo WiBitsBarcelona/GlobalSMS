@@ -309,6 +309,7 @@ public class CopiaActivity extends AppCompatActivity {
             final String producto = fila.getString(9);
             final String litros_aceptados = fila.getString(10);
             final String litros = fila.getString(11);
+            final String plate = fila.getString(16);
             final String total = fila.getString(12);
             final String codigo_error = fila.getString(13);
             final String error = fila.getString(14);
@@ -339,6 +340,7 @@ public class CopiaActivity extends AppCompatActivity {
                         woyouService.lineWrap(2, callback);
                         woyouService.printTextWithFont(resultado, "", 28, callback);
                         woyouService.setAlignment(0, callback);
+                        woyouService.printTextWithFont(getString(R.string.plate) + ": " + plate + "\n", "", 30, callback);
                         woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 24, callback);
                         if (resultado.equals("TRANSACTION ACCEPTED\n")) {
                             woyouService.printTextWithFont( producto , "", 24, callback);

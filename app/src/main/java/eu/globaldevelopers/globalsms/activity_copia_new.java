@@ -368,7 +368,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
             Double adblueLiters = fila.getDouble(fila.getColumnIndex("adblue_liters"));
             Double redLiters = fila.getDouble(fila.getColumnIndex("red_liters"));
             Double gasKilos = fila.getDouble(fila.getColumnIndex("gas_kilos"));
-            String plate = fila.getString(fila.getColumnIndex("plate"));
+            final String plate = fila.getString(fila.getColumnIndex("plate"));
             String trailerPlate = fila.getString(fila.getColumnIndex("trailer_plate"));
             int showPrices = fila.getInt(fila.getColumnIndex("show_prices"));
             int service = fila.getInt(fila.getColumnIndex("service_type"));
@@ -412,6 +412,7 @@ public class activity_copia_new extends AppCompatActivity implements AdapterView
                                 woyouService.printTextWithFont(fecha + "   " + hora + "\n", "", 24, callback);
                                 woyouService.lineWrap(2, callback);
                                 woyouService.setAlignment(0, callback);
+                                woyouService.printTextWithFont(getString(R.string.plate) + ": " + plate + "\n", "", 30, callback);
                                 woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
                                 if (resultado.equals("TRANSACTION REFUSED\n")) {
                                     woyouService.printTextWithFont(codigo_error + "\n", "", 28, callback);

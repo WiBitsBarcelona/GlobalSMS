@@ -7,6 +7,9 @@
     <string name="btn_imprimir">Imprimir Copia</string>
     <string name="btn_config">Configuración</string>
 
+    <!-- Strings related to Ticket-->
+    <string name="plate">Matrícula</string>
+
     <!-- Strings related to Producto-->
     <string name="titulo_producto">Selecciona Producto</string>
     <string name="producto_diesel">DIESEL</string>
