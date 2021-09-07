@@ -423,9 +423,13 @@ public class PinPadActivity extends AppCompatActivity {
     }
 
     private static String getValue(String tag, Element element) {
-        NodeList nodeList = element.getElementsByTagName(tag).item(0).getChildNodes();
-        Node node = nodeList.item(0);
-        return node.getNodeValue();
+        try {
+            NodeList nodeList = element.getElementsByTagName(tag).item(0).getChildNodes();
+            Node node = nodeList.item(0);
+            return node.getNodeValue();
+        }catch(Exception ex){
+            return "";
+        }
     }
 
     void cierraT() {
@@ -1665,11 +1669,13 @@ public class PinPadActivity extends AppCompatActivity {
                                             editor.apply();
                                             Log.d("Reserves", String.valueOf(Reserves));
                                             litros = "Authorized Liters: " + getValue("max_liters", element2);
-                                            final String plate = getValue("plate_number", element2);
+                                            final String plate = getValue("plate_numbeer", element2);
                                             //SAVE PLATE TO LOCAL STORAGE
-                                            SharedPreferences.Editor localStorage = sharedpreferences.edit();
-                                            localStorage.putString(codigo, plate);
-                                            localStorage.apply();
+                                            if(plate != null){
+                                                SharedPreferences.Editor localStorage = sharedpreferences.edit();
+                                                localStorage.putString(codigo, plate);
+                                                localStorage.apply();
+                                            }
                                             String producto = getValue("product_code", element2);
                                             switch (producto) {
                                                 case "DIZ":
@@ -2331,7 +2337,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                     woyouService.setAlignment(1, callback);
                                                     woyouService.printTextWithFont(msg, "", 36, callback);
                                                     woyouService.lineWrap(4, callback);
-                                                } catch (RemoteException e) {
+                                                } catch (Exception e) {
                                                     // TODO Auto-generated catch block
                                                     e.printStackTrace();
                                                 }
