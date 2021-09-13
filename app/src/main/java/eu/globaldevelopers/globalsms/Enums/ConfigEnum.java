@@ -13,6 +13,8 @@ public abstract class ConfigEnum {
     public static final String pos = "posKey";
     public static final String loc = "locKey";
     public static final String langKey = "langKey";
+    public static final String plate = "_plate_number";
+    public static final String customerName = "_customer_name";
 
     //WORKSHIFT
     public static final String workShiftKey = "turnoKey";

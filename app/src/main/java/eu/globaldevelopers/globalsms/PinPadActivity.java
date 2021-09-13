@@ -637,10 +637,11 @@ public class PinPadActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
 
-                            salvaroperacion(TransactionTypeEnum.CANCEL, cabecera, terminal, fecha, hora, msg, codigo, textoproducto, "0", sharedpreferences.getString(codigo, ""), "0", litros, "0", codigoerror, textoerror);
-                            //REMOVE PLATE FROM LOCALSTORAGE
+                            salvaroperacion(TransactionTypeEnum.CANCEL, cabecera, terminal, fecha, hora, msg, codigo, textoproducto, "0", sharedpreferences.getString(codigo + ConfigEnum.plate, ""), "0", litros, "0", codigoerror, textoerror);
+                            //REMOVE PLATE AND CUSTOMER_NAME FROM LOCALSTORAGE
                             SharedPreferences.Editor localStorage = sharedpreferences.edit();
-                            localStorage.remove(codigo);
+                            localStorage.remove(codigo + ConfigEnum.plate);
+                            localStorage.remove(codigo + ConfigEnum.customerName);
                             localStorage.apply();
                             final Thread t = new Thread() {
                                 @Override
@@ -775,7 +776,8 @@ public class PinPadActivity extends AppCompatActivity {
                                             //Toast.makeText(getBaseContext(), "TRANSACTION SUCCESSFULLY COMPLETED", //Toast.LENGTH_SHORT).show();
                                             operation = getValue("transaction_id", element2);
                                             final String litros = getValue("liters", element2);
-                                            final String plate = sharedpreferences.getString(codigo, "");
+                                            final String plate = sharedpreferences.getString(codigo + ConfigEnum.plate, "");
+                                            final String customerName = sharedpreferences.getString(codigo + ConfigEnum.customerName, "");
                                             String producto = getValue("product_code", element2);
                                             String price = getValue("price", element2);
                                             switch (producto) {
@@ -820,6 +822,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                                 woyouService.lineWrap(2, callback);
                                                                 woyouService.setAlignment(0, callback);
                                                                 woyouService.printTextWithFont(getString(R.string.plate) + ": " + plate + "\n", "", 30, callback);
+                                                                woyouService.printTextWithFont(getString(R.string.customer_name) + ": " + customerName + "\n", "", 30, callback);
                                                                 woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
                                                                 woyouService.printTextWithFont("Operation Code: " + operation + "\n", "", 30, callback);
                                                                 woyouService.printTextWithFont("\n", "", 28, callback);
@@ -903,10 +906,11 @@ public class PinPadActivity extends AppCompatActivity {
                                                 }
                                             }
                                         }
-                                        salvaroperacion(TransactionTypeEnum.FINISH, cabecera, terminal, fecha, hora, msg, codigo, detalle, operation, sharedpreferences.getString(codigo, ""), "0", litros, totalTxt, codigoerror, textoerror);
+                                        salvaroperacion(TransactionTypeEnum.FINISH, cabecera, terminal, fecha, hora, msg, codigo, detalle, operation, sharedpreferences.getString(codigo + ConfigEnum.plate, ""), "0", litros, totalTxt, codigoerror, textoerror);
                                         //REMOVE PLATE FROM LOCALSTORAGE
                                         SharedPreferences.Editor localStorage = sharedpreferences.edit();
-                                        localStorage.remove(codigo);
+                                        localStorage.remove(codigo + ConfigEnum.plate);
+                                        localStorage.remove(codigo + ConfigEnum.customerName);
                                         localStorage.apply();
                                     }
                                 }
@@ -1669,11 +1673,13 @@ public class PinPadActivity extends AppCompatActivity {
                                             editor.apply();
                                             Log.d("Reserves", String.valueOf(Reserves));
                                             litros = "Authorized Liters: " + getValue("max_liters", element2);
-                                            final String plate = getValue("plate_numbeer", element2);
+                                            final String plate = getValue("plate_number", element2);
+                                            final String customerName = getValue("customer_name", element2);
                                             //SAVE PLATE TO LOCAL STORAGE
                                             if(plate != null){
                                                 SharedPreferences.Editor localStorage = sharedpreferences.edit();
-                                                localStorage.putString(codigo, plate);
+                                                localStorage.putString(codigo + ConfigEnum.plate, plate);
+                                                localStorage.putString(codigo + ConfigEnum.customerName, customerName);
                                                 localStorage.apply();
                                             }
                                             String producto = getValue("product_code", element2);
@@ -1745,6 +1751,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                                 woyouService.lineWrap(2, callback);
                                                                 woyouService.setAlignment(0, callback);
                                                                 woyouService.printTextWithFont(getString(R.string.plate) + ": " + plate + "\n", "", 30, callback);
+                                                                woyouService.printTextWithFont(getString(R.string.customer_name) + ": " + customerName + "\n", "", 30, callback);
                                                                 woyouService.printTextWithFont("Transaction Code: " + codigo + "\n", "", 30, callback);
                                                                 woyouService.printTextWithFont(textoproducto + "\n", "", 28, callback);
                                                                 woyouService.printTextWithFont(litros + "\n", "", 28, callback);
@@ -1818,7 +1825,7 @@ public class PinPadActivity extends AppCompatActivity {
                                                 }
                                             }
                                         }
-                                        salvaroperacion(TransactionTypeEnum.RESERVE, cabecera, terminal, fecha, hora, msg, codigo, textoproducto, "0", sharedpreferences.getString(codigo, ""), "0", litros, "0", codigoerror, textoerror);
+                                        salvaroperacion(TransactionTypeEnum.RESERVE, cabecera, terminal, fecha, hora, msg, codigo, textoproducto, "0", sharedpreferences.getString(codigo + ConfigEnum.plate, ""), "0", litros, "0", codigoerror, textoerror);
                                     }
                                 }
                             } catch (Exception e) {

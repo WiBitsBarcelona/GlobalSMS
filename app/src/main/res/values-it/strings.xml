@@ -9,6 +9,7 @@
 
     <!-- Strings related to Ticket-->
     <string name="plate">Plate</string>
+    <string name="customer_name">Company</string>
 
     <!-- Strings related to Producto-->
     <string  istxt="1" name="titulo_producto">Seleziona un prodotto</string>
