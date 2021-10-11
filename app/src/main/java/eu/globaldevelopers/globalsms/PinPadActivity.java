@@ -5000,7 +5000,7 @@ public class PinPadActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                callback.onSuccess();
+                                callback.onError();
                             }
                         })
                 .setCancelable(true)

@@ -153,5 +153,5 @@
     <string name="card_unlocking_title">Error de escaneo QR</string>
     <string name="card_unlocking_description">Hubo un error al escanear la tarjeta. Por favor vuelva a pedir de escanear el código QR de la tarjeta.</string>
     <string name="sure_alert">¿Estas seguro?</string>
-    <string name="max_quantity_exceed_alert">Se va a sobrepasar el limite de la tarjeta.</string>
+    <string name="max_quantity_exceed_alert">No es posible finalizar el repostsaje ya que se ha superado el limite de litros permitido para esta tarjeta. Por favor, que el conductor contacte con su reponsable para que le aumenten dicho limite.</string>
 </resources>
