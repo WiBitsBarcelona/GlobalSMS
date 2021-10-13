@@ -154,5 +154,5 @@
     <string name="card_unlocking_title">Scanning error</string>
     <string name="card_unlocking_description">There was an error scanning the card. Please re-scan the QR code on the card.</string>
     <string name="sure_alert">Are you sure?</string>
-    <string name="max_quantity_exceed_alert">It is not possible to complete the refueling since the limit of liters allowed for this card has been exceeded. Please have the driver contact his manager to have this limit increased.</string>
+    <string name="max_quantity_exceed_alert">It is not possible to complete the refueling since the limit of balance allowed for this card has been exceeded. Please have the driver contact his manager to have this limit increased.</string>
 </resources>
