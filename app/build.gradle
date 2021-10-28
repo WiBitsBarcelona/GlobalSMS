@@ -6,7 +6,7 @@ android {
         applicationId "eu.globaldevelopers.globalsms"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 23
+        versionCode 24
         versionName "1.0.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
