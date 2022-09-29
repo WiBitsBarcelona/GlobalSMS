@@ -114,4 +114,13 @@ public interface FileApi {
     @POST(BuildConfig.EP_GLOBALWALLET_TRANSACTION_SALE)
     Call<SaleTransactionResponse> saveTransactionSale(@Query("card_number") String card_number, @Query("terminal") String terminal, @Query("pump_prices[]") ArrayList<Double> pump_prices, @Query("quantities[]") ArrayList<Double> quantities, @Query("products[]") ArrayList<Integer> products);
 
+    /**
+     * PUMP RICES
+     * @param terminal
+     * @param product_id
+     * @param price
+     * @return
+     */
+    @POST(BuildConfig.EP_GLOBALAPP_STORE_PUMP_PRICES)
+    Call<SampleResponse> storePumpPrice(@Query("terminal") String terminal, @Query("product_id") Integer product_id, @Query("price") Double price);
 }

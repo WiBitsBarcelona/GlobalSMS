@@ -44,6 +44,7 @@ android {
             //GLOBALPAY
             buildConfigField "String", "EP_URL_API_BASE_GLOBALPAY", "\"https://sandbox.globaltank.app/api/globalpay/v1/\""
             buildConfigField "String", "EP_URL_API_BASE_CAMPILLO", "\"https://sandbox.globaltank.app/api/campillo/v1/\""
+            buildConfigField "String", "EP_URL_API_BASE_GLOBALAPP", "\"https://sandbox.globaltank.app/api/globalapp/\""
             buildConfigField "String", "EP_URL_API_BASE_SMS", "\"http://sms.globaltank.eu\""
             buildConfigField "String", "EP_SECRET_WORD", "\"gtankPwd841b\""
             buildConfigField "String", "GLOBALPAY_TOKEN", "\"Bearer zjeqytn8bQbpOo9xdzjsrHUYe4amAlReIpWoGA0nqSQADQNLLA\""
@@ -57,6 +58,7 @@ android {
             buildConfigField "String", "EP_GLOBALPAY_USER_CUSTOMIZATIONS", "\"terminals/user/customizations\""
             buildConfigField "String", "EP_GLOBALPAY_SEND_TRX_VERIFY_CODE", "\"terminals/sendTrxVerifyCode\""
             buildConfigField "String", "EP_GLOBALPAY_VERIFY_TRX_CODE", "\"terminals/verifyTrx\""
+            buildConfigField "String", "EP_GLOBALAPP_STORE_PUMP_PRICES", "\"pump_prices\""
             //GLOBALWALLET
             buildConfigField "String", "URL_BASE", "\"https://sandbox.globaltank.app/api/\""
             buildConfigField "String", "URL_GLOBALWALLET", "\"globalwallet/v1/\""

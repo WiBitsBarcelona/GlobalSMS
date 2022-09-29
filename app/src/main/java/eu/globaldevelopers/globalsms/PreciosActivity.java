@@ -25,7 +25,12 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import eu.globaldevelopers.globalsms.Class.GpCallback;
+import eu.globaldevelopers.globalsms.Class.SampleResponse;
 import eu.globaldevelopers.globalsms.Enums.ConfigEnum;
+import eu.globaldevelopers.globalsms.Enums.ProductGWIntEnum;
+import retrofit2.Call;
+import retrofit2.Callback;
 import woyou.aidlservice.jiuiv5.ICallback;
 import woyou.aidlservice.jiuiv5.IWoyouService;
 
@@ -83,6 +88,7 @@ public class PreciosActivity extends AppCompatActivity {
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         sharedpreferences = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
+        sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
         dieselactual = sharedpreferences.getString("dieselKey", "0.00");
         adblueactual = sharedpreferences.getString("adblueKey", "0.00");
@@ -241,6 +247,7 @@ public class PreciosActivity extends AppCompatActivity {
                 dieselactual = precioAct;
                 //Toast.makeText(getBaseContext(),"DIESEL PRICE CHANGED SUCCESSFULLY",//Toast.LENGTH_SHORT).show();
                 printPriceChange("DIESEL", precioAnt, precioAct);
+                sendPriceToDb(ProductGWIntEnum.DIESEL, Double.parseDouble(precioAct));
                 break;
             case "Adblue":
                 editor.putString(adblue, precioAct);
@@ -248,6 +255,7 @@ public class PreciosActivity extends AppCompatActivity {
                 adblueactual = precioAct;
                 //Toast.makeText(getBaseContext(),"ADBLUE PRICE CHANGED SUCCESSFULLY",//Toast.LENGTH_SHORT).show();
                 printPriceChange("ADBLUE", precioAnt, precioAct);
+                sendPriceToDb(ProductGWIntEnum.ADBLUE, Double.parseDouble(precioAct));
                 break;
             case "RedDiesel":
                 editor.putString(reddiesel, precioAct);
@@ -255,6 +263,7 @@ public class PreciosActivity extends AppCompatActivity {
                 reddieselactual = precioAct;
                 //Toast.makeText(getBaseContext(),"RED DIESEL PRICE CHANGED SUCCESSFULLY",//Toast.LENGTH_SHORT).show();
                 printPriceChange("RED DIESEL", precioAnt, precioAct);
+                sendPriceToDb(ProductGWIntEnum.RED, Double.parseDouble(precioAct));
                 break;
             case "BioDiesel":
                 editor.putString(biodiesel, precioAct);
@@ -262,6 +271,7 @@ public class PreciosActivity extends AppCompatActivity {
                 biodieselactual = precioAct;
                 //Toast.makeText(getBaseContext(),"BIO DIESEL PRICE CHANGED SUCCESSFULLY",//Toast.LENGTH_SHORT).show();
                 printPriceChange("BIO DIESEL", precioAnt, precioAct);
+                sendPriceToDb(ProductGWIntEnum.GAS, Double.parseDouble(precioAct));
                 break;
         }
     }
@@ -315,7 +325,6 @@ public class PreciosActivity extends AppCompatActivity {
                     final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
                     final String hora = new SimpleDateFormat("HH:mm").format(new Date());
 
-                    sharedpreferences2 = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
                     final String cabecera = sharedpreferences2.getString(ConfigEnum.ticketHeader, null) + "\n";
                     final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
 
@@ -345,6 +354,24 @@ public class PreciosActivity extends AppCompatActivity {
                 }
 
             }});
+    }
+
+    void sendPriceToDb(final Integer product_id, final Double price) {
+        final String terminal = sharedpreferences2.getString(ConfigEnum.terminal, "99999");
+        FileApi service = RetroClient.getApiService(BuildConfig.EP_URL_API_BASE_GLOBALAPP, BuildConfig.GLOBALWALLET_TOKEN);
+        Call<SampleResponse> validateTransaction = service.storePumpPrice(terminal, product_id, price);
+
+        validateTransaction.enqueue(new Callback<SampleResponse>() {
+            @Override
+            public void onResponse(Call<SampleResponse> call, retrofit2.Response<SampleResponse> response) {
+                Log.i("Price stored", "Success");
+            }
+
+            @Override
+            public void onFailure(Call<SampleResponse> call, Throwable t) {
+                Log.e("Error storing price", "Error");
+            }
+        });
     }
 
     @Override
