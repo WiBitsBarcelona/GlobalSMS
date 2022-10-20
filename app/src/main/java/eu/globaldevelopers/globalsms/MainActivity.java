@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String MyPREFERENCES = "MySupply";
     public static final String MyCONFIG = ConfigEnum.MyPREFERENCES;
+    public static final String MyPRECIOS = "MyPrecios" ;
     public static final String tipotrans = "tipoKey";
     public static String lang = "";
     public static final String MyPREFERENCES2 = MyCONFIG;
@@ -97,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
     ProgressDialog progress;
 
     SharedPreferences sharedpreferences;
+    SharedPreferences priceSharedPreferences;
 
     private DatePickerDialog dailyDatePickerDialog;
 
@@ -114,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         currentApiVersion = android.os.Build.VERSION.SDK_INT;
 
         sharedpreferences = getSharedPreferences(MyCONFIG, Context.MODE_PRIVATE);
+        priceSharedPreferences = getSharedPreferences(MyPRECIOS, Context.MODE_PRIVATE);
 
         ApiCampilloURI = sharedpreferences.getString(ConfigEnum.apiCampilloUrl, BuildConfig.EP_URL_API_BASE_CAMPILLO);
         ApiGPayUrl = sharedpreferences.getString(ConfigEnum.apiGenericUrl, BuildConfig.EP_URL_API_BASE_GLOBALPAY);
@@ -760,6 +763,11 @@ public class MainActivity extends AppCompatActivity {
         final String turno = sharedpreferences.getString(ConfigEnum.workShiftKey, null);
         final String turnoDateOpen = sharedpreferences.getString(ConfigEnum.workShiftOpenDateKey, null);
 
+        final String dieselPrice = priceSharedPreferences.getString("dieselKey", "0.00");
+        final String adbluePrice = priceSharedPreferences.getString("adblueKey", "0.00");
+        final String redPrice = priceSharedPreferences.getString("reddieselKey", "0.00");
+        final String gasPrice = priceSharedPreferences.getString("biodieselKey", "0.00");
+
 
         final String fecha = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
         final String hora = new SimpleDateFormat("HH:mm").format(new Date()) + "\n\n";
@@ -833,6 +841,17 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     woyouService.printTextWithFont("Total transactions: " + (transactionGpWs.getTotalTransactions() + transactionInWs.getTotalTransactions()) + "\n\n", "", 24, callback);
+
+                    float totalDiesel = (transactionInWs.getTotalDieselLiters() + transactionGpWs.getTotalDieselLiters()) * Float.parseFloat(dieselPrice);
+                    float totalAdblue = (transactionInWs.getTotalAdblueLiters() + transactionGpWs.getTotalAdblueLiters()) * Float.parseFloat(adbluePrice);
+                    float totalRed = (transactionInWs.getTotalRedLiters() + transactionGpWs.getTotalRedLiters()) * Float.parseFloat(redPrice);
+                    float totalGas = (transactionInWs.getTotalGasKilos() + transactionGpWs.getTotalGasKilos()) * Float.parseFloat(gasPrice);
+
+                    woyouService.printTextWithFont("Total Diesel: " + totalDiesel + " €\n\n", "", 24, callback);
+                    woyouService.printTextWithFont("Total Adblue: " + totalAdblue + " €\n\n", "", 24, callback);
+                    woyouService.printTextWithFont("Total Red: " + totalRed + " €\n\n", "", 24, callback);
+                    woyouService.printTextWithFont("Total Gas: " + totalGas + " €\n\n", "", 24, callback);
+                    woyouService.printTextWithFont("Total euros: " + (totalDiesel + totalAdblue + totalRed + totalGas) + " €\n\n", "", 24, callback);
 
                     String dateF = "\nClosed at: " + fecha + " " + hora + "\n\n";
                     woyouService.printTextWithFont(dateF, "", 28, callback);

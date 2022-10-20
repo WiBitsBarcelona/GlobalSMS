@@ -118,4 +118,8 @@ public class Transaction {
     public void addTotalTransactions(int totalTransactions) {
         this.totalTransactions += totalTransactions;
     }
+
+    public float getTotalLiters() {
+        return this.totalDieselLiters + this.totalAdblueLiters + this.totalRedLiters + this.totalGasKilos;
+    }
 }
